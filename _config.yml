@@ -4,10 +4,10 @@
 
 url: http://zarue.github.io/
 title: zarue
-subtitle: a new blog , a new start
-author: yonghua.ma
-simple_search: https://www.google.com/search
-description:
+subtitle: 天若有情天亦老 人丑就要多读书
+author: YungHua.Ma
+#simple_search: https://www.google.com/search
+description: 希望将来我的儿子能从我的博客中找到解决问题的方法
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -62,11 +62,14 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 #   3rd Party Settings    #
 # ----------------------- #
 
+#weibo
+weibo_user: 2403887405
+
 # Github repositories
-github_user:
-github_repo_count: 0
-github_show_profile_link: true
-github_skip_forks: true
+#github_user:
+#github_repo_count: 0
+#github_show_profile_link: true
+#github_skip_forks: true
 
 # Twitter
 #twitter_user:
@@ -82,16 +85,16 @@ github_skip_forks: true
 #googleplus_hidden: false
 
 # Pinboard
-pinboard_user:
-pinboard_count: 3
+#pinboard_user:
+#pinboard_count: 3
 
 # Delicious
-delicious_user:
-delicious_count: 3
+#delicious_user:
+#delicious_count: 3
 
 # Disqus Comments
-disqus_short_name:
-disqus_show_comment_count: false
+#disqus_short_name:
+#disqus_show_comment_count: false
 
 # Google Analytics
 google_analytics_tracking_id:
