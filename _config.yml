@@ -65,6 +65,10 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 #weibo
 weibo_user: 2403887405
 
+# duoshuo comments
+duoshuo_comments: true
+duoshuo_short_name: zarue
+
 # Github repositories
 #github_user:
 #github_repo_count: 0
