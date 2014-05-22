@@ -4,7 +4,7 @@
   <title><![CDATA[Category: System | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/system/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-21T22:49:19+08:00</updated>
+  <updated>2014-05-22T08:59:36+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -26,7 +26,7 @@
 <li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。</li>
 <li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2<sup>32</sup> 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。</li>
 <li>地址总线：CPU是通过地址总线来进行内存寻址。</li>
-<li>地址总线宽度：地址总线宽度决定了CPU的寻址空间，比如如果地址总线是32位，那么该CPU的寻址空间就是2<sup>32</sup>（0x00000000-0xFFFFFFFF），也就是4G，这时候即使有再大的内存也不会被识别。</li>
+<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。</li>
 <li>控制总线：主要是将CPU的控制指令传送到其它组件</li>
 </ol>
 
