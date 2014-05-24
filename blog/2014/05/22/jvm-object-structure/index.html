@@ -3,11 +3,13 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>zarue</title>
+	<title>JVM 之 Java 对象结构 - zarue</title>
 	<meta name="author" content="YungHua.Ma">
 
 	
-	<meta name="description" content="May 22nd, 2014 jvm Comments JVM 之 Java 对象结构 1. Java对象在内存中到底是什么样? JAVA对象在内存中的表现形式就是一系列按照某种规范排列的字节(如果不清楚物理内存j的实现方式，请参考：关于CPU寻址和物理内存结构 )。 &hellip;">
+	<meta name="description" content="JVM 之 Java 对象结构 1. Java对象在内存中到底是什么样? JAVA对象在内存中的表现形式就是一系列按照某种规范排列的字节(如果不清楚物理内存j的实现方式，请参考：关于CPU寻址和物理内存结构 )。
+那在JVM中这个规范是怎么定义的呢？
+Hotspot虚拟机中，对象分为两大类： &hellip;">
 	
 
 o <!-- http://t.co/dKP3o1e -->
@@ -17,7 +19,7 @@ o <!-- http://t.co/dKP3o1e -->
 
 	<link href="" rel="alternate" title="zarue" type="application/atom+xml">
 	
-	<link rel="canonical" href="http://zarue.github.io//">
+	<link rel="canonical" href="http://zarue.github.io//blog/2014/05/22/jvm-object-structure/">
 	<link href="/favicon.png" rel="shortcut icon">
 	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
 	<link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
@@ -78,39 +80,9 @@ o <!-- http://t.co/dKP3o1e -->
 				
 			
 			<div class="mid-col-container">
-				<div id="content" class="inner">
-<div itemscope itemtype="http://schema.org/Blog">
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-05-22T14:09:15+08:00" data-updated="true" itemprop="datePublished">May 22<span>nd</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/jvm/'>jvm</a>
-
-
-</div>
-		
-			<span class="comments"><a href="/blog/2014/05/22/jvm-object-structure/#duoshuo_comments">Comments</a></span>
-		
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/05/22/jvm-object-structure/" itemprop="url">JVM 之 Java 对象结构</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<h2 id="1.-java对象在内存中到底是什么样?">1. Java对象在内存中到底是什么样?</h2>
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">JVM 之 Java 对象结构</h1>
+	<div class="entry-content" itemprop="articleBody"><h2 id="1.-java对象在内存中到底是什么样?">1. Java对象在内存中到底是什么样?</h2>
 
 <p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
 那在JVM中这个规范是怎么定义的呢？
@@ -313,147 +285,31 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 <a href="http://rednaxelafx.iteye.com/blog/1847971">http://rednaxelafx.iteye.com/blog/1847971</a><br>
 <a href="http://ifeve.com/java-synchronized/">http://ifeve.com/java-synchronized/</a><br>
 <a href="http://icyfenix.iteye.com/blog/1145044">http://icyfenix.iteye.com/blog/1145044</a></p>
-
-		
-		
-	</div>
+</div>
 
 </article>
 
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-05-21T20:35:18+08:00" data-updated="true" itemprop="datePublished">May 21<span>st</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/system/'>system</a>
-
+<section id="comment">
+    <div id="duoshuo_comments" aria-live="polite"><!-- 多说评论框 start -->
+<div class="ds-thread" ></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"zarue"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+</div>
+</section>
 
 </div>
-		
-			<span class="comments"><a href="/blog/2014/05/21/cpu-and-memory/#duoshuo_comments">Comments</a></span>
-		
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/05/21/cpu-and-memory/" itemprop="url">关于CPU寻址和物理内存结构</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<h2 id="本文讨论的都是概念模型，实际实现方式肯定会有不同">本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
-
-<h3 id="1.-关于cpu的几个概念">1. 关于CPU的几个概念</h3>
-
-<ol>
-<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。<br></li>
-<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2^32 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。<br></li>
-<li>地址总线：CPU是通过地址总线来进行内存寻址。<br></li>
-<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2^32-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。<br></li>
-<li>控制总线：主要是将CPU的控制指令传送到其它组件 </li>
-</ol>
-
-<p>关于总线更详细的文章网上有很多，例如：  </p>
-
-<ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a><br></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a><br></li>
-</ul>
-
-<h3 id="2.-关于内存的几个概念">2. 关于内存的几个概念</h3>
-
-<ol>
-<li>存储元：是存储器的最小存储单位，它可以存放一个二进制代码。</li>
-<li>存储单元：若干个存储元构成一个存储单元，每个存储单元可以存放一个字节（按字节编址），或者存放一个字（按字编址）,当然理论上也存在按bit编址的可能，当然用的非常少。一个字是几个字节呢？这个看计算机的具体实现。</li>
-<li>存储单元地址：每个存储单元的编号，一般用一个十六进制数来表示。CPU就是根据这个地址访问存储单元中的数据。</li>
-<li>存储器：若干个存储单元构成一个存储器。</li>
-</ol>
-
-<p>关于内存更详细的文章网上也有很多，例如：  </p>
-
-<ul>
-<li><a href="http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8">互动百科-存储器</a><br></li>
-</ul>
-
-<p>总结：了解一下CPU和内存的底层结构，再去学习底层程序实现的时候就不会感到那么迷茫了（一个数据到底在内存中是怎么存的呢？）。</p>
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-05-18T22:05:24+08:00" data-updated="true" itemprop="datePublished">May 18<span>th</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/vim/'>vim</a>
-
-
-</div>
-		
-			<span class="comments"><a href="/blog/2014/05/18/vim-chinese-error/#duoshuo_comments">Comments</a></span>
-		
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/05/18/vim-chinese-error/" itemprop="url">Mac OSX Vim 输入中文乱码问题</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<h3 id="出现问题的环境:">出现问题的环境:</h3>
-
-<ol>
-<li>OSX 10.9.2 英文<br></li>
-<li>VIM 7.3<br></li>
-</ol>
-
-<h3 id="问题描述:">问题描述:</h3>
-
-<ol>
-<li>可以正常显示文件中得中文字符<br></li>
-<li>输入中文字符会出现乱码<br></li>
-<li>通过在.vimrc中设置编码格式无效<br></li>
-</ol>
-
-<h3 id="解决方案:">解决方案:</h3>
-
-<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可.<br>
-如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br>
-如图:<br>
-<img src="/images/blog/2014-05/20140519-1-vim.png" alt="示例"></p>
-
-		
-		
-	</div>
-
-</article>
-
-</div>
-<nav id="pagenavi">
-    
-    
-    <div class="center"><a href="/blog/archives">Blog Archives</a></div>
-</nav></div>
 			</div>
 			<footer id="footer" class="inner"><p>
   Copyright &copy; 2014 - YungHua.Ma -

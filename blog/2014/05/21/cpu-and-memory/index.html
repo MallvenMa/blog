@@ -21,12 +21,11 @@ o <!-- http://t.co/dKP3o1e -->
 	<link rel="canonical" href="http://zarue.github.io//blog/2014/05/21/cpu-and-memory/">
 	<link href="/favicon.png" rel="shortcut icon">
 	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 	<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
 </head>
 
@@ -38,7 +37,7 @@ o <!-- http://t.co/dKP3o1e -->
 			<header id="header" class="inner"><div class="profilepic">	
 	<script src="/javascripts/md5.js"></script>
 	<script type="text/javascript">
-		document.write("<img src='/images/myself.png' alt='Profile Picture' style='width: 160px;' />");
+		document.write("<img src='/images/myself.png' alt='Profile Picture' style='width: 160px;'/>");
 	</script>
 </div>
 <h2><a href="/">YungHua.Ma</a></h2>
@@ -82,28 +81,26 @@ o <!-- http://t.co/dKP3o1e -->
 			<div class="mid-col-container">
 				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 	<h1 class="title" itemprop="name">关于CPU寻址和物理内存结构</h1>
-	<div class="entry-content" itemprop="articleBody"><h2>本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
+	<div class="entry-content" itemprop="articleBody"><h2 id="本文讨论的都是概念模型，实际实现方式肯定会有不同">本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
 
-<h3>1. 关于CPU的几个概念</h3>
+<h3 id="1.-关于cpu的几个概念">1. 关于CPU的几个概念</h3>
 
 <ol>
-<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。</li>
-<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2<sup>32</sup> 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。</li>
-<li>地址总线：CPU是通过地址总线来进行内存寻址。</li>
-<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。</li>
-<li>控制总线：主要是将CPU的控制指令传送到其它组件</li>
+<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。<br></li>
+<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2^32 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。<br></li>
+<li>地址总线：CPU是通过地址总线来进行内存寻址。<br></li>
+<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2^32-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。<br></li>
+<li>控制总线：主要是将CPU的控制指令传送到其它组件 </li>
 </ol>
 
-
-<p>关于总线更详细的文章网上有很多，例如：</p>
+<p>关于总线更详细的文章网上有很多，例如：  </p>
 
 <ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a></li>
+<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a><br></li>
+<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a><br></li>
 </ul>
 
-
-<h3>2. 关于内存的几个概念</h3>
+<h3 id="2.-关于内存的几个概念">2. 关于内存的几个概念</h3>
 
 <ol>
 <li>存储元：是存储器的最小存储单位，它可以存放一个二进制代码。</li>
@@ -112,13 +109,11 @@ o <!-- http://t.co/dKP3o1e -->
 <li>存储器：若干个存储单元构成一个存储器。</li>
 </ol>
 
-
-<p>关于内存更详细的文章网上也有很多，例如：</p>
+<p>关于内存更详细的文章网上也有很多，例如：  </p>
 
 <ul>
-<li><a href="http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8">互动百科-存储器</a></li>
+<li><a href="http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8">互动百科-存储器</a><br></li>
 </ul>
-
 
 <p>总结：了解一下CPU和内存的底层结构，再去学习底层程序实现的时候就不会感到那么迷茫了（一个数据到底在内存中是怎么存的呢？）。</p>
 </div>
