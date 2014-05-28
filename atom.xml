@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-26T09:51:15+08:00</updated>
+  <updated>2014-05-28T22:28:27+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -12,6 +12,262 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 String 常量池《一》]]></title>
+    <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
+    <updated>2014-05-27T20:30:20+08:00</updated>
+    <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
+    <content type="html"><![CDATA[<h4 id="1.sting对象创建方式">1.Sting对象创建方式</h4>
+
+<p>JAVA里面创建字符串有两种方式：
+1. 通过字符串常量方式:String a = &quot;a&quot;;
+2. 通过new 关键字创建:new String(&quot;a&quot;);</p>
+
+<p>但是这两种创建字符串的方式有很大的不同。
+1. 使用第一种方式，jvm首先会检查字符串池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。
+2. 使用第二种方式，则直接分配到heap中，不指向字符串池中的任何对象，和常量池没有关系。</p>
+
+<h4 id="2.下面来看一个例子:-本例子gist地址">2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">StringConstantTest</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">str_0_static</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="n">str_0</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">StringConstantTest</span> <span class="n">sct</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringConstantTest</span><span class="o">();</span>
+</span><span class='line'>      <span class="c1">//同package对象</span>
+</span><span class='line'>      <span class="n">StringConstantTest1</span> <span class="n">sct1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringConstantTest1</span><span class="o">();</span>
+</span><span class='line'>      <span class="c1">//不同package对象</span>
+</span><span class='line'>      <span class="n">StringConstantTest2</span> <span class="n">sct2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringConstantTest2</span><span class="o">();</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">String</span> <span class="n">str0</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="s">&quot;b&quot;</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str2</span> <span class="o">=</span> <span class="s">&quot;ab&quot;</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str3</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">+</span><span class="s">&quot;b&quot;</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str4</span> <span class="o">=</span> <span class="n">str0</span> <span class="o">+</span> <span class="n">str1</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str5</span> <span class="o">=</span> <span class="n">str0</span> <span class="o">+</span> <span class="s">&quot;b&quot;</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str6</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;ab&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str7</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;ab&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">str8</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">str4</span><span class="o">);</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="c1">//局部变量和成员变量</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==sct.str_0: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">sct</span><span class="o">.</span><span class="na">str_0</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==sct1.str_0: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">sct1</span><span class="o">.</span><span class="na">str_0</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==sct2.str_0: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">sct2</span><span class="o">.</span><span class="na">str_0</span><span class="o">));</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="c1">//局部变量和静态变量</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==str_0_static： &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">str_0_static</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==StringConstantTest1.str_0_static: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">StringConstantTest1</span><span class="o">.</span><span class="na">str_0_static</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==StringConstantTest2.str_0_static: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">StringConstantTest2</span><span class="o">.</span><span class="na">str_0_static</span><span class="o">));</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="c1">//局部变量</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str3: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str3</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str4: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str4</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str5: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str5</span><span class="o">));</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="c1">//局部变量和对象</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str6: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str6</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str7: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str7</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str8: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str8</span><span class="o">));</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="c1">//对象和对象 intern</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str6.intern(): &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str6</span><span class="o">.</span><span class="na">intern</span><span class="o">()));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str7.intern()==str6.intern(): &quot;</span><span class="o">+(</span><span class="n">str7</span><span class="o">.</span><span class="na">intern</span><span class="o">()</span> <span class="o">==</span> <span class="n">str6</span><span class="o">.</span><span class="na">intern</span><span class="o">()));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str8.intern()==str6.intern(): &quot;</span><span class="o">+(</span><span class="n">str8</span><span class="o">.</span><span class="na">intern</span><span class="o">()</span> <span class="o">==</span> <span class="n">str6</span><span class="o">.</span><span class="na">intern</span><span class="o">()));</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="c1">//对象和对象equals</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str6.equals(str7): &quot;</span><span class="o">+</span><span class="n">str6</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">str7</span><span class="o">));</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2.equals(str6): &quot;</span><span class="o">+</span><span class="n">str2</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">str6</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">StringConstantTest1</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="n">str_0</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">str_0_static</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+ 
+
+<p><img src="http://zarue.github.io//images/blog/2014-05/20140528-string-pool-1.png" alt="结果"></p>
+
+<h4 id="分析(下面所指行号均为源代码行号):">分析(下面所指行号均为源代码行号):</h4>
+
+<ol>
+<li><p>24-31行的结果说明:<br>
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串池中的同一个实例。  </p></li>
+<li><p>34行为true, 是因为:<br>
+String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &quot;ab&quot;。<br>
+可以通过javap 反编译class字节码来看一下:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="mi">30</span><span class="o">:</span> <span class="n">astore</span> <span class="mi">5</span>
+</span><span class='line'><span class="mi">32</span><span class="o">:</span> <span class="n">ldc</span> <span class="err">#</span><span class="mi">35</span> <span class="c1">// String ab</span>
+</span><span class='line'><span class="mi">34</span><span class="o">:</span> <span class="n">astore</span> <span class="mi">6</span>
+</span><span class='line'><span class="mi">36</span><span class="o">:</span> <span class="n">ldc</span> <span class="err">#</span><span class="mi">35</span> <span class="c1">// String ab </span>
+</span></code></pre></td></tr></table></div></figure>
+上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
+<li><p>第35行为false, 是因为:<br>
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把+操作，转换成StringBuilder的append操作,然后返回一个String对象。<br>
+再看一下字节码文件,清晰可见了:   </p></li>
+</ol>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="mi">40</span><span class="o">:</span> <span class="k">new</span> <span class="err">#</span><span class="mi">37</span> <span class="c1">// class java/lang/StringBuilder</span>
+</span><span class='line'><span class="mi">43</span><span class="o">:</span> <span class="n">dup</span>
+</span><span class='line'><span class="mi">44</span><span class="o">:</span> <span class="n">aload</span> <span class="mi">4</span>
+</span><span class='line'><span class="mi">46</span><span class="o">:</span> <span class="n">invokestatic</span> <span class="err">#</span><span class="mi">39</span> <span class="c1">// Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;</span>
+</span><span class='line'><span class="mi">49</span><span class="o">:</span> <span class="n">invokespecial</span> <span class="err">#</span><span class="mi">45</span> <span class="c1">// Method java/lang/StringBuilder.&quot;&lt;init&gt;&quot;:(Ljava/lang/String;)V</span>
+</span><span class='line'><span class="mi">52</span><span class="o">:</span> <span class="n">aload</span> <span class="mi">5</span>
+</span><span class='line'><span class="mi">54</span><span class="o">:</span> <span class="n">invokevirtual</span> <span class="err">#</span><span class="mi">48</span> <span class="c1">// Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span>
+</span><span class='line'><span class="mi">57</span><span class="o">:</span> <span class="n">invokevirtual</span> <span class="err">#</span><span class="mi">52</span> <span class="c1">// Method java/lang/StringBuilder.toString:()Ljava/lang/String;</span>
+</span><span class='line'><span class="mi">60</span><span class="o">:</span> <span class="n">astore</span> <span class="mi">8</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>由上面的字节码可见<code>String str4 = str0 + str1;</code>  相当于:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Stringbuilder</span><span class="o">(</span><span class="n">str0</span><span class="o">);</span>
+</span><span class='line'><span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">str1</span><span class="o">);</span>
+</span><span class='line'><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+再看一下StringBuilder的toString()方法:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'><span class="c1">// Create a copy, don&#39;t share the array</span>
+</span><span class='line'><span class="k">return</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">value</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+看代码toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
+
+<ol>
+<li>39-41行为false: 是因为:<br>
+str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。<br></li>
+<li><p>44-46行为true: 是因为:<br>
+当一个String实例str调用intern()方法时，Java查找常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  </p></li>
+<li><p>49-50行为true: 是因为:<br>
+String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br>
+看一下String的equals方法:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'> <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">anObject</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o"><mark></span> <span class="n">anObject</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">anObject</span> <span class="k">instanceof</span> <span class="n">String</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">anotherString</span> <span class="o">=</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">anObject</span><span class="o">;</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o"></mark></span> <span class="n">anotherString</span><span class="o">.</span><span class="na">value</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="kt">char</span> <span class="n">v1</span><span class="o">[]</span> <span class="o">=</span> <span class="n">value</span><span class="o">;</span>
+</span><span class='line'>                <span class="kt">char</span> <span class="n">v2</span><span class="o">[]</span> <span class="o">=</span> <span class="n">anotherString</span><span class="o">.</span><span class="na">value</span><span class="o">;</span>
+</span><span class='line'>                <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>                <span class="k">while</span> <span class="o">(</span><span class="n">n</span><span class="o">--</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">v1</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">!=</span> <span class="n">v2</span><span class="o">[</span><span class="n">i</span><span class="o">])</span>
+</span><span class='line'>                            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>                    <span class="n">i</span><span class="o">++;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></p></li>
+</ol>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java 对象结构]]></title>
