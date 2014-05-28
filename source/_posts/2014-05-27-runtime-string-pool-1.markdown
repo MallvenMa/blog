@@ -95,8 +95,8 @@ String str3 = "a"+"b"; 是因为“a” 和 “b” 都是常量，编译器在�
 上面第36行就是`String str3 = "a"+"b";`对应的字节码。这里可以看出"a"+"b"已经被优化为"ab"了。  
 
 3. 第35行为false, 是因为:  
-String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把+操作，转换成StringBuilder的append操作,然后返回一个String对象。  
-再看一下字节码文件,清晰可见了:   
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。  
+再看一下字节码文件,清晰可见:   
  
 ```
 40: new #37 // class java/lang/StringBuilder
@@ -122,7 +122,7 @@ public String toString() {
 return new String(value, 0, count);
 }
 ```
-看代码toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  
+由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  
 
 4. 39-41行为false: 是因为:  
 str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。  
@@ -155,3 +155,5 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
         return false;
     }
 ```
+
+####下一节将会详细讲一下字符串池的结构以及原理
