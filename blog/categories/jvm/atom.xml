@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-28T22:45:04+08:00</updated>
+  <updated>2014-05-28T22:47:28+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -167,7 +167,7 @@ public boolean equals(Object anObject) {
 </code></p></li>
 </ol>
 
-<h4 id="下一节将会详细讲一下字符串池的结构以及原理">下一节将会详细讲一下字符串池的结构以及原理</h4>
+<h5 id="下一节将会详细讲一下字符串池的结构以及原理">下一节将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   
