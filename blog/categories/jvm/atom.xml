@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-28T22:31:08+08:00</updated>
+  <updated>2014-05-28T22:45:04+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -106,8 +106,8 @@ String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是�
 </code>
 上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
 <li><p>第35行为false, 是因为:<br>
-String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把+操作，转换成StringBuilder的append操作,然后返回一个String对象。<br>
-再看一下字节码文件,清晰可见了:   </p></li>
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br>
+再看一下字节码文件,清晰可见:   </p></li>
 </ol>
 <div class="highlight"><pre><code class="text">40: new #37 // class java/lang/StringBuilder
 43: dup 
@@ -132,7 +132,7 @@ public String toString() {
 return new String(value, 0, count);
 }
 </code>
-看代码toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
+由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
 
 <ol>
 <li>39-41行为false: 是因为:<br>
@@ -166,6 +166,8 @@ public boolean equals(Object anObject) {
 }
 </code></p></li>
 </ol>
+
+<h4 id="下一节将会详细讲一下字符串池的结构以及原理">下一节将会详细讲一下字符串池的结构以及原理</h4>
 ]]></content>
   </entry>
   

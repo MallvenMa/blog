@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-28T22:28:27+08:00</updated>
+  <updated>2014-05-28T22:45:04+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -170,8 +170,8 @@ String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是�
 </span></code></pre></td></tr></table></div></figure>
 上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
 <li><p>第35行为false, 是因为:<br>
-String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把+操作，转换成StringBuilder的append操作,然后返回一个String对象。<br>
-再看一下字节码文件,清晰可见了:   </p></li>
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br>
+再看一下字节码文件,清晰可见:   </p></li>
 </ol>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -212,7 +212,7 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 </span><span class='line'><span class="k">return</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">value</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
-看代码toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
+由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
 
 <ol>
 <li>39-41行为false: 是因为:<br>
@@ -266,6 +266,8 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 </span><span class='line'>    <span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure></p></li>
 </ol>
+
+<h4 id="下一节将会详细讲一下字符串池的结构以及原理">下一节将会详细讲一下字符串池的结构以及原理</h4>
 ]]></content>
   </entry>
   
