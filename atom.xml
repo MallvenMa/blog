@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T15:05:44+08:00</updated>
+  <updated>2014-05-29T22:14:45+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -14,7 +14,166 @@
 
   
   <entry>
-    <title type="html"><![CDATA[JVM 之 String 常量池<一>]]></title>
+    <title type="html"><![CDATA[JVM 之 String 常量池 二]]></title>
+    <link href="http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2/"/>
+    <updated>2014-05-29T20:58:21+08:00</updated>
+    <id>http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2</id>
+    <content type="html"><![CDATA[<h4 id="前言">前言</h4>
+
+<p>上一篇文章中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br>
+我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br>
+我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br>
+先看String 的intern的源代码:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">native</span> <span class="n">String</span> <span class="nf">intern</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。<br>
+String.c 中只有一个方法：<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">include</span> <span class="s">&quot;jvm.h&quot;</span>
+</span><span class='line'><span class="err">#</span><span class="n">include</span> <span class="s">&quot;java_lang_String.h&quot;</span>
+</span><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jobject</span> <span class="n">JNICALL</span>
+</span><span class='line'><span class="n">Java</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span><span class="o">.</span><span class="na">intern</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="k">this</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">JVM</span><span class="o">.</span><span class="na">InternString</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<!--more-->
+
+<p><code>Java.java.lang.String.intern</code> 就是String类intern 对应的native方法，这里我们发现<code>Java.java.lang.String.intern</code> 调用了<code>JVM_InternString</code>这个方法。<br>
+那么这个方法又在哪呢？<br>
+根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/<em></span>
+</span><span class='line'><span class="cm"></em> java.lang.String</span>
+</span><span class='line'><span class="cm">* <em>/</span>
+</span><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jstring</span> <span class="n">JNICALL</span>
+</span><span class='line'><span class="nf">JVM_InternString</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o"></em></span><span class="n">env</span><span class="o">,</span> <span class="n">jstring</span> <span class="n">str</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure><br>
+这里只是定义,我们继续找这个定义对应的实现方法。根据经验应该位于<code>jvm.cpp</code>中，我们继续找到<code>jvm.cpp</code> 的位置，它位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<br>
+在<code>jvm.cpp</code> 中终于找到了<code>JVM_InternString</code>的具体实现:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM<u>ENTRY</span><span class="o">(</span><span class="n">jstring</span><span class="o">,</span> <span class="n">JVM</u>InternString</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o"><em></span><span class="n">env</span><span class="o">,</span> <span class="n">jstring</span> <span class="n">str</span><span class="o">))</span>
+</span><span class='line'><span class="n">JVMWrapper</span><span class="o">(</span><span class="s">&quot;JVM<u>InternString&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">JvmtiVMObjectAllocEventCollector</span> <span class="n">oam</span><span class="o">;</span>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'><span class="n">oop</span> <span class="n">string</span> <span class="o">=</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve</u>non<u>null</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+</span><span class='line'><span class="n">oop</span> <span class="n">result</span> <span class="o">=</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">CHECK</u>NULL</span><span class="o">);</span>
+</span><span class='line'><span class="k">return</span> <span class="o">(</span><span class="n">jstring</span><span class="o">)</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">make<u>local</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+</span><span class='line'><span class="n">JVM</u>END</span>
+</span></code></pre></td></tr></table></div></figure>
+从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。那就继续到<code>StringTable</code>中看看，<code>jvm.cpp</code> 引入了好多头文件，这下凭经验不好找了，简单粗暴的搜一下吧。macos 的搜索就是这么好用啊，最终找到<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">StringTable</span> <span class="o">:</span> <span class="kd">public</span> <span class="n">Hashtable</span><span class="o">&lt;</span><span class="n">oop</span><span class="o">,</span> <span class="n">mtSymbol</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">friend</span> <span class="kd">class</span> <span class="nc">VMStructs</span><span class="o">;</span>
+</span><span class='line'><span class="kd">private</span><span class="o">:</span>
+</span><span class='line'>  <span class="c1">// The string table</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">StringTable</span><span class="o"></em></span> <span class="n"><u>the</u>table</span><span class="o">;</span>
+</span><span class='line'><span class="o">.......</span><span class="err">请自行查看源代码</span>
+</span></code></pre></td></tr></table></div></figure>
+我们先简单看一下<code>StringTable</code>这个类：<br>
+1.  它继承了<code>Hashtable&lt;oop, mtSymbol&gt;</code>，它使用HashTable结构保持着对各个字符串实例的引用（所以常量池中的对象不会被垃圾收集器收集掉）。<br>
+2. <code>static StringTable* _the_table</code> : StringTable的实例变量，用它来来存储字符串常量，是通过<code>create_table()</code> 来实例化。<br>
+3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br>
+4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br>
+5. <code>intern()</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。  </p>
+
+<p>先看一下intern方法:<br>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">Handle</span> <span class="n">string<u>or</u>null</span><span class="o">,</span> <span class="n">jchar</span><span class="o"><em></span> <span class="n">name</span><span class="o">,</span>
+</span><span class='line'>                        <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hashValue</span> <span class="o">=</span> <span class="n">hash<u>string</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">);</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">the</u>table</span><span class="o">()-&gt;</span><span class="n">hash<u>to</u>index</span><span class="o">(</span><span class="n">hashValue</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">oop</span> <span class="n">found<u>string</span> <span class="o">=</span> <span class="n">the</u>table</span><span class="o">()-&gt;</span><span class="n">lookup</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">hashValue</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Found</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">found<u>string</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">found</u>string</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">debug_only</span><span class="o">(</span><span class="n">StableMemoryChecker</span> <span class="n">smc</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span> <span class="o"></em></span> <span class="n">sizeof</span><span class="o">(</span><span class="n">name</span><span class="o">[</span><span class="mi">0</span><span class="o">])));</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is<u>in</u>reserved</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="o">||</span> <span class="nl">GC<u>locker:</span><span class="o">:</span><span class="n">is</u>active</span><span class="o">(),</span>
+</span><span class='line'>         <span class="s">&quot;proposed name of symbol must be stable&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">Handle</span> <span class="n">string</span><span class="o">;</span>
+</span><span class='line'>  <span class="c1">// try to reuse the string if possible</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">string<u>or</u>null</span><span class="o">.</span><span class="na">is<u>null</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">(!</span><span class="n">JavaObjectsInPerm</span> <span class="o">||</span> <span class="n">string</u>or<u>null</span><span class="o">()-&gt;</span><span class="n">is</u>perm</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="n">string<u>or</u>null</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="nl">java<u>lang</u>String:</span><span class="o">:</span><span class="n">create<u>tenured</u>from<u>unicode</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">CHECK</u>NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Grab the StringTable<u>lock before getting the</u>table() because it could</span>
+</span><span class='line'>  <span class="c1">// change at safepoint.</span>
+</span><span class='line'>  <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="o">(</span><span class="n">StringTable<u>lock</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Otherwise, add to symbol to table</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">the</u>table</span><span class="o">()-&gt;</span><span class="n">basic<u>add</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">string</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">hashValue</span><span class="o">,</span> <span class="n">CHECK</u>NULL</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+第5行: 检查该字符串是否存在，如果存在，就返回。<br>
+第19行: 创建一个String对象,创建过程可以看具体的方法:<br>
+<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。(jvm创建对象并分配内存的过程可以看一下这个地方)。<br>
+第27行: 将新创建的Sting对象添加到池中(the_table())。  </p>
+
+<h3 id="总结:">总结:</h3>
+
+<p>String常量池对应的数据结构就是StringTable对象,也就是一个hashtable结构。所有的字符串常量都被StringTable所持。这下大家应该对String常量池有了一个基本的认识了。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 String 常量池 一]]></title>
     <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
