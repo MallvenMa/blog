@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T07:19:30+08:00</updated>
+  <updated>2014-05-29T09:09:04+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[JVM 之 String 常量池《一》]]></title>
+    <title type="html"><![CDATA[JVM 之 String 字符串常量池《一》]]></title>
     <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
@@ -25,8 +25,8 @@
 2. 通过new 关键字创建:new String(&quot;a&quot;);  </p>
 
 <p>但是这两种创建字符串的方式有很大的不同。<br>
-1. 使用第一种方式，jvm首先会检查字符串池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br>
-2. 使用第二种方式，则直接分配到heap中，不指向字符串池中的任何对象，和常量池没有关系。  </p>
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br>
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  </p>
 
 <h4 id="2.下面来看一个例子:-本例子gist地址">2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
 <div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">StringConstantTest</span> <span class="o">{</span>
@@ -94,7 +94,7 @@
 
 <ol>
 <li><p>24-31行的结果说明:<br>
-只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串池中的同一个实例。  </p></li>
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  </p></li>
 <li><p>34行为true, 是因为:<br>
 String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &quot;ab&quot;。<br>
 可以通过javap 反编译class字节码来看一下:<br>
@@ -107,7 +107,7 @@ String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是�
 上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
 <li><p>第35行为false, 是因为:<br>
 String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br>
-再看一下字节码文件,清晰可见:   </p></li>
+再看一下字节码文件:   </p></li>
 </ol>
 <div class="highlight"><pre><code class="text">40: new #37 // class java/lang/StringBuilder
 43: dup 
@@ -119,7 +119,7 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 57: invokevirtual #52 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
 60: astore 8
 </code></pre></div>
-<p>由上面的字节码可见<code>String str4 = str0 + str1;</code>  相当于:<br>
+<p>由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:<br>
 <code>
 StringBuilder sb = new Stringbuilder(str0);  
 sb.append(str1);  
@@ -136,9 +136,9 @@ return new String(value, 0, count);
 
 <ol>
 <li>39-41行为false: 是因为:<br>
-str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。<br></li>
+str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。<br></li>
 <li><p>44-46行为true: 是因为:<br>
-当一个String实例str调用intern()方法时，Java查找常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  </p></li>
+当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  </p></li>
 <li><p>49-50行为true: 是因为:<br>
 String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br>
 看一下String的equals方法:<br>
