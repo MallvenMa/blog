@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T09:31:08+08:00</updated>
+  <updated>2014-05-29T11:02:27+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[JVM 之 String 字符串常量池《一》]]></title>
+    <title type="html"><![CDATA[JVM 之 String 常量池《一》]]></title>
     <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
