@@ -4,7 +4,7 @@
   <title><![CDATA[Category: System | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/system/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T11:02:27+08:00</updated>
+  <updated>2014-05-29T13:37:42+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -36,6 +36,8 @@
 <li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a><br></li>
 <li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a><br></li>
 </ul>
+
+<!--more-->
 
 <h3 id="2.-关于内存的几个概念">2. 关于内存的几个概念</h3>
 

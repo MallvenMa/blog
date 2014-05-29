@@ -90,6 +90,8 @@ o <!-- http://t.co/dKP3o1e -->
 Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br>
 <img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构">  </p>
 
+<!--more-->
+
 <h4 id="1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):">1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
 
 <table><thead>

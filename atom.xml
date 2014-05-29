@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T11:02:27+08:00</updated>
+  <updated>2014-05-29T13:37:42+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -29,6 +29,8 @@
 2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  </p>
 
 <h4 id="2.下面来看一个例子:-本例子gist地址">2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+
+<!--more-->
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -283,6 +285,8 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br>
 <img src="http://zarue.github.io//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构">  </p>
 
+<!--more-->
+
 <h4 id="1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):">1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
 
 <table><thead>
@@ -506,6 +510,8 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 <li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a><br></li>
 </ul>
 
+<!--more-->
+
 <h3 id="2.-关于内存的几个概念">2. 关于内存的几个概念</h3>
 
 <ol>
@@ -547,8 +553,11 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 
 <h3 id="解决方案:">解决方案:</h3>
 
-<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可.<br>
-如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br>
+<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。  </p>
+
+<!--more-->
+
+<p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br>
 如图:<br>
 <img src="http://zarue.github.io//images/blog/2014-05/20140519-1-vim.png" alt="示例"></p>
 ]]></content>

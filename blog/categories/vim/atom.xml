@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Vim | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/vim/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T11:02:27+08:00</updated>
+  <updated>2014-05-29T13:37:42+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -35,8 +35,11 @@
 
 <h3 id="解决方案:">解决方案:</h3>
 
-<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可.<br>
-如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br>
+<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。  </p>
+
+<!--more-->
+
+<p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br>
 如图:<br>
 <img src="/images/blog/2014-05/20140519-1-vim.png" alt="示例"></p>
 ]]></content>
