@@ -1,20 +1,21 @@
 ---
 layout: post
-title: "JVM 之 String 常量池《一》"
+title: "JVM 之 String 常量池 一"
 date: 2014-05-27 20:30:20 +0800
 comments: true
 categories: jvm 
 ---
 ####1.Sting对象创建方式
-JAVA里面创建字符串有两种方式：
-1. 通过字符串常量方式:String a = "a";
-2. 通过new 关键字创建:new String("a");
+JAVA里面创建字符串有两种方式：  
+1. 通过字符串常量方式:String a = "a";  
+2. 通过new 关键字创建:new String("a");  
 
-但是这两种创建字符串的方式有很大的不同。
-1. 使用第一种方式，jvm首先会检查字符串池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。
-2. 使用第二种方式，则直接分配到heap中，不指向字符串池中的任何对象，和常量池没有关系。
+但是这两种创建字符串的方式有很大的不同。  
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。  
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  
 
 ####2.下面来看一个例子: [本例子Gist地址](https://gist.github.com/zarue/25e0afedb33de86da650) 
+<!--more-->
 ```java
 public class StringConstantTest {
 	public static String str_0_static = "a";
@@ -79,11 +80,11 @@ class StringConstantTest1 {
 ![结果](/images/blog/2014-05/20140528-string-pool-1.png)
 
 ####分析(下面所指行号均为源代码行号):
-1. 24-31行的结果说明:  
-只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串池中的同一个实例。  
+1. **24-31**行的结果说明:  
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  
 
 
-2. 34行为true, 是因为:  
+2. **34**行为true, 是因为:  
 String str3 = "a"+"b"; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = "ab"。  
 可以通过javap 反编译class字节码来看一下:  
 ```
@@ -94,9 +95,9 @@ String str3 = "a"+"b"; 是因为“a” 和 “b” 都是常量，编译器在�
 ```
 上面第36行就是`String str3 = "a"+"b";`对应的字节码。这里可以看出"a"+"b"已经被优化为"ab"了。  
 
-3. 第35行为false, 是因为:  
+3. **35**行为false, 是因为:  
 String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。  
-再看一下字节码文件,清晰可见:   
+再看一下字节码文件:   
  
 ```
 40: new #37 // class java/lang/StringBuilder
@@ -109,7 +110,7 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 57: invokevirtual #52 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
 60: astore 8
 ```
-由上面的字节码可见`String str4 = str0 + str1;`  相当于:  
+由上面的字节码可以看出`String str4 = str0 + str1;`  相当于:  
 ```
 StringBuilder sb = new Stringbuilder(str0);  
 sb.append(str1);  
@@ -124,12 +125,12 @@ return new String(value, 0, count);
 ```
 由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  
 
-4. 39-41行为false: 是因为:  
-str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。  
-5. 44-46行为true: 是因为:  
-当一个String实例str调用intern()方法时，Java查找常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  
+4. **39-41**行为false: 是因为:  
+str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。  
+5. **44-46**行为true: 是因为:  
+当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  
 
-6. 49-50行为true: 是因为:  
+6. **49-50**行为true: 是因为:  
 String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。  
 看一下String的equals方法:  
 ```

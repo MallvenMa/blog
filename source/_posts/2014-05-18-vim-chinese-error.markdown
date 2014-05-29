@@ -15,7 +15,9 @@ categories: vim
 3. 通过在.vimrc中设置编码格式无效  
 
 ###解决方案:
-找到 `Terminal-->Preferences-->Settings-->Advanced-->Escape non-ASCII input with Control-V` 取消该选项即可.  
+找到 `Terminal-->Preferences-->Settings-->Advanced-->Escape non-ASCII input with Control-V` 取消该选项即可。  
+
+<!--more-->
 如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法  
 如图:  
 ![示例](/images/blog/2014-05/20140519-1-vim.png)
