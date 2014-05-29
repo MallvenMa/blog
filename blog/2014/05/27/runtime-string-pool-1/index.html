@@ -218,10 +218,11 @@ o <!-- http://t.co/dKP3o1e -->
 
 <h4 id="分析(下面所指行号均为源代码行号):">分析(下面所指行号均为源代码行号):</h4>
 
+<p>1.<em>24-31</em>行的结果说明:<br>
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  </p>
+
 <ol>
-<li><p>24-31行的结果说明:<br>
-只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  </p></li>
-<li><p>34行为true, 是因为:<br>
+<li><p><em>34</em>行为true, 是因为:<br>
 String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &quot;ab&quot;。<br>
 可以通过javap 反编译class字节码来看一下:<br>
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -234,7 +235,7 @@ String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是�
 </span><span class='line'><span class="mi">36</span><span class="o">:</span> <span class="n">ldc</span> <span class="err">#</span><span class="mi">35</span> <span class="c1">// String ab </span>
 </span></code></pre></td></tr></table></div></figure>
 上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
-<li><p>第35行为false, 是因为:<br>
+<li><p><em>35</em>行为false, 是因为:<br>
 String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br>
 再看一下字节码文件:   </p></li>
 </ol>
@@ -280,11 +281,11 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
 
 <ol>
-<li>39-41行为false: 是因为:<br>
+<li><em>39-41</em>行为false: 是因为:<br>
 str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。<br></li>
-<li><p>44-46行为true: 是因为:<br>
+<li><p><em>44-46</em>行为true: 是因为:<br>
 当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  </p></li>
-<li><p>49-50行为true: 是因为:<br>
+<li><p><em>49-50</em>行为true: 是因为:<br>
 String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br>
 看一下String的equals方法:<br>
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
