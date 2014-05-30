@@ -590,7 +590,7 @@ a {
 }
 
 #sub-nav .social a.dribbble {
-	background: url('/github/images/social/dribbble.png?1400066560') center no-repeat #c5376d;
+	background: url('/images/social/dribbble.png?1400066560') center no-repeat #c5376d;
 	border: 1px solid #c5376d
 }
 
@@ -599,7 +599,7 @@ a {
 }
 
 #sub-nav .social a.facebook {
-	background: url('/github/images/social/facebook.png?1400066560') center no-repeat #3b5998;
+	background: url('/images/social/facebook.png?1400066560') center no-repeat #3b5998;
 	border: 1px solid #3B5998
 }
 
@@ -608,7 +608,7 @@ a {
 }
 
 #sub-nav .social a.google {
-	background: url('/github/images/social/google.png?1400066560') center no-repeat #c83d20;
+	background: url('/images/social/google.png?1400066560') center no-repeat #c83d20;
 	border: 1px solid #C83D20
 }
 
@@ -617,7 +617,7 @@ a {
 }
 
 #sub-nav .social a.twitter {
-	background: url('/github/images/social/twitter.png?1400066560') center no-repeat #55cff8;
+	background: url('/images/social/twitter.png?1400066560') center no-repeat #55cff8;
 	border: 1px solid #55CFF8
 }
 
@@ -626,7 +626,7 @@ a {
 }
 
 #sub-nav .social a.github {
-	background: url('/github/images/social/github.png?1400066560') center no-repeat #afb6ca;
+	background: url('/images/social/github.png?1400066560') center no-repeat #afb6ca;
 	border: 1px solid #afb6ca
 }
 
@@ -635,7 +635,7 @@ a {
 }
 
 #sub-nav .social a.linkedin {
-	background: url('/github/images/social/linkedin.png?1400066560') center no-repeat #005a87;
+	background: url('/images/social/linkedin.png?1400066560') center no-repeat #005a87;
 	border: 1px solid #005A87
 }
 
@@ -644,7 +644,7 @@ a {
 }
 
 #sub-nav .social a.pinterest {
-	background: url('/github/images/social/pinterest.png?1400066560') center no-repeat #be4037;
+	background: url('/images/social/pinterest.png?1400066560') center no-repeat #be4037;
 	border: 1px solid #be4037
 }
 
@@ -653,7 +653,7 @@ a {
 }
 
 #sub-nav .social a.delicious {
-	background: url('/github/images/social/delicious.png?1400066560') center no-repeat #3271cb;
+	background: url('/images/social/delicious.png?1400066560') center no-repeat #3271cb;
 	border: 1px solid #3271cb
 }
 
@@ -662,7 +662,7 @@ a {
 }
 
 #sub-nav .social a.pinboard {
-	background: url('/github/images/social/pinboard.png?1400066560') center no-repeat #0066c8;
+	background: url('/images/social/pinboard.png?1400066560') center no-repeat #0066c8;
 	border: 1px solid #3a729f
 }
 
@@ -671,7 +671,7 @@ a {
 }
 
 #sub-nav .social a.rss {
-	background: url('/github/images/social/rss.png?1400066560') center no-repeat #ef7522;
+	background: url('/images/social/rss.png?1400066560') center no-repeat #ef7522;
 	border: 1px solid #EF7522
 }
 
@@ -1558,7 +1558,7 @@ figure.code .s1,.gist-highlight .s1 {
 }
 
 #banner .loading {
-	background: url('/github/images/loading_pacman.gif?1400066560') center no-repeat;
+	background: url('/images/loading_pacman.gif?1400066560') center no-repeat;
 	text-indent: -9999px
 }
 
@@ -1658,7 +1658,7 @@ figure.code .s1,.gist-highlight .s1 {
 }
 
 #fancybox-loading,.fancybox-close,.fancybox-prev span,.fancybox-next span {
-	background-image: url('/github/images/fancybox/fancybox_sprite.png?1400066560')
+	background-image: url('/images/fancybox/fancybox_sprite.png?1400066560')
 }
 
 #fancybox-loading {
@@ -1676,7 +1676,7 @@ figure.code .s1,.gist-highlight .s1 {
 #fancybox-loading div {
 	width: 44px;
 	height: 44px;
-	background: url('/github/images/fancybox/fancybox_loading.gif?1400066560') center center no-repeat
+	background: url('/images/fancybox/fancybox_loading.gif?1400066560') center center no-repeat
 }
 
 .fancybox-close {
@@ -1695,7 +1695,7 @@ figure.code .s1,.gist-highlight .s1 {
 	width: 40%;
 	height: 100%;
 	cursor: pointer;
-	background: transparent url('/github/images/fancybox/blank.gif?1400066560');
+	background: transparent url('/images/fancybox/blank.gif?1400066560');
 	-webkit-tap-highlight-color: rgba(0,0,0,0);
 	z-index: 8040
 }
