@@ -5,8 +5,8 @@ date: 2014-05-29 20:58:21 +0800
 comments: true
 categories:  jvm 
 ---
-####前言
-上一篇文章中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。  
+
+上一篇文章[JVM 之 String 常量池 一](/blog/2014/05/27/runtime-string-pool-1)中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。  
 我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？  
 我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。  
 先看String 的intern的源代码:  
@@ -16,17 +16,16 @@ public native String intern();
 这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去[JDK的源代码](http://openjdk.java.net/)中找了，经过不懈的努力，终于找到了，它位于`openjdk/jdk/src/share/native/java/lang`目录中的`String.c `中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的`hashCode`,`getClass`,`clone`等方法都在Object.c里面。   
 String.c 中只有一个方法：  
 ```java
-include "jvm.h"
-#include "java\_lang\_String.h"
+#include "jvm.h"
+#include "java_lang_String.h"
 JNIEXPORT jobject JNICALL
-Java.java.lang.String.intern(JNIEnv *env, jobject this)
+Java_java_lang_String_intern(JNIEnv *env, jobject this)
 {
-  return JVM.InternString(env, this);
+return JVM_InternString(env, this);
 }
 ```
-
 <!--more-->
-`Java.java.lang.String.intern` 就是String类intern 对应的native方法，这里我们发现`Java.java.lang.String.intern` 调用了`JVM_InternString`这个方法。  
+`Java_java_lang_String_intern` 就是String类intern 对应的native方法，这里我们发现`Java_java_lang_String_intern` 调用了`JVM_InternString`这个方法。  
 那么这个方法又在哪呢？  
 根据经验我们发现`String.c` 引入了`jvm.h`，我们去`jvm.h`中去看一下。我们继续找到`jvm.h` 位于`openjdk/jdk/src/share/javavm/export` 下面，发现`jvm.h`中正好定义了我们要找的`JVM_InternString`  
 ```java
@@ -97,10 +96,9 @@ oop StringTable::intern(Handle string_or_null, jchar* name,
                                 hashValue, CHECK_NULL);
 }
 ```
-第5行: 检查该字符串是否存在，如果存在，就返回。  
-第19行: 创建一个String对象,创建过程可以看具体的方法:  
-`openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp`中`java_lang_String`类的`create_tenured_from_unicode`方法。(jvm创建对象并分配内存的过程可以看一下这个地方)。  
-第27行: 将新创建的Sting对象添加到池中(the_table())。  
+第5行:检查该字符串是否存在，如果存在，就返回。  
+第19行:创建一个String对象,创建过程可以参考`openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp`中`java_lang_String`类的`create_tenured_from_unicode`方法。jvm创建对象并分配内存的过程基本也是这个模式。  
+第27行: 将新创建的Sting对象添加到常量池`the_table()`中。  
 
 ###总结:  
 String常量池对应的数据结构就是StringTable对象,也就是一个hashtable结构。所有的字符串常量都被StringTable所持。这下大家应该对String常量池有了一个基本的认识了。
