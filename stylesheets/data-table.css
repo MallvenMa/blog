@@ -37,3 +37,8 @@ article .entry-content table th[align="right"], article .entry-content table td[
 article .entry-content table th[align="center"], article .entry-content table td[align=center] {
   text-align:center;
 }
+
+/*********code********/
+td.code {
+  background:#ddd;
+}
