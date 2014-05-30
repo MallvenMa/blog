@@ -1324,7 +1324,7 @@ figure.code .cp,.gist-highlight .cp {
 
 figure.code .c1,.gist-highlight .c1 {
 	color: #93a1a1 !important;
-	font-style: italic !important
+	/*font-style: italic !important*/
 }
 
 figure.code .cs,.gist-highlight .cs {
