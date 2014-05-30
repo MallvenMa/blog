@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-30T13:51:24+08:00</updated>
+  <updated>2014-05-30T13:59:40+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -129,7 +129,7 @@ private:
 <p>}
 <code>``
 第5行: 检查该字符串是否存在，如果存在，就返回。  
-第19行: 创建一个String对象,创建过程可以参考:</code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp<code>中</code>java_lang_String<code>类的</code>create_tenured_from_unicode<code>方法。jvm创建对象并分配内存的过程基本也是这个模式。  
+第19行: 创建一个String对象,创建过程可以参考</code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp<code>中</code>java_lang_String<code>类的</code>create_tenured_from_unicode<code>方法。jvm创建对象并分配内存的过程基本也是这个模式。  
 第27行: 将新创建的Sting对象添加到常量池</code>the_table()`中。</p>
 
 <h3>总结:</h3>
@@ -307,7 +307,7 @@ public boolean equals(Object anObject) {
 </ol>
 
 
-<h5>下一节将会详细讲一下字符串池的结构以及原理</h5>
+<h5>下一节<a href="/blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   
