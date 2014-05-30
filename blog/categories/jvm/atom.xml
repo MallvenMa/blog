@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T22:14:45+08:00</updated>
+  <updated>2014-05-30T10:35:27+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -18,46 +18,46 @@
     <link href="http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2/"/>
     <updated>2014-05-29T20:58:21+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2</id>
-    <content type="html"><![CDATA[<h4 id="前言">前言</h4>
-
-<p>上一篇文章中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br>
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br>
-我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br>
-先看String 的intern的源代码:<br>
+    <content type="html"><![CDATA[<p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
+我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br/>
+我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br/>
+先看String 的intern的源代码:<br/>
 <code>java
 public native String intern();
 </code>
-这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。<br>
-String.c 中只有一个方法：<br>
-```java
-include &quot;jvm.h&quot;</p>
+这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。 <br/>
+String.c 中只有一个方法：<br/>
+```java</p>
 
-<h1 id="include-&quot;java_lang_string.h&quot;">include &quot;java_lang_String.h&quot;</h1>
+<h1>include &ldquo;jvm.h&rdquo;</h1>
+
+<h1>include &ldquo;java_lang_String.h&rdquo;</h1>
 
 <p>JNIEXPORT jobject JNICALL
-Java.java.lang.String.intern(JNIEnv *env, jobject this)
+Java_java_lang_String_intern(JNIEnv *env, jobject this)
 {
-  return JVM.InternString(env, this);
+return JVM_InternString(env, this);
 }
 ```</p>
 
 <!--more-->
 
-<p><code>Java.java.lang.String.intern</code> 就是String类intern 对应的native方法，这里我们发现<code>Java.java.lang.String.intern</code> 调用了<code>JVM_InternString</code>这个方法。<br>
-那么这个方法又在哪呢？<br>
-根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br>
+
+<p><code>Java_java_lang_String_intern</code> 就是String类intern 对应的native方法，这里我们发现<code>Java_java_lang_String_intern</code> 调用了<code>JVM_InternString</code>这个方法。<br/>
+那么这个方法又在哪呢？<br/>
+根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br/>
 <code>java
 /*
 * java.lang.String
 * */
 JNIEXPORT jstring JNICALL
 JVM_InternString(JNIEnv *env, jstring str);
-</code><br>
-这里只是定义,我们继续找这个定义对应的实现方法。根据经验应该位于<code>jvm.cpp</code>中，我们继续找到<code>jvm.cpp</code> 的位置，它位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<br>
-在<code>jvm.cpp</code> 中终于找到了<code>JVM_InternString</code>的具体实现:<br>
+</code><br/>
+这里只是定义,我们继续找这个定义对应的实现方法。根据经验应该位于<code>jvm.cpp</code>中，我们继续找到<code>jvm.cpp</code> 的位置，它位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<br/>
+在<code>jvm.cpp</code> 中终于找到了<code>JVM_InternString</code>的具体实现:<br/>
 <code>java
 JVM_ENTRY(jstring, JVM_InternString(JNIEnv *env, jstring str))
-JVMWrapper(&quot;JVM_InternString&quot;);
+JVMWrapper("JVM_InternString");
 JvmtiVMObjectAllocEventCollector oam;
 if (str == NULL) return NULL;
 oop string = JNIHandles::resolve_non_null(str);
@@ -65,7 +65,7 @@ oop result = StringTable::intern(string, CHECK_NULL);
 return (jstring) JNIHandles::make_local(env, result);
 JVM_END
 </code>
-从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。那就继续到<code>StringTable</code>中看看，<code>jvm.cpp</code> 引入了好多头文件，这下凭经验不好找了，简单粗暴的搜一下吧。macos 的搜索就是这么好用啊，最终找到<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：<br>
+从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。那就继续到<code>StringTable</code>中看看，<code>jvm.cpp</code> 引入了好多头文件，这下凭经验不好找了，简单粗暴的搜一下吧。macos 的搜索就是这么好用啊，最终找到<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：<br/>
 <code>java
 class StringTable : public Hashtable&lt;oop, mtSymbol&gt; {
   friend class VMStructs;
@@ -74,52 +74,65 @@ private:
   static StringTable* _the_table;
 .......请自行查看源代码
 </code>
-我们先简单看一下<code>StringTable</code>这个类：<br>
-1.  它继承了<code>Hashtable&lt;oop, mtSymbol&gt;</code>，它使用HashTable结构保持着对各个字符串实例的引用（所以常量池中的对象不会被垃圾收集器收集掉）。<br>
-2. <code>static StringTable* _the_table</code> : StringTable的实例变量，用它来来存储字符串常量，是通过<code>create_table()</code> 来实例化。<br>
-3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br>
-4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br>
-5. <code>intern()</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。  </p>
+我们先简单看一下<code>StringTable</code>这个类： <br/>
+1.  它继承了<code>Hashtable&lt;oop, mtSymbol&gt;</code>，它使用HashTable结构保持着对各个字符串实例的引用（所以常量池中的对象不会被垃圾收集器收集掉）。 <br/>
+2. <code>static StringTable* _the_table</code> : StringTable的实例变量，用它来来存储字符串常量，是通过<code>create_table()</code> 来实例化。<br/>
+3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br/>
+4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br/>
+5. <code>intern()</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。</p>
 
-<p>先看一下intern方法:<br>
+<p>先看一下intern方法:<br/>
 ```java</p>
 
-<p>oop StringTable::intern(Handle string<u>or</u>null, jchar* name,
-                        int len, TRAPS) {
-  unsigned int hashValue = hash<u>string(name, len);
-  int index = the</u>table()-&gt;hash<u>to</u>index(hashValue);
-  oop found<u>string = the</u>table()-&gt;lookup(index, name, len, hashValue);</p>
+<p>oop StringTable::intern(Handle string_or_null, jchar* name,</p>
 
-<p>// Found
-  if (found<u>string != NULL) return found</u>string;</p>
+<pre><code>                    int len, TRAPS) {
+</code></pre>
 
-<p>debug<u>only(StableMemoryChecker smc(name, len * sizeof(name[0])));
-  assert(!Universe::heap()-&gt;is</u>in<u>reserved(name) || GC</u>locker::is_active(),
-         &quot;proposed name of symbol must be stable&quot;);</p>
+<p>  unsigned int hashValue = hash_string(name, len);
+  int index = the_table()&ndash;>hash_to_index(hashValue);
+  oop found_string = the_table()&ndash;>lookup(index, name, len, hashValue);</p>
 
-<p>Handle string;
+<p>  // Found
+  if (found_string != NULL) return found_string;</p>
+
+<p>  debug_only(StableMemoryChecker smc(name, len * sizeof(name[0])));
+  assert(!Universe::heap()&ndash;>is_in_reserved(name) || GC_locker::is_active(),</p>
+
+<pre><code>     "proposed name of symbol must be stable");
+</code></pre>
+
+<p>  Handle string;
   // try to reuse the string if possible
-  if (!string<u>or</u>null.is<u>null() &amp;&amp; (!JavaObjectsInPerm || string</u>or<u>null()-&gt;is</u>perm())) {
-    string = string<u>or</u>null;
-  } else {
-    string = java<u>lang</u>String::create<u>tenured</u>from<u>unicode(name, len, CHECK</u>NULL);
-  }</p>
+  if (!string_or_null.is_null() &amp;&amp; (!JavaObjectsInPerm || string_or_null()&ndash;>is_perm())) {</p>
 
-<p>// Grab the StringTable<u>lock before getting the</u>table() because it could
+<pre><code>string = string_or_null;
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>string = java_lang_String::create_tenured_from_unicode(name, len, CHECK_NULL);
+</code></pre>
+
+<p>  }</p>
+
+<p>  // Grab the StringTable_lock before getting the_table() because it could
   // change at safepoint.
   MutexLocker ml(StringTable_lock, THREAD);</p>
 
-<p>// Otherwise, add to symbol to table
-  return the<u>table()-&gt;basic</u>add(index, string, name, len,
-                                hashValue, CHECK<u>NULL);
-}
-``<code>
-第5行: 检查该字符串是否存在，如果存在，就返回。  
-第19行: 创建一个String对象,创建过程可以看具体的方法:  
-</code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp<code>中</code>java</u>lang<u>String<code>类的</code>create</u>tenured<u>from</u>unicode`方法。(jvm创建对象并分配内存的过程可以看一下这个地方)。<br>
-第27行: 将新创建的Sting对象添加到池中(the_table())。  </p>
+<p>  // Otherwise, add to symbol to table
+  return the_table()&ndash;>basic_add(index, string, name, len,</p>
 
-<h3 id="总结:">总结:</h3>
+<pre><code>                            hashValue, CHECK_NULL);
+</code></pre>
+
+<p>}
+<code>``
+第5行: 检查该字符串是否存在，如果存在，就返回。  
+第19行: 创建一个String对象,创建过程可以参考:</code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp<code>中</code>java_lang_String<code>类的</code>create_tenured_from_unicode<code>方法。jvm创建对象并分配内存的过程基本也是这个模式。  
+第27行: 将新创建的Sting对象添加到常量池</code>the_table()`中。</p>
+
+<h3>总结:</h3>
 
 <p>String常量池对应的数据结构就是StringTable对象,也就是一个hashtable结构。所有的字符串常量都被StringTable所持。这下大家应该对String常量池有了一个基本的认识了。</p>
 ]]></content>
@@ -130,158 +143,171 @@ private:
     <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
-    <content type="html"><![CDATA[<h4 id="1.sting对象创建方式">1.Sting对象创建方式</h4>
+    <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
 
-<p>JAVA里面创建字符串有两种方式：<br>
-1. 通过字符串常量方式:String a = &quot;a&quot;;<br>
-2. 通过new 关键字创建:new String(&quot;a&quot;);  </p>
+<p>JAVA里面创建字符串有两种方式：<br/>
+1. 通过字符串常量方式:String a = &ldquo;a&rdquo;;<br/>
+2. 通过new 关键字创建:new String(&ldquo;a&rdquo;);</p>
 
-<p>但是这两种创建字符串的方式有很大的不同。<br>
-1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br>
-2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  </p>
+<p>但是这两种创建字符串的方式有很大的不同。<br/>
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br/>
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。</p>
 
-<h4 id="2.下面来看一个例子:-本例子gist地址">2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+<h4>2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
 
 <!--more-->
-<div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">StringConstantTest</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">str_0_static</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
-    <span class="kd">public</span> <span class="n">String</span> <span class="n">str_0</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
 
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
 
-        <span class="n">StringConstantTest</span> <span class="n">sct</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringConstantTest</span><span class="o">();</span>
-        <span class="c1">//同package对象</span>
-        <span class="n">StringConstantTest1</span> <span class="n">sct1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringConstantTest1</span><span class="o">();</span>
-        <span class="c1">//不同package对象</span>
-        <span class="n">StringConstantTest2</span> <span class="n">sct2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringConstantTest2</span><span class="o">();</span>
+<p>```java
+public class StringConstantTest {</p>
 
-        <span class="n">String</span> <span class="n">str0</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="s">&quot;b&quot;</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">str2</span> <span class="o">=</span> <span class="s">&quot;ab&quot;</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">str3</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">+</span><span class="s">&quot;b&quot;</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">str4</span> <span class="o">=</span> <span class="n">str0</span> <span class="o">+</span> <span class="n">str1</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">str5</span> <span class="o">=</span> <span class="n">str0</span> <span class="o">+</span> <span class="s">&quot;b&quot;</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">str6</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;ab&quot;</span><span class="o">);</span>
-        <span class="n">String</span> <span class="n">str7</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;ab&quot;</span><span class="o">);</span>
-        <span class="n">String</span> <span class="n">str8</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">str4</span><span class="o">);</span>
+<pre><code>public static String str_0_static = "a";
+public String str_0 = "a";
 
-        <span class="c1">//局部变量和成员变量</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==sct.str_0: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">sct</span><span class="o">.</span><span class="na">str_0</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==sct1.str_0: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">sct1</span><span class="o">.</span><span class="na">str_0</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==sct2.str_0: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">sct2</span><span class="o">.</span><span class="na">str_0</span><span class="o">));</span>
+public static void main(String args[]){
 
-        <span class="c1">//局部变量和静态变量</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==str_0_static： &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">str_0_static</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==StringConstantTest1.str_0_static: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">StringConstantTest1</span><span class="o">.</span><span class="na">str_0_static</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str0==StringConstantTest2.str_0_static: &quot;</span><span class="o">+(</span><span class="n">str0</span> <span class="o">==</span> <span class="n">StringConstantTest2</span><span class="o">.</span><span class="na">str_0_static</span><span class="o">));</span>
+    StringConstantTest sct = new StringConstantTest();
+    //同package对象
+    StringConstantTest1 sct1 = new StringConstantTest1();
+    //不同package对象
+    StringConstantTest2 sct2 = new StringConstantTest2();
 
-        <span class="c1">//局部变量</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str3: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str3</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str4: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str4</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str5: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str5</span><span class="o">));</span>
+    String str0 = "a";
+    String str1 = "b";
+    String str2 = "ab";
+    String str3 = "a"+"b";
+    String str4 = str0 + str1;
+    String str5 = str0 + "b";
+    String str6 = new String("ab");
+    String str7 = new String("ab");
+    String str8 = new String(str4);
 
-        <span class="c1">//局部变量和对象</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str6: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str6</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str7: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str7</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str8: &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str8</span><span class="o">));</span>
+    //局部变量和成员变量
+    System.out.println("str0==sct.str_0: "+(str0 == sct.str_0));
+    System.out.println("str0==sct1.str_0: "+(str0 == sct1.str_0));
+    System.out.println("str0==sct2.str_0: "+(str0 == sct2.str_0));
 
-        <span class="c1">//对象和对象 intern</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2==str6.intern(): &quot;</span><span class="o">+(</span><span class="n">str2</span> <span class="o">==</span> <span class="n">str6</span><span class="o">.</span><span class="na">intern</span><span class="o">()));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str7.intern()==str6.intern(): &quot;</span><span class="o">+(</span><span class="n">str7</span><span class="o">.</span><span class="na">intern</span><span class="o">()</span> <span class="o">==</span> <span class="n">str6</span><span class="o">.</span><span class="na">intern</span><span class="o">()));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str8.intern()==str6.intern(): &quot;</span><span class="o">+(</span><span class="n">str8</span><span class="o">.</span><span class="na">intern</span><span class="o">()</span> <span class="o">==</span> <span class="n">str6</span><span class="o">.</span><span class="na">intern</span><span class="o">()));</span>
+    //局部变量和静态变量
+    System.out.println("str0==str_0_static： "+(str0 == str_0_static));
+    System.out.println("str0==StringConstantTest1.str_0_static: "+(str0 == StringConstantTest1.str_0_static));
+    System.out.println("str0==StringConstantTest2.str_0_static: "+(str0 == StringConstantTest2.str_0_static));
 
-        <span class="c1">//对象和对象equals</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str6.equals(str7): &quot;</span><span class="o">+</span><span class="n">str6</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">str7</span><span class="o">));</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;str2.equals(str6): &quot;</span><span class="o">+</span><span class="n">str2</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">str6</span><span class="o">));</span>
-    <span class="o">}</span>
+    //局部变量
+    System.out.println("str2==str3: "+(str2 == str3));
+    System.out.println("str2==str4: "+(str2 == str4));
+    System.out.println("str2==str5: "+(str2 == str5));
 
-<span class="o">}</span>
+    //局部变量和对象
+    System.out.println("str2==str6: "+(str2 == str6));
+    System.out.println("str2==str7: "+(str2 == str7));
+    System.out.println("str2==str8: "+(str2 == str8));
 
-<span class="kd">class</span> <span class="nc">StringConstantTest1</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="n">String</span> <span class="n">str_0</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">str_0_static</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
-<span class="o">}</span>
-</code></pre></div>
-<p><img src="/images/blog/2014-05/20140528-string-pool-1.png" alt="结果"></p>
+    //对象和对象 intern
+    System.out.println("str2==str6.intern(): "+(str2 == str6.intern()));
+    System.out.println("str7.intern()==str6.intern(): "+(str7.intern() == str6.intern()));
+    System.out.println("str8.intern()==str6.intern(): "+(str8.intern() == str6.intern()));
 
-<h4 id="分析(下面所指行号均为源代码行号):">分析(下面所指行号均为源代码行号):</h4>
+    //对象和对象equals
+    System.out.println("str6.equals(str7): "+str6.equals(str7));
+    System.out.println("str2.equals(str6): "+str2.equals(str6));
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class StringConstantTest1 {</p>
+
+<pre><code>public String str_0 = "a";
+public static String str_0_static = "a";
+</code></pre>
+
+<p>}
+```</p>
+
+<p><img src="/images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
+
+<h4>分析(下面所指行号均为源代码行号):</h4>
 
 <ol>
-<li><p><strong>24-31</strong>行的结果说明:<br>
-只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  </p></li>
-<li><p><strong>34</strong>行为true, 是因为:<br>
-String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &quot;ab&quot;。<br>
-可以通过javap 反编译class字节码来看一下:<br>
+<li><p><strong>24-31</strong>行的结果说明:<br/>
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。</p></li>
+<li><p><strong>34</strong>行为true, 是因为:<br/>
+String str3 = &ldquo;a&rdquo;+&ldquo;b&rdquo;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &ldquo;ab"。<br/>
+可以通过javap 反编译class字节码来看一下:<br/>
 <code>
 30: astore 5
 32: ldc #35 // String ab
 34: astore 6
-36: ldc #35 // String ab 
+36: ldc #35 // String ab
 </code>
-上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
-<li><p><strong>35</strong>行为false, 是因为:<br>
-String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br>
-再看一下字节码文件:   </p></li>
+上面第36行就是<code>String str3 = "a"+"b";</code>对应的字节码。这里可以看出"a&rdquo;+&ldquo;b"已经被优化为"ab"了。</p></li>
+<li><p><strong>35</strong>行为false, 是因为:<br/>
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br/>
+再看一下字节码文件:</p></li>
 </ol>
-<div class="highlight"><pre><code class="text">40: new #37 // class java/lang/StringBuilder
-43: dup 
+
+
+<p><code>
+40: new #37 // class java/lang/StringBuilder
+43: dup
 44: aload 4
 46: invokestatic #39 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
-49: invokespecial #45 // Method java/lang/StringBuilder.&quot;&lt;init&gt;&quot;:(Ljava/lang/String;)V
+49: invokespecial #45 // Method java/lang/StringBuilder."&lt;init&gt;":(Ljava/lang/String;)V
 52: aload 5
 54: invokevirtual #48 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
 57: invokevirtual #52 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
 60: astore 8
-</code></pre></div>
-<p>由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:<br>
+</code>
+由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:<br/>
 <code>
 StringBuilder sb = new Stringbuilder(str0);  
 sb.append(str1);  
 sb.toString();  
 </code>
-再看一下StringBuilder的toString()方法:<br>
+再看一下StringBuilder的toString()方法:<br/>
 <code>
 public String toString() {
-// Create a copy, don&#39;t share the array
+// Create a copy, don't share the array
 return new String(value, 0, count);
 }
 </code>
-由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
+由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。</p>
 
 <ol>
-<li><strong>39-41</strong>行为false: 是因为:<br>
-str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。<br></li>
-<li><p><strong>44-46</strong>行为true: 是因为:<br>
-当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  </p></li>
-<li><p><strong>49-50</strong>行为true: 是因为:<br>
-String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br>
-看一下String的equals方法:<br>
+<li><strong>39-41</strong>行为false: 是因为:<br/>
+str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。</li>
+<li><p><strong>44-46</strong>行为true: 是因为:<br/>
+当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。</p></li>
+<li><p><strong>49-50</strong>行为true: 是因为:<br/>
+String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br/>
+看一下String的equals方法:<br/>
 <code>
 public boolean equals(Object anObject) {
-    if (this == anObject) {
-        return true;
-    }
-    if (anObject instanceof String) {
-        String anotherString = (String) anObject;
-        int n = value.length;
-        if (n == anotherString.value.length) {
-            char v1[] = value;
-            char v2[] = anotherString.value;
-            int i = 0;
-            while (n-- != 0) {
-                if (v1[i] != v2[i])
-                        return false;
-                i++;
-            }
-            return true;
-        }
-    }
-    return false;
-}
+     if (this == anObject) {
+         return true;
+     }
+     if (anObject instanceof String) {
+         String anotherString = (String) anObject;
+         int n = value.length;
+         if (n == anotherString.value.length) {
+             char v1[] = value;
+             char v2[] = anotherString.value;
+             int i = 0;
+             while (n-- != 0) {
+                 if (v1[i] != v2[i])
+                         return false;
+                 i++;
+             }
+             return true;
+         }
+     }
+     return false;
+ }
 </code></p></li>
 </ol>
 
-<h5 id="下一节将会详细讲一下字符串池的结构以及原理">下一节将会详细讲一下字符串池的结构以及原理</h5>
+
+<h5>下一节将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   
@@ -290,171 +316,199 @@ public boolean equals(Object anObject) {
     <link href="http://zarue.github.io//blog/2014/05/22/jvm-object-structure/"/>
     <updated>2014-05-22T14:09:15+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/22/jvm-object-structure</id>
-    <content type="html"><![CDATA[<h2 id="1.-java对象在内存中到底是什么样?">1. Java对象在内存中到底是什么样?</h2>
+    <content type="html"><![CDATA[<h2>1. Java对象在内存中到底是什么样?</h2>
 
 <p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
 那在JVM中这个规范是怎么定义的呢？
-Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br>
-<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构">  </p>
+Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br/>
+<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
 
 <!--more-->
 
-<h4 id="1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):">1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
 
-<table><thead>
+<h4>1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
+
+<table>
+<thead>
 <tr>
-<th style="text-align: center">内容</th>
-<th style="text-align: center">长度</th>
-<th style="text-align: left">说明</th>
+<th align="center">内容</th>
+<th align="center">长度</th>
+<th align="left">说明</th>
 </tr>
-</thead><tbody>
+</thead>
+<tbody>
 <tr>
-<td style="text-align: center">Mark Word</td>
-<td style="text-align: center">32/64bit</td>
-<td style="text-align: left">存储对象的hashCode或锁信息等。</td>
-</tr>
-<tr>
-<td style="text-align: center">Class对象指针</td>
-<td style="text-align: center">32/64bit</td>
-<td style="text-align: left">存储到对象类型数据的指针</td>
+<td align="center">  Mark Word  </td>
+<td align="center">  32/64bit  </td>
+<td align="left">  存储对象的hashCode或锁信息等。</td>
 </tr>
 <tr>
-<td style="text-align: center">数组长度</td>
-<td style="text-align: center">32/64bit</td>
-<td style="text-align: left">数组的长度（如果当前对象是数组）</td>
+<td align="center">  Class对象指针  </td>
+<td align="center">  32/64bit  </td>
+<td align="left">  存储到对象类型数据的指针</td>
 </tr>
-</tbody></table>
-
-<p>Java对象头里的Mark Word里默认存储对象的HashCode，分代年龄和锁标记位。32位JVM的Mark Word的默认存储结构(无锁状态)如下：  </p>
-
-<table><thead>
 <tr>
-<th style="text-align: center">锁状态</th>
-<th style="text-align: center">25 bit</th>
-<th style="text-align: left">4 bit</th>
-<th style="text-align: left">1 bit是否是偏向锁</th>
-<th style="text-align: left">2 bit锁标志位</th>
+<td align="center">  数组长度  </td>
+<td align="center">  32/64bit  </td>
+<td align="left">  数组的长度（如果当前对象是数组）</td>
 </tr>
-</thead><tbody>
+</tbody>
+</table>
+
+
+<p>Java对象头里的Mark Word里默认存储对象的HashCode，分代年龄和锁标记位。32位JVM的Mark Word的默认存储结构(无锁状态)如下：</p>
+
+<table>
+<thead>
 <tr>
-<td style="text-align: center">无锁状态</td>
-<td style="text-align: center">对象的hashCode</td>
-<td style="text-align: left">对象分代年龄</td>
-<td style="text-align: left">0</td>
-<td style="text-align: left">01</td>
+<th align="center">锁状态</th>
+<th align="center">25 bit</th>
+<th align="left"> 4 bit</th>
+<th align="left">1 bit是否是偏向锁</th>
+<th align="left">2 bit锁标志位</th>
 </tr>
-</tbody></table>
+</thead>
+<tbody>
+<tr>
+<td align="center"> 无锁状态</td>
+<td align="center">对象的hashCode</td>
+<td align="left">对象分代年龄</td>
+<td align="left">0</td>
+<td align="left">01</td>
+</tr>
+</tbody>
+</table>
 
-<p>在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化。Mark Word可能变化为存储以下4种数据：<code>轻量级锁</code>，<code>重量级锁</code>，<code>GC标记</code> ，<code>偏向锁</code>。本文只讨论对象结构，如果想详细了解对象锁，可以参考:<a href="http://ifeve.com/java-synchronized/">Java SE1.6中的Synchronized</a>  </p>
 
-<h4 id="2.对象实例数据：">2.对象实例数据：</h4>
+<p>在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化。Mark Word可能变化为存储以下4种数据：<code>轻量级锁</code>，<code>重量级锁</code>，<code>GC标记</code> ，<code>偏向锁</code>。本文只讨论对象结构，如果想详细了解对象锁，可以参考:<a href="http://ifeve.com/java-synchronized/">Java SE1.6中的Synchronized</a></p>
 
-<p>实例数据包括自身的实例变量和从父类继承的实例变量，这些变量的排序顺序受虚拟机分配策略参数（FieldsAllocationStyle）和字段在源代码中定义的顺序影响。HotSpot虚拟机默认的分配策略为longs/doubles、ints、shorts/chars、bytes/booleans、oops（Ordinary Object Pointers）。从分配策略中可以看出，相同宽度的字段总是被分配到一起。在满足这个前提条件的情况下，在父类中定义的变量会出现在子类之前。如果CompactFields参数值为true（默认为true），那子类之中较窄的变量也可能会插入到父类变量的空隙之中。   </p>
+<h4>2.对象实例数据：</h4>
 
-<h4 id="3.对齐填充数据：">3.对齐填充数据：</h4>
+<p>实例数据包括自身的实例变量和从父类继承的实例变量，这些变量的排序顺序受虚拟机分配策略参数（FieldsAllocationStyle）和字段在源代码中定义的顺序影响。HotSpot虚拟机默认的分配策略为longs/doubles、ints、shorts/chars、bytes/booleans、oops（Ordinary Object Pointers）。从分配策略中可以看出，相同宽度的字段总是被分配到一起。在满足这个前提条件的情况下，在父类中定义的变量会出现在子类之前。如果CompactFields参数值为true（默认为true），那子类之中较窄的变量也可能会插入到父类变量的空隙之中。</p>
 
-<p>对齐填充数据不是必须的，它仅仅起着占位的作用。HotSpot VM的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是对象的大小必须是8字节的整数倍。对象头部分正好似8字节的倍数（1倍或者2倍），因此当对象实例数据部分没有对齐的话，就需要通过对齐填充来补全。   </p>
+<h4>3.对齐填充数据：</h4>
 
-<h2 id="2.-现在我们就通过实例来看一下jvm中的对象结构是不是和上面所述一样呢?">2. 现在我们就通过实例来看一下JVM中的对象结构是不是和上面所述一样呢?</h2>
+<p>对齐填充数据不是必须的，它仅仅起着占位的作用。HotSpot VM的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是对象的大小必须是8字节的整数倍。对象头部分正好似8字节的倍数（1倍或者2倍），因此当对象实例数据部分没有对齐的话，就需要通过对齐填充来补全。</p>
 
-<p>说明:下面的实验我们将用到Hotspot提供的虚拟机调试工具ServiceAbility Agent。如果不太熟悉该工具可以参考:<a href="http://rednaxelafx.iteye.com/blog/1847971">借HSDB来探索HotSpot VM的运行时数据</a><br>
-环境:Ubuntu 14.04 32bit  </p>
+<h2>2. 现在我们就通过实例来看一下JVM中的对象结构是不是和上面所述一样呢?</h2>
 
-<h4 id="1.先看一段简单代码：">1.先看一段简单代码：</h4>
-<div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Animal</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
-        <span class="n">Integer</span> <span class="n">i</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
-        <span class="n">Long</span> <span class="n">l</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Long</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
-        <span class="n">Boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Boolean</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span> 
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div>
-<p>main方法里面包含3个对象：<code>Integer</code>,<code>Long</code>,<code>Boolean</code> ，我们现在通过SA依次来看一下每一个对象的结构和大小：<br>
-1.运行上面的程序，在<code>System.out.println(&quot;&quot;)</code>这行打个断点是虚拟机进程暂停<br>
-2.使用JPS查看虚拟机进程PID:<br>
-<img src="/images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图"><br>
-3.启动SA(HSDB)<br>
-<code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br>
-4.attach 上面的PID 3813,连上之后我们进入内存查看界面，如图:  </p>
+<p>说明:下面的实验我们将用到Hotspot提供的虚拟机调试工具ServiceAbility Agent。如果不太熟悉该工具可以参考:<a href="http://rednaxelafx.iteye.com/blog/1847971">借HSDB来探索HotSpot VM的运行时数据</a><br/>
+环境:Ubuntu 14.04 32bit</p>
 
-<p><img src="/images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看"></p>
+<h4>1.先看一段简单代码：</h4>
 
-<p>红色方框中的内容就是main方法中我们new的三个对象，通过右边的注释我们也可以看出来。<br>
-三个对象在内存中的地址分别是：  </p>
+<p>```java
+public class Animal {</p>
 
-<blockquote>
-<p>Integer i &nbsp;&nbsp;&nbsp; 0xa0159410<br>
-Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br>
-Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
-</blockquote>
+<pre><code>public static void main(String args[]){
+    Integer i = new Integer(1);
+    Long l = new Long(2);
+    Boolean b = new Boolean(true);
+    System.out.println(""); 
+}
+</code></pre>
 
-<p>首先我们先看Integer i 对象,选择SA中的菜单:<code>Tool--&gt;Inspect</code>子菜单,在address中输入<code>0xa0159410</code>可以得到这个对象，如图:<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构"></p>
+<p>}
+```</p>
 
-<p>按照刚才得方法，接下来我们看一下Long l 对象，如图：<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构"></p>
+<p>main方法里面包含3个对象：<code>Integer</code>,<code>Long</code>,<code>Boolean</code> ，我们现在通过SA依次来看一下每一个对象的结构和大小：<br/>
+1.运行上面的程序，在<code>System.out.println("")</code>这行打个断点是虚拟机进程暂停<br/>
+2.使用JPS查看虚拟机进程PID:<br/>
+<img src="/images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图" /><br/>
+3.启动SA(HSDB)<br/>
+<code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br/>
+4.attach 上面的PID 3813,连上之后我们进入内存查看界面，如图:</p>
 
-<p>再看一下Boolean b 对象,如图:<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构"></p>
+<p><img src="/images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看" /></p>
 
-<p>小结:因为对象实例数据只包括实例变量和从父类继承得实例变量，通过查看Integer,Long,Boolean 的源代码可知，这几个类只有value 一个实例变量，所以除了<u>mark(MARK</u>WORD),<u>metadata.</u>klass(class对象指针)，我们只能看到一个value变量。</p>
+<p>红色方框中的内容就是main方法中我们new的三个对象，通过右边的注释我们也可以看出来。<br/>
+三个对象在内存中的地址分别是：</p>
 
-<h4 id="2.现在我们看一个复杂点的:">2.现在我们看一个复杂点的:</h4>
-<div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Animal</span> <span class="o">{</span>
-    <span class="n">Integer</span> <span class="n">age</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
-    <span class="n">Long</span> <span class="n">height</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Long</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
-    <span class="n">Boolean</span> <span class="n">sex</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Boolean</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span> 
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div>
-<p>我们看一下Animal的对象结构,如图:<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构"></p>
+<blockquote><p>Integer i &nbsp;&nbsp;&nbsp; 0xa0159410<br/>
+Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br/>
+Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
+
+<p>首先我们先看Integer i 对象,选择SA中的菜单:<code>Tool--&gt;Inspect</code>子菜单,在address中输入<code>0xa0159410</code>可以得到这个对象，如图:<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构" /></p>
+
+<p>按照刚才得方法，接下来我们看一下Long l 对象，如图：<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构" /></p>
+
+<p>再看一下Boolean b 对象,如图:<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构" /></p>
+
+<p>小结:因为对象实例数据只包括实例变量和从父类继承得实例变量，通过查看Integer,Long,Boolean 的源代码可知，这几个类只有value 一个实例变量，所以除了<em>mark(MARK_WORD),</em>metadata._klass(class对象指针)，我们只能看到一个value变量。</p>
+
+<h4>2.现在我们看一个复杂点的:</h4>
+
+<p>```java
+public class Animal {</p>
+
+<pre><code>Integer age = new Integer(1);
+Long height = new Long(2);
+Boolean sex = new Boolean(true);
+public static void main(String args[]){
+    System.out.println(""); 
+}
+</code></pre>
+
+<p>}
+```<br/>
+我们看一下Animal的对象结构,如图:<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构" /></p>
 
 <p>由图可以看出，三个实例变量都在对象Animal里面了。</p>
 
-<h4 id="3.我们再看一个继承的:">3.我们再看一个继承的:</h4>
-<div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Tiger</span> <span class="kd">extends</span> <span class="n">Animal</span><span class="o">{</span>
-    <span class="kd">public</span> <span class="n">Double</span> <span class="n">weight</span><span class="o">;</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
-        <span class="n">Tiger</span> <span class="n">tiger</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Tiger</span><span class="o">();</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span> 
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div>
-<p>用HSDB查看结果，如图:<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构"></p>
+<h4>3.我们再看一个继承的:</h4>
+
+<p>```java
+public class Tiger extends Animal{</p>
+
+<pre><code>public Double weight;
+public static void main(String args[]){
+    Tiger tiger = new Tiger();
+    System.out.println(""); 
+}
+</code></pre>
+
+<p>}
+```
+用HSDB查看结果，如图:<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构" /></p>
 
 <p>由图可见，从父类继承的变量也是存在子类里面的。</p>
 
-<h4 id="4.最后看一个数组的:">4.最后看一个数组的:</h4>
-<div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Tiger</span> <span class="kd">extends</span> <span class="n">Animal</span><span class="o">{</span>
-    <span class="kd">public</span> <span class="n">Double</span> <span class="n">wight</span><span class="o">;</span>
-    <span class="kd">public</span> <span class="n">Integer</span><span class="o">[]</span> <span class="n">childs</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
-        <span class="n">Tiger</span> <span class="n">tiger</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Tiger</span><span class="o">();</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span> 
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div>
-<p>用HSDB查看,结果如图:<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构"></p>
+<h4>4.最后看一个数组的:</h4>
 
-<p>不幸的事情出现了，为什么这个数组对象没有显示length变量呢？难道我们之前说的数组对象的结构式错的？<br>
-用inspect 查看一下这个对象的size:<br>
-<code>inspect 0xa01ba470</code> 结果如图所示：<br>
-<img src="/images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size"></p>
+<p>```java
+public class Tiger extends Animal{</p>
 
-<p>我们来算一下:<br>
-1. 如果这个对象没有length变量，那么大小应该是：size=4+4=8.<br>
-2. 如果这个对象有length，那么大小应该是：size=4+4+4+4(补全)=16,和刚才截图中的一样。所以这个length肯定是有的，至于为什么没显示出来，我觉得有可能是这个SA插件得bug。  </p>
+<pre><code>public Double wight;
+public Integer[] childs = new Integer[0];
+public static void main(String args[]){
+    Tiger tiger = new Tiger();
+    System.out.println(""); 
+}
+</code></pre>
 
-<p>总结：通过SA我们可以查看JVM内部的实时数据，这对我们学习JVM是一个很有利的工具，了解对象的结构是万里长征迈出的第一步。<br>
-参考文章:<br>
-<a href="http://rednaxelafx.iteye.com/blog/1847971">http://rednaxelafx.iteye.com/blog/1847971</a><br>
-<a href="http://ifeve.com/java-synchronized/">http://ifeve.com/java-synchronized/</a><br>
+<p>}
+```
+用HSDB查看,结果如图:<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构" /></p>
+
+<p>不幸的事情出现了，为什么这个数组对象没有显示length变量呢？难道我们之前说的数组对象的结构式错的？<br/>
+用inspect 查看一下这个对象的size:<br/>
+<code>inspect 0xa01ba470</code> 结果如图所示：<br/>
+<img src="/images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size" /></p>
+
+<p>我们来算一下:<br/>
+1. 如果这个对象没有length变量，那么大小应该是：size=4+4=8.<br/>
+2. 如果这个对象有length，那么大小应该是：size=4+4+4+4(补全)=16,和刚才截图中的一样。所以这个length肯定是有的，至于为什么没显示出来，我觉得有可能是这个SA插件得bug。</p>
+
+<p>总结：通过SA我们可以查看JVM内部的实时数据，这对我们学习JVM是一个很有利的工具，了解对象的结构是万里长征迈出的第一步。<br/>
+参考文章:<br/>
+<a href="http://rednaxelafx.iteye.com/blog/1847971">http://rednaxelafx.iteye.com/blog/1847971</a><br/>
+<a href="http://ifeve.com/java-synchronized/">http://ifeve.com/java-synchronized/</a><br/>
 <a href="http://icyfenix.iteye.com/blog/1145044">http://icyfenix.iteye.com/blog/1145044</a></p>
 ]]></content>
   </entry>

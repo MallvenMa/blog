@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-29T22:14:45+08:00</updated>
+  <updated>2014-05-30T10:35:27+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -18,17 +18,19 @@
     <link href="http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2/"/>
     <updated>2014-05-29T20:58:21+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2</id>
-    <content type="html"><![CDATA[<h4 id="前言">前言</h4>
+    <content type="html"><![CDATA[<p>上一篇文章<a href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
+我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br/>
+我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br/>
+先看String 的intern的源代码:</p>
 
-<p>上一篇文章中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br>
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br>
-我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br>
-先看String 的intern的源代码:<br>
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">native</span> <span class="n">String</span> <span class="nf">intern</span><span class="o">();</span>
 </span></code></pre></td></tr></table></div></figure>
-这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。<br>
-String.c 中只有一个方法：<br>
+
+
+<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。 <br/>
+String.c 中只有一个方法：</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -36,33 +38,40 @@ String.c 中只有一个方法：<br>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">include</span> <span class="s">&quot;jvm.h&quot;</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="err">#</span><span class="n">include</span> <span class="s">&quot;jvm.h&quot;</span>
 </span><span class='line'><span class="err">#</span><span class="n">include</span> <span class="s">&quot;java_lang_String.h&quot;</span>
 </span><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jobject</span> <span class="n">JNICALL</span>
-</span><span class='line'><span class="n">Java</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span><span class="o">.</span><span class="na">intern</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="k">this</span><span class="o">)</span>
+</span><span class='line'><span class="nf">Java_java_lang_String_intern</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="k">this</span><span class="o">)</span>
 </span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">JVM</span><span class="o">.</span><span class="na">InternString</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
+</span><span class='line'><span class="k">return</span> <span class="nf">JVM_InternString</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
 </span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure></p>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <!--more-->
 
-<p><code>Java.java.lang.String.intern</code> 就是String类intern 对应的native方法，这里我们发现<code>Java.java.lang.String.intern</code> 调用了<code>JVM_InternString</code>这个方法。<br>
-那么这个方法又在哪呢？<br>
-根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br>
+
+<p><code>Java_java_lang_String_intern</code> 就是String类intern 对应的native方法，这里我们发现<code>Java_java_lang_String_intern</code> 调用了<code>JVM_InternString</code>这个方法。<br/>
+那么这个方法又在哪呢？<br/>
+根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code></p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/<em></span>
-</span><span class='line'><span class="cm"></em> java.lang.String</span>
-</span><span class='line'><span class="cm">* <em>/</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm">* java.lang.String</span>
+</span><span class='line'><span class="cm">* */</span>
 </span><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jstring</span> <span class="n">JNICALL</span>
-</span><span class='line'><span class="nf">JVM_InternString</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o"></em></span><span class="n">env</span><span class="o">,</span> <span class="n">jstring</span> <span class="n">str</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure><br>
-这里只是定义,我们继续找这个定义对应的实现方法。根据经验应该位于<code>jvm.cpp</code>中，我们继续找到<code>jvm.cpp</code> 的位置，它位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<br>
-在<code>jvm.cpp</code> 中终于找到了<code>JVM_InternString</code>的具体实现:<br>
+</span><span class='line'><span class="nf">JVM_InternString</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jstring</span> <span class="n">str</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+这里只是定义,我们继续找这个定义对应的实现方法。根据经验应该位于<code>jvm.cpp</code>中，我们继续找到<code>jvm.cpp</code> 的位置，它位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<br/>
+在<code>jvm.cpp</code> 中终于找到了<code>JVM_InternString</code>的具体实现:</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -71,16 +80,19 @@ String.c 中只有一个方法：<br>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM<u>ENTRY</span><span class="o">(</span><span class="n">jstring</span><span class="o">,</span> <span class="n">JVM</u>InternString</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o"><em></span><span class="n">env</span><span class="o">,</span> <span class="n">jstring</span> <span class="n">str</span><span class="o">))</span>
-</span><span class='line'><span class="n">JVMWrapper</span><span class="o">(</span><span class="s">&quot;JVM<u>InternString&quot;</span><span class="o">);</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM_ENTRY</span><span class="o">(</span><span class="n">jstring</span><span class="o">,</span> <span class="n">JVM_InternString</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jstring</span> <span class="n">str</span><span class="o">))</span>
+</span><span class='line'><span class="n">JVMWrapper</span><span class="o">(</span><span class="s">&quot;JVM_InternString&quot;</span><span class="o">);</span>
 </span><span class='line'><span class="n">JvmtiVMObjectAllocEventCollector</span> <span class="n">oam</span><span class="o">;</span>
 </span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>
-</span><span class='line'><span class="n">oop</span> <span class="n">string</span> <span class="o">=</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve</u>non<u>null</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
-</span><span class='line'><span class="n">oop</span> <span class="n">result</span> <span class="o">=</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">CHECK</u>NULL</span><span class="o">);</span>
-</span><span class='line'><span class="k">return</span> <span class="o">(</span><span class="n">jstring</span><span class="o">)</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">make<u>local</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
-</span><span class='line'><span class="n">JVM</u>END</span>
+</span><span class='line'><span class="n">oop</span> <span class="n">string</span> <span class="o">=</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve_non_null</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+</span><span class='line'><span class="n">oop</span> <span class="n">result</span> <span class="o">=</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'><span class="k">return</span> <span class="o">(</span><span class="n">jstring</span><span class="o">)</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">make_local</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+</span><span class='line'><span class="n">JVM_END</span>
 </span></code></pre></td></tr></table></div></figure>
-从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。那就继续到<code>StringTable</code>中看看，<code>jvm.cpp</code> 引入了好多头文件，这下凭经验不好找了，简单粗暴的搜一下吧。macos 的搜索就是这么好用啊，最终找到<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：<br>
+
+
+<p>从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。那就继续到<code>StringTable</code>中看看，<code>jvm.cpp</code> 引入了好多头文件，这下凭经验不好找了，简单粗暴的搜一下吧。macos 的搜索就是这么好用啊，最终找到<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -91,17 +103,20 @@ String.c 中只有一个方法：<br>
 </span><span class='line'>  <span class="n">friend</span> <span class="kd">class</span> <span class="nc">VMStructs</span><span class="o">;</span>
 </span><span class='line'><span class="kd">private</span><span class="o">:</span>
 </span><span class='line'>  <span class="c1">// The string table</span>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">StringTable</span><span class="o"></em></span> <span class="n"><u>the</u>table</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">StringTable</span><span class="o">*</span> <span class="n">_the_table</span><span class="o">;</span>
 </span><span class='line'><span class="o">.......</span><span class="err">请自行查看源代码</span>
 </span></code></pre></td></tr></table></div></figure>
-我们先简单看一下<code>StringTable</code>这个类：<br>
-1.  它继承了<code>Hashtable&lt;oop, mtSymbol&gt;</code>，它使用HashTable结构保持着对各个字符串实例的引用（所以常量池中的对象不会被垃圾收集器收集掉）。<br>
-2. <code>static StringTable* _the_table</code> : StringTable的实例变量，用它来来存储字符串常量，是通过<code>create_table()</code> 来实例化。<br>
-3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br>
-4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br>
-5. <code>intern()</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。  </p>
 
-<p>先看一下intern方法:<br>
+
+<p>我们先简单看一下<code>StringTable</code>这个类： <br/>
+1.  它继承了<code>Hashtable&lt;oop, mtSymbol&gt;</code>，它使用HashTable结构保持着对各个字符串实例的引用（所以常量池中的对象不会被垃圾收集器收集掉）。 <br/>
+2. <code>static StringTable* _the_table</code> : StringTable的实例变量，用它来来存储字符串常量，是通过<code>create_table()</code> 来实例化。<br/>
+3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br/>
+4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br/>
+5. <code>intern()</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。</p>
+
+<p>先看一下intern方法:</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -131,42 +146,43 @@ String.c 中只有一个方法：<br>
 <span class='line-number'>27</span>
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">Handle</span> <span class="n">string<u>or</u>null</span><span class="o">,</span> <span class="n">jchar</span><span class="o"><em></span> <span class="n">name</span><span class="o">,</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">Handle</span> <span class="n">string_or_null</span><span class="o">,</span> <span class="n">jchar</span><span class="o">*</span> <span class="n">name</span><span class="o">,</span>
 </span><span class='line'>                        <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hashValue</span> <span class="o">=</span> <span class="n">hash<u>string</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">);</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">the</u>table</span><span class="o">()-&gt;</span><span class="n">hash<u>to</u>index</span><span class="o">(</span><span class="n">hashValue</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">oop</span> <span class="n">found<u>string</span> <span class="o">=</span> <span class="n">the</u>table</span><span class="o">()-&gt;</span><span class="n">lookup</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">hashValue</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hashValue</span> <span class="o">=</span> <span class="n">hash_string</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">);</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">the_table</span><span class="o">()-&gt;</span><span class="n">hash_to_index</span><span class="o">(</span><span class="n">hashValue</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">oop</span> <span class="n">found_string</span> <span class="o">=</span> <span class="n">the_table</span><span class="o">()-&gt;</span><span class="n">lookup</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">hashValue</span><span class="o">);</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Found</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">found<u>string</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">found</u>string</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">found_string</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">found_string</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="n">debug_only</span><span class="o">(</span><span class="n">StableMemoryChecker</span> <span class="n">smc</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span> <span class="o"></em></span> <span class="n">sizeof</span><span class="o">(</span><span class="n">name</span><span class="o">[</span><span class="mi">0</span><span class="o">])));</span>
-</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is<u>in</u>reserved</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="o">||</span> <span class="nl">GC<u>locker:</span><span class="o">:</span><span class="n">is</u>active</span><span class="o">(),</span>
+</span><span class='line'>  <span class="n">debug_only</span><span class="o">(</span><span class="n">StableMemoryChecker</span> <span class="n">smc</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span> <span class="o">*</span> <span class="n">sizeof</span><span class="o">(</span><span class="n">name</span><span class="o">[</span><span class="mi">0</span><span class="o">])));</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is_in_reserved</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="o">||</span> <span class="nl">GC_locker:</span><span class="o">:</span><span class="n">is_active</span><span class="o">(),</span>
 </span><span class='line'>         <span class="s">&quot;proposed name of symbol must be stable&quot;</span><span class="o">);</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="n">Handle</span> <span class="n">string</span><span class="o">;</span>
 </span><span class='line'>  <span class="c1">// try to reuse the string if possible</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">string<u>or</u>null</span><span class="o">.</span><span class="na">is<u>null</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">(!</span><span class="n">JavaObjectsInPerm</span> <span class="o">||</span> <span class="n">string</u>or<u>null</span><span class="o">()-&gt;</span><span class="n">is</u>perm</span><span class="o">()))</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="n">string<u>or</u>null</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">string_or_null</span><span class="o">.</span><span class="na">is_null</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">(!</span><span class="n">JavaObjectsInPerm</span> <span class="o">||</span> <span class="n">string_or_null</span><span class="o">()-&gt;</span><span class="n">is_perm</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="n">string_or_null</span><span class="o">;</span>
 </span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="nl">java<u>lang</u>String:</span><span class="o">:</span><span class="n">create<u>tenured</u>from<u>unicode</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">CHECK</u>NULL</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">create_tenured_from_unicode</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="c1">// Grab the StringTable<u>lock before getting the</u>table() because it could</span>
+</span><span class='line'>  <span class="c1">// Grab the StringTable_lock before getting the_table() because it could</span>
 </span><span class='line'>  <span class="c1">// change at safepoint.</span>
-</span><span class='line'>  <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="o">(</span><span class="n">StringTable<u>lock</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="o">(</span><span class="n">StringTable_lock</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Otherwise, add to symbol to table</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nf">the</u>table</span><span class="o">()-&gt;</span><span class="n">basic<u>add</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">string</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span>
-</span><span class='line'>                                <span class="n">hashValue</span><span class="o">,</span> <span class="n">CHECK</u>NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">the_table</span><span class="o">()-&gt;</span><span class="n">basic_add</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">string</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">hashValue</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
-第5行: 检查该字符串是否存在，如果存在，就返回。<br>
-第19行: 创建一个String对象,创建过程可以看具体的方法:<br>
-<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。(jvm创建对象并分配内存的过程可以看一下这个地方)。<br>
-第27行: 将新创建的Sting对象添加到池中(the_table())。  </p>
 
-<h3 id="总结:">总结:</h3>
+
+<p>第5行: 检查该字符串是否存在，如果存在，就返回。<br/>
+第19行: 创建一个String对象,创建过程可以参考:<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。jvm创建对象并分配内存的过程基本也是这个模式。<br/>
+第27行: 将新创建的Sting对象添加到常量池<code>the_table()</code>中。</p>
+
+<h3>总结:</h3>
 
 <p>String常量池对应的数据结构就是StringTable对象,也就是一个hashtable结构。所有的字符串常量都被StringTable所持。这下大家应该对String常量池有了一个基本的认识了。</p>
 ]]></content>
@@ -177,19 +193,20 @@ String.c 中只有一个方法：<br>
     <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
-    <content type="html"><![CDATA[<h4 id="1.sting对象创建方式">1.Sting对象创建方式</h4>
+    <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
 
-<p>JAVA里面创建字符串有两种方式：<br>
-1. 通过字符串常量方式:String a = &quot;a&quot;;<br>
-2. 通过new 关键字创建:new String(&quot;a&quot;);  </p>
+<p>JAVA里面创建字符串有两种方式：<br/>
+1. 通过字符串常量方式:String a = &ldquo;a&rdquo;;<br/>
+2. 通过new 关键字创建:new String(&ldquo;a&rdquo;);</p>
 
-<p>但是这两种创建字符串的方式有很大的不同。<br>
-1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br>
-2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  </p>
+<p>但是这两种创建字符串的方式有很大的不同。<br/>
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br/>
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。</p>
 
-<h4 id="2.下面来看一个例子:-本例子gist地址">2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+<h4>2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
 
 <!--more-->
+
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -308,18 +325,21 @@ String.c 中只有一个方法：<br>
 </span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">str_0_static</span> <span class="o">=</span> <span class="s">&quot;a&quot;</span><span class="o">;</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
- 
 
-<p><img src="http://zarue.github.io//images/blog/2014-05/20140528-string-pool-1.png" alt="结果"></p>
 
-<h4 id="分析(下面所指行号均为源代码行号):">分析(下面所指行号均为源代码行号):</h4>
+<p><img src="http://zarue.github.io//images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
+
+<h4>分析(下面所指行号均为源代码行号):</h4>
 
 <ol>
-<li><p><strong>24-31</strong>行的结果说明:<br>
-只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  </p></li>
-<li><p><strong>34</strong>行为true, 是因为:<br>
-String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &quot;ab&quot;。<br>
-可以通过javap 反编译class字节码来看一下:<br>
+<li><p><strong>24-31</strong>行的结果说明:<br/>
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。</p></li>
+<li><p><strong>34</strong>行为true, 是因为:<br/>
+String str3 = &ldquo;a&rdquo;+&ldquo;b&rdquo;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &ldquo;ab&#8221;。<br/>
+可以通过javap 反编译class字节码来看一下:</p></li>
+</ol>
+
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -329,11 +349,16 @@ String str3 = &quot;a&quot;+&quot;b&quot;; 是因为“a” 和 “b” 都是�
 </span><span class='line'><span class="mi">34</span><span class="o">:</span> <span class="n">astore</span> <span class="mi">6</span>
 </span><span class='line'><span class="mi">36</span><span class="o">:</span> <span class="n">ldc</span> <span class="err">#</span><span class="mi">35</span> <span class="c1">// String ab </span>
 </span></code></pre></td></tr></table></div></figure>
-上面第36行就是<code>String str3 = &quot;a&quot;+&quot;b&quot;;</code>对应的字节码。这里可以看出&quot;a&quot;+&quot;b&quot;已经被优化为&quot;ab&quot;了。  </p></li>
-<li><p><strong>35</strong>行为false, 是因为:<br>
-String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br>
-再看一下字节码文件:   </p></li>
+
+
+<p>上面第36行就是<code>String str3 = "a"+"b";</code>对应的字节码。这里可以看出&#8221;a&#8221;+&ldquo;b&#8221;已经被优化为&#8221;ab&#8221;了。</p>
+
+<ol>
+<li><strong>35</strong>行为false, 是因为:<br/>
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br/>
+再看一下字节码文件:</li>
 </ol>
+
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -355,7 +380,9 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 </span><span class='line'><span class="mi">60</span><span class="o">:</span> <span class="n">astore</span> <span class="mi">8</span>
 </span></code></pre></td></tr></table></div></figure>
 
-<p>由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:<br>
+
+<p>由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -363,7 +390,10 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 </span><span class='line'><span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">str1</span><span class="o">);</span>
 </span><span class='line'><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
 </span></code></pre></td></tr></table></div></figure>
-再看一下StringBuilder的toString()方法:<br>
+
+
+<p>再看一下StringBuilder的toString()方法:</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -373,16 +403,21 @@ String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期
 </span><span class='line'><span class="k">return</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">value</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
-由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。  </p>
+
+
+<p>由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。</p>
 
 <ol>
-<li><strong>39-41</strong>行为false: 是因为:<br>
-str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。<br></li>
-<li><p><strong>44-46</strong>行为true: 是因为:<br>
-当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。  </p></li>
-<li><p><strong>49-50</strong>行为true: 是因为:<br>
-String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br>
-看一下String的equals方法:<br>
+<li><strong>39-41</strong>行为false: 是因为:<br/>
+str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。</li>
+<li><p><strong>44-46</strong>行为true: 是因为:<br/>
+当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。</p></li>
+<li><p><strong>49-50</strong>行为true: 是因为:<br/>
+String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br/>
+看一下String的equals方法:</p></li>
+</ol>
+
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -405,13 +440,13 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 <span class='line-number'>20</span>
 <span class='line-number'>21</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'> <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">anObject</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o"><mark></span> <span class="n">anObject</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">anObject</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
 </span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">anObject</span> <span class="k">instanceof</span> <span class="n">String</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>            <span class="n">String</span> <span class="n">anotherString</span> <span class="o">=</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">anObject</span><span class="o">;</span>
 </span><span class='line'>            <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o"></mark></span> <span class="n">anotherString</span><span class="o">.</span><span class="na">value</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="n">anotherString</span><span class="o">.</span><span class="na">value</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>                <span class="kt">char</span> <span class="n">v1</span><span class="o">[]</span> <span class="o">=</span> <span class="n">value</span><span class="o">;</span>
 </span><span class='line'>                <span class="kt">char</span> <span class="n">v2</span><span class="o">[]</span> <span class="o">=</span> <span class="n">anotherString</span><span class="o">.</span><span class="na">value</span><span class="o">;</span>
 </span><span class='line'>                <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
@@ -425,10 +460,10 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 </span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
 </span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure></p></li>
-</ol>
+</span></code></pre></td></tr></table></div></figure>
 
-<h5 id="下一节将会详细讲一下字符串池的结构以及原理">下一节将会详细讲一下字符串池的结构以及原理</h5>
+
+<h5>下一节将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   
@@ -437,77 +472,86 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
     <link href="http://zarue.github.io//blog/2014/05/22/jvm-object-structure/"/>
     <updated>2014-05-22T14:09:15+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/22/jvm-object-structure</id>
-    <content type="html"><![CDATA[<h2 id="1.-java对象在内存中到底是什么样?">1. Java对象在内存中到底是什么样?</h2>
+    <content type="html"><![CDATA[<h2>1. Java对象在内存中到底是什么样?</h2>
 
 <p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
 那在JVM中这个规范是怎么定义的呢？
-Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构">  </p>
+Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
 
 <!--more-->
 
-<h4 id="1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):">1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
 
-<table><thead>
+<h4>1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
+
+<table>
+<thead>
 <tr>
-<th style="text-align: center">内容</th>
-<th style="text-align: center">长度</th>
-<th style="text-align: left">说明</th>
+<th align="center">内容</th>
+<th align="center">长度</th>
+<th align="left">说明</th>
 </tr>
-</thead><tbody>
+</thead>
+<tbody>
 <tr>
-<td style="text-align: center">Mark Word</td>
-<td style="text-align: center">32/64bit</td>
-<td style="text-align: left">存储对象的hashCode或锁信息等。</td>
-</tr>
-<tr>
-<td style="text-align: center">Class对象指针</td>
-<td style="text-align: center">32/64bit</td>
-<td style="text-align: left">存储到对象类型数据的指针</td>
+<td align="center">  Mark Word  </td>
+<td align="center">  32/64bit  </td>
+<td align="left">  存储对象的hashCode或锁信息等。</td>
 </tr>
 <tr>
-<td style="text-align: center">数组长度</td>
-<td style="text-align: center">32/64bit</td>
-<td style="text-align: left">数组的长度（如果当前对象是数组）</td>
+<td align="center">  Class对象指针  </td>
+<td align="center">  32/64bit  </td>
+<td align="left">  存储到对象类型数据的指针</td>
 </tr>
-</tbody></table>
-
-<p>Java对象头里的Mark Word里默认存储对象的HashCode，分代年龄和锁标记位。32位JVM的Mark Word的默认存储结构(无锁状态)如下：  </p>
-
-<table><thead>
 <tr>
-<th style="text-align: center">锁状态</th>
-<th style="text-align: center">25 bit</th>
-<th style="text-align: left">4 bit</th>
-<th style="text-align: left">1 bit是否是偏向锁</th>
-<th style="text-align: left">2 bit锁标志位</th>
+<td align="center">  数组长度  </td>
+<td align="center">  32/64bit  </td>
+<td align="left">  数组的长度（如果当前对象是数组）</td>
 </tr>
-</thead><tbody>
+</tbody>
+</table>
+
+
+<p>Java对象头里的Mark Word里默认存储对象的HashCode，分代年龄和锁标记位。32位JVM的Mark Word的默认存储结构(无锁状态)如下：</p>
+
+<table>
+<thead>
 <tr>
-<td style="text-align: center">无锁状态</td>
-<td style="text-align: center">对象的hashCode</td>
-<td style="text-align: left">对象分代年龄</td>
-<td style="text-align: left">0</td>
-<td style="text-align: left">01</td>
+<th align="center">锁状态</th>
+<th align="center">25 bit</th>
+<th align="left"> 4 bit</th>
+<th align="left">1 bit是否是偏向锁</th>
+<th align="left">2 bit锁标志位</th>
 </tr>
-</tbody></table>
+</thead>
+<tbody>
+<tr>
+<td align="center"> 无锁状态</td>
+<td align="center">对象的hashCode</td>
+<td align="left">对象分代年龄</td>
+<td align="left">0</td>
+<td align="left">01</td>
+</tr>
+</tbody>
+</table>
 
-<p>在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化。Mark Word可能变化为存储以下4种数据：<code>轻量级锁</code>，<code>重量级锁</code>，<code>GC标记</code> ，<code>偏向锁</code>。本文只讨论对象结构，如果想详细了解对象锁，可以参考:<a href="http://ifeve.com/java-synchronized/">Java SE1.6中的Synchronized</a>  </p>
 
-<h4 id="2.对象实例数据：">2.对象实例数据：</h4>
+<p>在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化。Mark Word可能变化为存储以下4种数据：<code>轻量级锁</code>，<code>重量级锁</code>，<code>GC标记</code> ，<code>偏向锁</code>。本文只讨论对象结构，如果想详细了解对象锁，可以参考:<a href="http://ifeve.com/java-synchronized/">Java SE1.6中的Synchronized</a></p>
 
-<p>实例数据包括自身的实例变量和从父类继承的实例变量，这些变量的排序顺序受虚拟机分配策略参数（FieldsAllocationStyle）和字段在源代码中定义的顺序影响。HotSpot虚拟机默认的分配策略为longs/doubles、ints、shorts/chars、bytes/booleans、oops（Ordinary Object Pointers）。从分配策略中可以看出，相同宽度的字段总是被分配到一起。在满足这个前提条件的情况下，在父类中定义的变量会出现在子类之前。如果CompactFields参数值为true（默认为true），那子类之中较窄的变量也可能会插入到父类变量的空隙之中。   </p>
+<h4>2.对象实例数据：</h4>
 
-<h4 id="3.对齐填充数据：">3.对齐填充数据：</h4>
+<p>实例数据包括自身的实例变量和从父类继承的实例变量，这些变量的排序顺序受虚拟机分配策略参数（FieldsAllocationStyle）和字段在源代码中定义的顺序影响。HotSpot虚拟机默认的分配策略为longs/doubles、ints、shorts/chars、bytes/booleans、oops（Ordinary Object Pointers）。从分配策略中可以看出，相同宽度的字段总是被分配到一起。在满足这个前提条件的情况下，在父类中定义的变量会出现在子类之前。如果CompactFields参数值为true（默认为true），那子类之中较窄的变量也可能会插入到父类变量的空隙之中。</p>
 
-<p>对齐填充数据不是必须的，它仅仅起着占位的作用。HotSpot VM的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是对象的大小必须是8字节的整数倍。对象头部分正好似8字节的倍数（1倍或者2倍），因此当对象实例数据部分没有对齐的话，就需要通过对齐填充来补全。   </p>
+<h4>3.对齐填充数据：</h4>
 
-<h2 id="2.-现在我们就通过实例来看一下jvm中的对象结构是不是和上面所述一样呢?">2. 现在我们就通过实例来看一下JVM中的对象结构是不是和上面所述一样呢?</h2>
+<p>对齐填充数据不是必须的，它仅仅起着占位的作用。HotSpot VM的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是对象的大小必须是8字节的整数倍。对象头部分正好似8字节的倍数（1倍或者2倍），因此当对象实例数据部分没有对齐的话，就需要通过对齐填充来补全。</p>
 
-<p>说明:下面的实验我们将用到Hotspot提供的虚拟机调试工具ServiceAbility Agent。如果不太熟悉该工具可以参考:<a href="http://rednaxelafx.iteye.com/blog/1847971">借HSDB来探索HotSpot VM的运行时数据</a><br>
-环境:Ubuntu 14.04 32bit  </p>
+<h2>2. 现在我们就通过实例来看一下JVM中的对象结构是不是和上面所述一样呢?</h2>
 
-<h4 id="1.先看一段简单代码：">1.先看一段简单代码：</h4>
+<p>说明:下面的实验我们将用到Hotspot提供的虚拟机调试工具ServiceAbility Agent。如果不太熟悉该工具可以参考:<a href="http://rednaxelafx.iteye.com/blog/1847971">借HSDB来探索HotSpot VM的运行时数据</a><br/>
+环境:Ubuntu 14.04 32bit</p>
+
+<h4>1.先看一段简单代码：</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -527,37 +571,36 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-<p>main方法里面包含3个对象：<code>Integer</code>,<code>Long</code>,<code>Boolean</code> ，我们现在通过SA依次来看一下每一个对象的结构和大小：<br>
-1.运行上面的程序，在<code>System.out.println(&quot;&quot;)</code>这行打个断点是虚拟机进程暂停<br>
-2.使用JPS查看虚拟机进程PID:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图"><br>
-3.启动SA(HSDB)<br>
-<code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br>
-4.attach 上面的PID 3813,连上之后我们进入内存查看界面，如图:  </p>
 
-<p><img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看"></p>
+<p>main方法里面包含3个对象：<code>Integer</code>,<code>Long</code>,<code>Boolean</code> ，我们现在通过SA依次来看一下每一个对象的结构和大小：<br/>
+1.运行上面的程序，在<code>System.out.println("")</code>这行打个断点是虚拟机进程暂停<br/>
+2.使用JPS查看虚拟机进程PID:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图" /><br/>
+3.启动SA(HSDB)<br/>
+<code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br/>
+4.attach 上面的PID 3813,连上之后我们进入内存查看界面，如图:</p>
 
-<p>红色方框中的内容就是main方法中我们new的三个对象，通过右边的注释我们也可以看出来。<br>
-三个对象在内存中的地址分别是：  </p>
+<p><img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看" /></p>
 
-<blockquote>
-<p>Integer i &nbsp;&nbsp;&nbsp; 0xa0159410<br>
-Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br>
-Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
-</blockquote>
+<p>红色方框中的内容就是main方法中我们new的三个对象，通过右边的注释我们也可以看出来。<br/>
+三个对象在内存中的地址分别是：</p>
 
-<p>首先我们先看Integer i 对象,选择SA中的菜单:<code>Tool--&gt;Inspect</code>子菜单,在address中输入<code>0xa0159410</code>可以得到这个对象，如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构"></p>
+<blockquote><p>Integer i &nbsp;&nbsp;&nbsp; 0xa0159410<br/>
+Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br/>
+Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
-<p>按照刚才得方法，接下来我们看一下Long l 对象，如图：<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构"></p>
+<p>首先我们先看Integer i 对象,选择SA中的菜单:<code>Tool--&gt;Inspect</code>子菜单,在address中输入<code>0xa0159410</code>可以得到这个对象，如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构" /></p>
 
-<p>再看一下Boolean b 对象,如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构"></p>
+<p>按照刚才得方法，接下来我们看一下Long l 对象，如图：<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构" /></p>
 
-<p>小结:因为对象实例数据只包括实例变量和从父类继承得实例变量，通过查看Integer,Long,Boolean 的源代码可知，这几个类只有value 一个实例变量，所以除了<u>mark(MARK</u>WORD),<u>metadata.</u>klass(class对象指针)，我们只能看到一个value变量。</p>
+<p>再看一下Boolean b 对象,如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构" /></p>
 
-<h4 id="2.现在我们看一个复杂点的:">2.现在我们看一个复杂点的:</h4>
+<p>小结:因为对象实例数据只包括实例变量和从父类继承得实例变量，通过查看Integer,Long,Boolean 的源代码可知，这几个类只有value 一个实例变量，所以除了<em>mark(MARK_WORD),</em>metadata._klass(class对象指针)，我们只能看到一个value变量。</p>
+
+<h4>2.现在我们看一个复杂点的:</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -575,14 +618,16 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 </span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span> 
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>  
+</span></code></pre></td></tr></table></div></figure>
 
-<p>我们看一下Animal的对象结构,如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构"></p>
+
+<p>
+我们看一下Animal的对象结构,如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构" /></p>
 
 <p>由图可以看出，三个实例变量都在对象Animal里面了。</p>
 
-<h4 id="3.我们再看一个继承的:">3.我们再看一个继承的:</h4>
+<h4>3.我们再看一个继承的:</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -600,12 +645,13 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-<p>用HSDB查看结果，如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构"></p>
+
+<p>用HSDB查看结果，如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构" /></p>
 
 <p>由图可见，从父类继承的变量也是存在子类里面的。</p>
 
-<h4 id="4.最后看一个数组的:">4.最后看一个数组的:</h4>
+<h4>4.最后看一个数组的:</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -625,22 +671,23 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-<p>用HSDB查看,结果如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构"></p>
 
-<p>不幸的事情出现了，为什么这个数组对象没有显示length变量呢？难道我们之前说的数组对象的结构式错的？<br>
-用inspect 查看一下这个对象的size:<br>
-<code>inspect 0xa01ba470</code> 结果如图所示：<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size"></p>
+<p>用HSDB查看,结果如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构" /></p>
 
-<p>我们来算一下:<br>
-1. 如果这个对象没有length变量，那么大小应该是：size=4+4=8.<br>
-2. 如果这个对象有length，那么大小应该是：size=4+4+4+4(补全)=16,和刚才截图中的一样。所以这个length肯定是有的，至于为什么没显示出来，我觉得有可能是这个SA插件得bug。  </p>
+<p>不幸的事情出现了，为什么这个数组对象没有显示length变量呢？难道我们之前说的数组对象的结构式错的？<br/>
+用inspect 查看一下这个对象的size:<br/>
+<code>inspect 0xa01ba470</code> 结果如图所示：<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size" /></p>
 
-<p>总结：通过SA我们可以查看JVM内部的实时数据，这对我们学习JVM是一个很有利的工具，了解对象的结构是万里长征迈出的第一步。<br>
-参考文章:<br>
-<a href="http://rednaxelafx.iteye.com/blog/1847971">http://rednaxelafx.iteye.com/blog/1847971</a><br>
-<a href="http://ifeve.com/java-synchronized/">http://ifeve.com/java-synchronized/</a><br>
+<p>我们来算一下:<br/>
+1. 如果这个对象没有length变量，那么大小应该是：size=4+4=8.<br/>
+2. 如果这个对象有length，那么大小应该是：size=4+4+4+4(补全)=16,和刚才截图中的一样。所以这个length肯定是有的，至于为什么没显示出来，我觉得有可能是这个SA插件得bug。</p>
+
+<p>总结：通过SA我们可以查看JVM内部的实时数据，这对我们学习JVM是一个很有利的工具，了解对象的结构是万里长征迈出的第一步。<br/>
+参考文章:<br/>
+<a href="http://rednaxelafx.iteye.com/blog/1847971">http://rednaxelafx.iteye.com/blog/1847971</a><br/>
+<a href="http://ifeve.com/java-synchronized/">http://ifeve.com/java-synchronized/</a><br/>
 <a href="http://icyfenix.iteye.com/blog/1145044">http://icyfenix.iteye.com/blog/1145044</a></p>
 ]]></content>
   </entry>
@@ -650,28 +697,31 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
     <link href="http://zarue.github.io//blog/2014/05/21/cpu-and-memory/"/>
     <updated>2014-05-21T20:35:18+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/21/cpu-and-memory</id>
-    <content type="html"><![CDATA[<h2 id="本文讨论的都是概念模型，实际实现方式肯定会有不同">本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
+    <content type="html"><![CDATA[<h2>本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
 
-<h3 id="1.-关于cpu的几个概念">1. 关于CPU的几个概念</h3>
+<h3>1. 关于CPU的几个概念</h3>
 
 <ol>
-<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。<br></li>
-<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2^32 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。<br></li>
-<li>地址总线：CPU是通过地址总线来进行内存寻址。<br></li>
-<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2^32-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。<br></li>
-<li>控制总线：主要是将CPU的控制指令传送到其它组件 </li>
+<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。</li>
+<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2<sup>32</sup> 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。</li>
+<li>地址总线：CPU是通过地址总线来进行内存寻址。</li>
+<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。</li>
+<li>控制总线：主要是将CPU的控制指令传送到其它组件</li>
 </ol>
 
-<p>关于总线更详细的文章网上有很多，例如：  </p>
+
+<p>关于总线更详细的文章网上有很多，例如：</p>
 
 <ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a><br></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a><br></li>
+<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a></li>
+<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a></li>
 </ul>
+
 
 <!--more-->
 
-<h3 id="2.-关于内存的几个概念">2. 关于内存的几个概念</h3>
+
+<h3>2. 关于内存的几个概念</h3>
 
 <ol>
 <li>存储元：是存储器的最小存储单位，它可以存放一个二进制代码。</li>
@@ -680,11 +730,13 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
 <li>存储器：若干个存储单元构成一个存储器。</li>
 </ol>
 
-<p>关于内存更详细的文章网上也有很多，例如：  </p>
+
+<p>关于内存更详细的文章网上也有很多，例如：</p>
 
 <ul>
-<li><a href="http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8">互动百科-存储器</a><br></li>
+<li><a href="http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8">互动百科-存储器</a></li>
 </ul>
+
 
 <p>总结：了解一下CPU和内存的底层结构，再去学习底层程序实现的时候就不会感到那么迷茫了（一个数据到底在内存中是怎么存的呢？）。</p>
 ]]></content>
@@ -695,30 +747,33 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650  </p>
     <link href="http://zarue.github.io//blog/2014/05/18/vim-chinese-error/"/>
     <updated>2014-05-18T22:05:24+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/18/vim-chinese-error</id>
-    <content type="html"><![CDATA[<h3 id="出现问题的环境:">出现问题的环境:</h3>
+    <content type="html"><![CDATA[<h3>出现问题的环境:</h3>
 
 <ol>
-<li>OSX 10.9.2 英文<br></li>
-<li>VIM 7.3<br></li>
+<li>OSX 10.9.2 英文</li>
+<li>VIM 7.3</li>
 </ol>
 
-<h3 id="问题描述:">问题描述:</h3>
+
+<h3>问题描述:</h3>
 
 <ol>
-<li>可以正常显示文件中得中文字符<br></li>
-<li>输入中文字符会出现乱码<br></li>
-<li>通过在.vimrc中设置编码格式无效<br></li>
+<li>可以正常显示文件中得中文字符</li>
+<li>输入中文字符会出现乱码</li>
+<li>通过在.vimrc中设置编码格式无效</li>
 </ol>
 
-<h3 id="解决方案:">解决方案:</h3>
 
-<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。  </p>
+<h3>解决方案:</h3>
+
+<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。</p>
 
 <!--more-->
 
-<p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br>
-如图:<br>
-<img src="http://zarue.github.io//images/blog/2014-05/20140519-1-vim.png" alt="示例"></p>
+
+<p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br/>
+如图:<br/>
+<img src="http://zarue.github.io//images/blog/2014-05/20140519-1-vim.png" alt="示例" /></p>
 ]]></content>
   </entry>
   

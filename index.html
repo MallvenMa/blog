@@ -7,8 +7,8 @@
 	<meta name="author" content="YungHua.Ma">
 
 	
-	<meta name="description" content="May 29th, 2014 jvm Comments JVM 之 String 常量池 二 前言 上一篇文章中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以 &hellip;">
+	<meta name="description" content="May 29th, 2014 jvm Comments JVM 之 String 常量池 二 上一篇文章JVM 之 String 常量池 一中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。
+我们从哪里入手呢， &hellip;">
 	
 
 o <!-- http://t.co/dKP3o1e -->
@@ -112,17 +112,19 @@ o <!-- http://t.co/dKP3o1e -->
 	</div>
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/29/runtime-string-pool-2/" itemprop="url">JVM 之 String 常量池 二</a></h1>
 	<div class="entry-content" itemprop="articleBody">
-		<h4 id="前言">前言</h4>
+		<p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
+我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br/>
+我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br/>
+先看String 的intern的源代码:</p>
 
-<p>上一篇文章中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br>
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br>
-我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br>
-先看String 的intern的源代码:<br>
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">native</span> <span class="n">String</span> <span class="nf">intern</span><span class="o">();</span>
 </span></code></pre></td></tr></table></div></figure>
-这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。<br>
-String.c 中只有一个方法：<br>
+
+
+<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。 <br/>
+String.c 中只有一个方法：</p>
+
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -130,14 +132,15 @@ String.c 中只有一个方法：<br>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">include</span> <span class="s">&quot;jvm.h&quot;</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="err">#</span><span class="n">include</span> <span class="s">&quot;jvm.h&quot;</span>
 </span><span class='line'><span class="err">#</span><span class="n">include</span> <span class="s">&quot;java_lang_String.h&quot;</span>
 </span><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jobject</span> <span class="n">JNICALL</span>
-</span><span class='line'><span class="n">Java</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span><span class="o">.</span><span class="na">intern</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="k">this</span><span class="o">)</span>
+</span><span class='line'><span class="nf">Java_java_lang_String_intern</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="k">this</span><span class="o">)</span>
 </span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">JVM</span><span class="o">.</span><span class="na">InternString</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
+</span><span class='line'><span class="k">return</span> <span class="nf">JVM_InternString</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
 </span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure></p>
+</span></code></pre></td></tr></table></div></figure>
+
 
 
 		
@@ -175,17 +178,17 @@ String.c 中只有一个方法：<br>
 	</div>
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/27/runtime-string-pool-1/" itemprop="url">JVM 之 String 常量池 一</a></h1>
 	<div class="entry-content" itemprop="articleBody">
-		<h4 id="1.sting对象创建方式">1.Sting对象创建方式</h4>
+		<h4>1.Sting对象创建方式</h4>
 
-<p>JAVA里面创建字符串有两种方式：<br>
-1. 通过字符串常量方式:String a = &quot;a&quot;;<br>
-2. 通过new 关键字创建:new String(&quot;a&quot;);  </p>
+<p>JAVA里面创建字符串有两种方式：<br/>
+1. 通过字符串常量方式:String a = &ldquo;a&rdquo;;<br/>
+2. 通过new 关键字创建:new String(&ldquo;a&rdquo;);</p>
 
-<p>但是这两种创建字符串的方式有很大的不同。<br>
-1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br>
-2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  </p>
+<p>但是这两种创建字符串的方式有很大的不同。<br/>
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br/>
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。</p>
 
-<h4 id="2.下面来看一个例子:-本例子gist地址">2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+<h4>2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
 
 
 		
@@ -223,12 +226,12 @@ String.c 中只有一个方法：<br>
 	</div>
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/22/jvm-object-structure/" itemprop="url">JVM 之 Java 对象结构</a></h1>
 	<div class="entry-content" itemprop="articleBody">
-		<h2 id="1.-java对象在内存中到底是什么样?">1. Java对象在内存中到底是什么样?</h2>
+		<h2>1. Java对象在内存中到底是什么样?</h2>
 
 <p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
 那在JVM中这个规范是怎么定义的呢？
-Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br>
-<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构">  </p>
+Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br/>
+<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
 
 
 		
@@ -266,24 +269,26 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
 	</div>
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/21/cpu-and-memory/" itemprop="url">关于CPU寻址和物理内存结构</a></h1>
 	<div class="entry-content" itemprop="articleBody">
-		<h2 id="本文讨论的都是概念模型，实际实现方式肯定会有不同">本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
+		<h2>本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
 
-<h3 id="1.-关于cpu的几个概念">1. 关于CPU的几个概念</h3>
+<h3>1. 关于CPU的几个概念</h3>
 
 <ol>
-<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。<br></li>
-<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2^32 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。<br></li>
-<li>地址总线：CPU是通过地址总线来进行内存寻址。<br></li>
-<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2^32-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。<br></li>
-<li>控制总线：主要是将CPU的控制指令传送到其它组件 </li>
+<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。</li>
+<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2<sup>32</sup> 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。</li>
+<li>地址总线：CPU是通过地址总线来进行内存寻址。</li>
+<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。</li>
+<li>控制总线：主要是将CPU的控制指令传送到其它组件</li>
 </ol>
 
-<p>关于总线更详细的文章网上有很多，例如：  </p>
+
+<p>关于总线更详细的文章网上有很多，例如：</p>
 
 <ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a><br></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a><br></li>
+<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a></li>
+<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a></li>
 </ul>
+
 
 
 		
@@ -321,24 +326,26 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
 	</div>
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/18/vim-chinese-error/" itemprop="url">Mac OSX Vim 输入中文乱码问题</a></h1>
 	<div class="entry-content" itemprop="articleBody">
-		<h3 id="出现问题的环境:">出现问题的环境:</h3>
+		<h3>出现问题的环境:</h3>
 
 <ol>
-<li>OSX 10.9.2 英文<br></li>
-<li>VIM 7.3<br></li>
+<li>OSX 10.9.2 英文</li>
+<li>VIM 7.3</li>
 </ol>
 
-<h3 id="问题描述:">问题描述:</h3>
+
+<h3>问题描述:</h3>
 
 <ol>
-<li>可以正常显示文件中得中文字符<br></li>
-<li>输入中文字符会出现乱码<br></li>
-<li>通过在.vimrc中设置编码格式无效<br></li>
+<li>可以正常显示文件中得中文字符</li>
+<li>输入中文字符会出现乱码</li>
+<li>通过在.vimrc中设置编码格式无效</li>
 </ol>
 
-<h3 id="解决方案:">解决方案:</h3>
 
-<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。  </p>
+<h3>解决方案:</h3>
+
+<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。</p>
 
 
 		
