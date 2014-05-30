@@ -199,6 +199,10 @@ a {
 	margin-top: -38px
 }
 
+#main-nav>ul>li>a:hover {
+	color : #2697e3 !important
+}
+
 #main-nav>ul>li>a:after {
 	content: "\f078";
 	color: #ccc;
@@ -2137,4 +2141,5 @@ a:hover {
 		float: none
 	}
 }
+
 
