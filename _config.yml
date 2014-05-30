@@ -75,14 +75,16 @@ duoshuo_short_name: zarue
 
 # Github repositories
 github_user: zarue
-github_repo_count: 0
-github_show_profile_link: true
-github_skip_forks: true
+#github_repo_count: 0
+#github_show_profile_link: true
+#github_skip_forks: true
 
 # Twitter
-#twitter_user:
+twitter_user: cheney_life
 #twitter_tweet_button: true
 
+# FaceBook
+facebook_user: yonghua.ma
 # Google +1
 #google_plus_one: false
 #google_plus_one_size: medium
