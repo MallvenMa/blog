@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-05-30T13:59:40+08:00</updated>
+  <updated>2014-05-30T14:02:21+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -178,8 +178,8 @@ String.c 中只有一个方法：</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>第5行: 检查该字符串是否存在，如果存在，就返回。<br/>
-第19行: 创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。jvm创建对象并分配内存的过程基本也是这个模式。<br/>
+<p>第5行:检查该字符串是否存在，如果存在，就返回。<br/>
+第19行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。jvm创建对象并分配内存的过程基本也是这个模式。<br/>
 第27行: 将新创建的Sting对象添加到常量池<code>the_table()</code>中。</p>
 
 <h3>总结:</h3>
