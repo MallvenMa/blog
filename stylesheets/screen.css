@@ -2002,7 +2002,7 @@ body {
 }
 
 .container .mid-col .mid-col-container #content article h1.title a:hover {
-	color: color;
+	color : #2697e3 !important;
 	-webkit-transition: color 0.3s;
 	-moz-transition: color 0.3s;
 	-o-transition: color 0.3s;
