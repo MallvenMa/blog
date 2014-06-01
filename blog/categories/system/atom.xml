@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: System | zarue]]></title>
-  <link href="http://zarue.github.io//blog/categories/system/atom.xml" rel="self"/>
-  <link href="http://zarue.github.io//"/>
-  <updated>2014-06-01T16:59:09+08:00</updated>
-  <id>http://zarue.github.io//</id>
+  <link href="http://blog.zarue.com//blog/categories/system/atom.xml" rel="self"/>
+  <link href="http://blog.zarue.com//"/>
+  <updated>2014-06-01T19:30:20+08:00</updated>
+  <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[关于CPU寻址和物理内存结构]]></title>
-    <link href="http://zarue.github.io//blog/2014/05/21/cpu-and-memory/"/>
+    <link href="http://blog.zarue.com//blog/2014/05/21/cpu-and-memory/"/>
     <updated>2014-05-21T20:35:18+08:00</updated>
-    <id>http://zarue.github.io//blog/2014/05/21/cpu-and-memory</id>
+    <id>http://blog.zarue.com//blog/2014/05/21/cpu-and-memory</id>
     <content type="html"><![CDATA[<h2>本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
 
 <h3>1. 关于CPU的几个概念</h3>

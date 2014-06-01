@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[zarue]]></title>
-  <link href="http://zarue.github.io//atom.xml" rel="self"/>
-  <link href="http://zarue.github.io//"/>
-  <updated>2014-06-01T16:59:09+08:00</updated>
-  <id>http://zarue.github.io//</id>
+  <link href="http://blog.zarue.com//atom.xml" rel="self"/>
+  <link href="http://blog.zarue.com//"/>
+  <updated>2014-06-01T19:30:20+08:00</updated>
+  <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
     
@@ -15,10 +15,10 @@
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 二]]></title>
-    <link href="http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2/"/>
+    <link href="http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2/"/>
     <updated>2014-05-29T20:58:21+08:00</updated>
-    <id>http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2</id>
-    <content type="html"><![CDATA[<p>上一篇文章<a href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
+    <id>http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2</id>
+    <content type="html"><![CDATA[<p>上一篇文章<a href="http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
 做任何事情都要首先找一个入口。我们怎么才能找到常量池的入口呢？<br/>
 我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
 先看String 的intern的源代码:</p>
@@ -314,9 +314,9 @@ String.c 中只有一个方法：</p>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 一]]></title>
-    <link href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1/"/>
+    <link href="http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
-    <id>http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1</id>
+    <id>http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1</id>
     <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
 
 <p>JAVA里面创建字符串有两种方式：<br/>
@@ -451,7 +451,7 @@ String.c 中只有一个方法：</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://zarue.github.io//images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
+<p><img src="http://blog.zarue.com//images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
 
 <h4>分析(下面所指行号均为源代码行号):</h4>
 
@@ -587,21 +587,21 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h5>下一节<a href="http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
+<h5>下一节<a href="http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java 对象结构]]></title>
-    <link href="http://zarue.github.io//blog/2014/05/22/jvm-object-structure/"/>
+    <link href="http://blog.zarue.com//blog/2014/05/22/jvm-object-structure/"/>
     <updated>2014-05-22T14:09:15+08:00</updated>
-    <id>http://zarue.github.io//blog/2014/05/22/jvm-object-structure</id>
+    <id>http://blog.zarue.com//blog/2014/05/22/jvm-object-structure</id>
     <content type="html"><![CDATA[<h2>1. Java对象在内存中到底是什么样?</h2>
 
 <p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
 那在JVM中这个规范是怎么定义的呢？
 Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
 
 <!--more-->
 
@@ -699,12 +699,12 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
 <p>main方法里面包含3个对象：<code>Integer</code>,<code>Long</code>,<code>Boolean</code> ，我们现在通过SA依次来看一下每一个对象的结构和大小：<br/>
 1.运行上面的程序，在<code>System.out.println("")</code>这行打个断点是虚拟机进程暂停<br/>
 2.使用JPS查看虚拟机进程PID:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图" /><br/>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图" /><br/>
 3.启动SA(HSDB)<br/>
 <code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br/>
 4.attach 上面的PID 3813,连上之后我们进入内存查看界面，如图:</p>
 
-<p><img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看" /></p>
+<p><img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看" /></p>
 
 <p>红色方框中的内容就是main方法中我们new的三个对象，通过右边的注释我们也可以看出来。<br/>
 三个对象在内存中的地址分别是：</p>
@@ -714,13 +714,13 @@ Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br/>
 Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 <p>首先我们先看Integer i 对象,选择SA中的菜单:<code>Tool--&gt;Inspect</code>子菜单,在address中输入<code>0xa0159410</code>可以得到这个对象，如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构" /></p>
 
 <p>按照刚才得方法，接下来我们看一下Long l 对象，如图：<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构" /></p>
 
 <p>再看一下Boolean b 对象,如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构" /></p>
 
 <p>小结:因为对象实例数据只包括实例变量和从父类继承得实例变量，通过查看Integer,Long,Boolean 的源代码可知，这几个类只有value 一个实例变量，所以除了<em>mark(MARK_WORD),</em>metadata._klass(class对象指针)，我们只能看到一个value变量。</p>
 
@@ -747,7 +747,7 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 <p>
 我们看一下Animal的对象结构,如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构" /></p>
 
 <p>由图可以看出，三个实例变量都在对象Animal里面了。</p>
 
@@ -771,7 +771,7 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 
 <p>用HSDB查看结果，如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构" /></p>
 
 <p>由图可见，从父类继承的变量也是存在子类里面的。</p>
 
@@ -797,12 +797,12 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 
 <p>用HSDB查看,结果如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构" /></p>
 
 <p>不幸的事情出现了，为什么这个数组对象没有显示length变量呢？难道我们之前说的数组对象的结构式错的？<br/>
 用inspect 查看一下这个对象的size:<br/>
 <code>inspect 0xa01ba470</code> 结果如图所示：<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size" /></p>
 
 <p>我们来算一下:<br/>
 1. 如果这个对象没有length变量，那么大小应该是：size=4+4=8.<br/>
@@ -818,9 +818,9 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
   
   <entry>
     <title type="html"><![CDATA[关于CPU寻址和物理内存结构]]></title>
-    <link href="http://zarue.github.io//blog/2014/05/21/cpu-and-memory/"/>
+    <link href="http://blog.zarue.com//blog/2014/05/21/cpu-and-memory/"/>
     <updated>2014-05-21T20:35:18+08:00</updated>
-    <id>http://zarue.github.io//blog/2014/05/21/cpu-and-memory</id>
+    <id>http://blog.zarue.com//blog/2014/05/21/cpu-and-memory</id>
     <content type="html"><![CDATA[<h2>本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
 
 <h3>1. 关于CPU的几个概念</h3>
@@ -868,9 +868,9 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
   
   <entry>
     <title type="html"><![CDATA[Mac OSX vim 输入中文乱码问题]]></title>
-    <link href="http://zarue.github.io//blog/2014/05/18/vim-chinese-error/"/>
+    <link href="http://blog.zarue.com//blog/2014/05/18/vim-chinese-error/"/>
     <updated>2014-05-18T22:05:24+08:00</updated>
-    <id>http://zarue.github.io//blog/2014/05/18/vim-chinese-error</id>
+    <id>http://blog.zarue.com//blog/2014/05/18/vim-chinese-error</id>
     <content type="html"><![CDATA[<h3>出现问题的环境:</h3>
 
 <ol>
@@ -897,7 +897,7 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 <p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br/>
 如图:<br/>
-<img src="http://zarue.github.io//images/blog/2014-05/20140519-1-vim.png" alt="示例" /></p>
+<img src="http://blog.zarue.com//images/blog/2014-05/20140519-1-vim.png" alt="示例" /></p>
 ]]></content>
   </entry>
   
