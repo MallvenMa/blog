@@ -128,7 +128,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多与其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
+<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多其他java类中对应的native方法的实现，例如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
 String.c 中只有一个方法：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>

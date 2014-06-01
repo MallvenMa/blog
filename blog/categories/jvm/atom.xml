@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-06-01T15:15:17+08:00</updated>
+  <updated>2014-06-01T15:38:59+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -25,7 +25,7 @@
 <code>java
 public native String intern();
 </code>
-这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多与其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
+这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多其他java类中对应的native方法的实现，例如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
 String.c 中只有一个方法：<br/>
 ```java</p>
 
@@ -45,7 +45,7 @@ return JVM_InternString(env, this);
 
 <p><code>Java_java_lang_String_intern</code> 就是String类intern 对应的native方法,然而<code>Java_java_lang_String_intern</code> 只是调用了<code>JVM_InternString</code>这个方法。<br/>
 那么这个方法又在哪呢？<br/>
-根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br/>
+根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，去<code>jvm.h</code>中去看一下。<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br/>
 <code>java
 /*
 * java.lang.String
@@ -74,7 +74,7 @@ private:
 .......
 </code>
 我们先简单看一下<code>StringTable</code>这个类： <br/>
-1.  继承了Hashtable&lt;oop, mtSymbol>，在Hashtable中，字符串被包装成HashtableEntry对象存储，同时为了解决hash碰撞的问题，HashtableEntry对象被设计为链表结构。最后HashTable使用数组_buckets来存储这些HashtableEntry。
+1.  继承了Hashtable&lt;oop, mtSymbol>，在Hashtable中，字符串被包装成HashtableEntry对象存储，同时为了解决hash碰撞的问题，HashtableEntry对象被设计为链表结构。最后HashTable使用数组_buckets来存储这些HashtableEntry。 <br/>
 2. <code>static StringTable* _the_table</code> : StringTable的实例变量,在<code>create_table()</code> 中被实例化。<br/>
 3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br/>
 4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br/>
@@ -193,7 +193,7 @@ inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
 
 <h3>总结:</h3>
 
-<p>String常量池对应的数据结构就是StringTable对象,也就是一个hashtable结构。所有的字符串常量都被StringTable所持。这下大家应该对String常量池有了一个基本的认识了。</p>
+<p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象，不会被垃圾收集器回收掉。</p>
 ]]></content>
   </entry>
   
