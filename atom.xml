@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-06-01T15:38:59+08:00</updated>
+  <updated>2014-06-01T15:57:55+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -19,7 +19,7 @@
     <updated>2014-05-29T20:58:21+08:00</updated>
     <id>http://zarue.github.io//blog/2014/05/29/runtime-string-pool-2</id>
     <content type="html"><![CDATA[<p>上一篇文章<a href="http://zarue.github.io//blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
-做任何事情都要首先找一个入口？我们怎么才能找到常量池的入口呢？<br/>
+做任何事情都要首先找一个入口。我们怎么才能找到常量池的入口呢？<br/>
 我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
 先看String 的intern的源代码:</p>
 

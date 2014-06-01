@@ -8,7 +8,7 @@
 
 	
 	<meta name="description" content="May 29th, 2014 jvm Comments JVM 之 String 常量池 二 上一篇文章JVM 之 String 常量池 一中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。
-做任何事情都要首先找一个入口？ &hellip;">
+做任何事情都要首先找一个入口。 &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -119,7 +119,7 @@
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/29/runtime-string-pool-2/" itemprop="url">JVM 之 String 常量池 二</a></h1>
 	<div class="entry-content" itemprop="articleBody">
 		<p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
-做任何事情都要首先找一个入口？我们怎么才能找到常量池的入口呢？<br/>
+做任何事情都要首先找一个入口。我们怎么才能找到常量池的入口呢？<br/>
 我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
 先看String 的intern的源代码:</p>
 
