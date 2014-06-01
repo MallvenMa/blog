@@ -69,29 +69,13 @@ oop StringTable::intern(Handle string_or_null, jchar* name,
                         int len, TRAPS) {
   unsigned int hashValue = hash_string(name, len);
   int index = the_table()->hash_to_index(hashValue);
-  oop found_string = the_table()->lookup(index, name, len, hashValue);
+  oop string = the_table()->lookup(index, name, len, hashValue);
 
   // Found
-  if (found_string != NULL) return found_string;
-
-  debug_only(StableMemoryChecker smc(name, len * sizeof(name[0])));
-  assert(!Universe::heap()->is_in_reserved(name) || GC_locker::is_active(),
-         "proposed name of symbol must be stable");
-
-  Handle string;
-  // try to reuse the string if possible
-  if (!string_or_null.is_null() && (!JavaObjectsInPerm || string_or_null()->is_perm())) {
-    string = string_or_null;
-  } else {
-    string = java_lang_String::create_tenured_from_unicode(name, len, CHECK_NULL);
-  }
-
-  // Grab the StringTable_lock before getting the_table() because it could
-  // change at safepoint.
-  MutexLocker ml(StringTable_lock, THREAD);
+  if (string != NULL) return string;
 
   // Otherwise, add to symbol to table
-  return the_table()->basic_add(index, string, name, len,
+  return the_table()->basic_add(index, string_or_null, name, len,
                                 hashValue, CHECK_NULL);
 }
 ```
@@ -133,8 +117,46 @@ oop StringTable::lookup(int index, jchar* name,
 2.判断该entry的hash值和字符串值是否都相等(是不是很眼熟)，如果都相等则返回该entry中存储的字符串对象。  
 3.如果(2)条件不成立则继续循环next entry。  
 
-第19行:创建一个String对象,创建过程可以参考`openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp`中`java_lang_String`类的`create_tenured_from_unicode`方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。  
-第27行: 将新创建的Sting对象添加到常量池`_buckets`中。代码:  
+第11行:调用StringTable的`basic_add(...)`方法将字符串添加到常量池。代码:  
+```java
+oop StringTable::basic_add(int index, Handle string_or_null, jchar* name,
+                           int len, unsigned int hashValue, TRAPS) {
+  debug_only(StableMemoryChecker smc(name, len * sizeof(name[0])));
+  assert(!Universe::heap()->is_in_reserved(name) || GC_locker::is_active(),
+         "proposed name of symbol must be stable");
+
+  Handle string;
+  // try to reuse the string if possible
+  if (!string_or_null.is_null() && string_or_null()->is_perm()) {
+    string = string_or_null;
+  } else {
+    string = java_lang_String::create_tenured_from_unicode(name, len, CHECK_NULL);
+  }
+
+  // Allocation must be done before grapping the SymbolTable_lock lock
+  MutexLocker ml(StringTable_lock, THREAD);
+
+  assert(java_lang_String::equals(string(), name, len),
+         "string must be properly initialized");
+
+  // Since look-up was done lock-free, we need to check if another
+  // thread beat us in the race to insert the symbol.
+
+  oop test = lookup(index, name, len, hashValue); // calls lookup(u1*, int)
+  if (test != NULL) {
+    // Entry already added
+    return test;
+  }
+
+  HashtableEntry* entry = new_entry(hashValue, string());
+  add_entry(index, entry);
+  return string();
+}
+```
+
+第12行:创建一个String对象,创建过程可以参考`openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp`中`java_lang_String`类的`create_tenured_from_unicode`方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。  
+第30行:创建一个HashtableEntry对象。  
+第31行: 将新创建的Sting对象添加到常量池`_buckets`中。代码:  
 ```java
 inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
   entry->set_next(bucket(index));
