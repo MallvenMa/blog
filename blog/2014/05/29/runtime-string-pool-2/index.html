@@ -8,7 +8,7 @@
 
 	
 	<meta name="description" content="JVM 之 String 常量池 二 上一篇文章JVM 之 String 常量池 一中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？ &hellip;">
+做任何事情都要首先找一个入口？我们怎么才能找到常量池的入口呢？ &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,8 +89,8 @@
 				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 	<h1 class="title" itemprop="name">JVM 之 String 常量池 二</h1>
 	<div class="entry-content" itemprop="articleBody"><p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br/>
-我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br/>
+做任何事情都要首先找一个入口？我们怎么才能找到常量池的入口呢？<br/>
+我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
 先看String 的intern的源代码:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -98,7 +98,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。 <br/>
+<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多与其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
 String.c 中只有一个方法：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -121,7 +121,7 @@ String.c 中只有一个方法：</p>
 <!--more-->
 
 
-<p><code>Java_java_lang_String_intern</code> 就是String类intern 对应的native方法，这里我们发现<code>Java_java_lang_String_intern</code> 调用了<code>JVM_InternString</code>这个方法。<br/>
+<p><code>Java_java_lang_String_intern</code> 就是String类intern 对应的native方法,然而<code>Java_java_lang_String_intern</code> 只是调用了<code>JVM_InternString</code>这个方法。<br/>
 那么这个方法又在哪呢？<br/>
 根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，我们去<code>jvm.h</code>中去看一下。我们继续找到<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，发现<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code></p>
 
@@ -139,8 +139,7 @@ String.c 中只有一个方法：</p>
 
 
 <p>
-这里只是定义,我们继续找这个定义对应的实现方法。根据经验应该位于<code>jvm.cpp</code>中，我们继续找到<code>jvm.cpp</code> 的位置，它位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<br/>
-在<code>jvm.cpp</code> 中终于找到了<code>JVM_InternString</code>的具体实现:</p>
+这里只是定义,我们继续找这个定义对应的实现方法。相关实现在<code>jvm.cpp</code>中,<code>jvm.cpp</code> 位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<code>jvm.cpp</code> 中<code>JVM_InternString</code>的具体实现如下:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -161,7 +160,7 @@ String.c 中只有一个方法：</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。那就继续到<code>StringTable</code>中看看，<code>jvm.cpp</code> 引入了好多头文件，这下凭经验不好找了，简单粗暴的搜一下吧。macos 的搜索就是这么好用啊，最终找到<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：</p>
+<p>从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -174,16 +173,16 @@ String.c 中只有一个方法：</p>
 </span><span class='line'><span class="kd">private</span><span class="o">:</span>
 </span><span class='line'>  <span class="c1">// The string table</span>
 </span><span class='line'>  <span class="kd">static</span> <span class="n">StringTable</span><span class="o">*</span> <span class="n">_the_table</span><span class="o">;</span>
-</span><span class='line'><span class="o">.......</span><span class="err">请自行查看源代码</span>
+</span><span class='line'><span class="o">.......</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>我们先简单看一下<code>StringTable</code>这个类： <br/>
-1.  它继承了<code>Hashtable&lt;oop, mtSymbol&gt;</code>，它使用HashTable结构保持着对各个字符串实例的引用（所以常量池中的对象不会被垃圾收集器收集掉）。 <br/>
-2. <code>static StringTable* _the_table</code> : StringTable的实例变量，用它来来存储字符串常量，是通过<code>create_table()</code> 来实例化。<br/>
+1.  继承了Hashtable&lt;oop, mtSymbol>，在Hashtable中，字符串被包装成HashtableEntry对象存储，同时为了解决hash碰撞的问题，HashtableEntry对象被设计为链表结构。最后HashTable使用数组_buckets来存储这些HashtableEntry。
+2. <code>static StringTable* _the_table</code> : StringTable的实例变量,在<code>create_table()</code> 中被实例化。<br/>
 3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br/>
 4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br/>
-5. <code>intern()</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。</p>
+5. <code>intern(...)</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。</p>
 
 <p>先看一下intern方法:</p>
 
@@ -248,9 +247,94 @@ String.c 中只有一个方法：</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>第5行:检查该字符串是否存在，如果存在，就返回。<br/>
-第19行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。jvm创建对象并分配内存的过程基本也是这个模式。<br/>
-第27行: 将新创建的Sting对象添加到常量池<code>the_table()</code>中。</p>
+<p>第3行:首先调用hash_string()计算字符串的hash值。hash值计算规则:<code>s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]</code> 例如：<code>“a”.hashCode() = 97</code>。代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">hash_string</span><span class="o">(</span><span class="n">jchar</span><span class="o">*</span> <span class="n">s</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">unsigned</span> <span class="n">h</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">while</span> <span class="o">(</span><span class="n">len</span><span class="o">--</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">h</span> <span class="o">=</span> <span class="mi">31</span><span class="o">*</span><span class="n">h</span> <span class="o">+</span> <span class="o">(</span><span class="n">unsigned</span><span class="o">)</span> <span class="o">*</span><span class="n">s</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">s</span><span class="o">++;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">h</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第4行:把hash值转换为数组的下标。转换规则：<code>hash % table_size</code>。代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="nf">hash_to_index</span><span class="o">(</span><span class="n">unsigned</span> <span class="kt">int</span> <span class="n">full_hash</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">h</span> <span class="o">=</span> <span class="n">full_hash</span> <span class="o">%</span> <span class="n">_table_size</span><span class="o">;</span>
+</span><span class='line'>    <span class="k">assert</span><span class="o">(</span><span class="n">h</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">h</span> <span class="o">&lt;</span> <span class="n">_table_size</span><span class="o">,</span> <span class="s">&quot;Illegal hash value&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">h</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第5行:检查该字符串是否存在，如果存在，就返回。代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">lookup</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">jchar</span><span class="o">*</span> <span class="n">name</span><span class="o">,</span>
+</span><span class='line'>                        <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hash</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="o">(</span><span class="n">HashtableEntry</span><span class="o">*</span> <span class="n">l</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">(</span><span class="n">index</span><span class="o">);</span> <span class="n">l</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">l</span><span class="o">-&gt;</span><span class="n">hash</span><span class="o">()</span> <span class="o">==</span> <span class="n">hash</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">equals</span><span class="o">(</span><span class="n">l</span><span class="o">-&gt;</span><span class="n">literal</span><span class="o">(),</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">l</span><span class="o">-&gt;</span><span class="n">literal</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>说明:<br/>
+1.首先从数组_buckets获得当前下标对应的HashtableEntry。 <br/>
+2.判断该entry的hash值和字符串值是否都相等(是不是很眼熟)，如果都相等则返回该entry中存储的字符串对象。<br/>
+3.如果(2)条件不成立则继续循环next entry。</p>
+
+<p>第19行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。jvm创建对象并分配内存的过程基本也是这个模式。<br/>
+第27行: 将新创建的Sting对象添加到常量池<code>_buckets</code>中。代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">inline</span> <span class="kt">void</span> <span class="nl">BasicHashtable:</span><span class="o">:</span><span class="n">add_entry</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">BasicHashtableEntry</span><span class="o">*</span> <span class="n">entry</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">entry</span><span class="o">-&gt;</span><span class="n">set_next</span><span class="o">(</span><span class="n">bucket</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
+</span><span class='line'>  <span class="n">_buckets</span><span class="o">[</span><span class="n">index</span><span class="o">].</span><span class="na">set_entry</span><span class="o">(</span><span class="n">entry</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">++</span><span class="n">_number_of_entries</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>说明:<br/>
+1.首先从<code>_buckets</code>数组获得index位置的HashtableEntry 记为oldEntry。 <br/>
+2.将oldEntry设置为entry的<code>_next</code>(HashtableEntry设计为链表结构,就是用在这里)<br/>
+3.将entry设置到_buckets的index位置</p>
 
 <h3>总结:</h3>
 

@@ -8,7 +8,7 @@
 
 	
 	<meta name="description" content="May 29th, 2014 jvm Comments JVM 之 String 常量池 二 上一篇文章JVM 之 String 常量池 一中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。
-我们从哪里入手呢， &hellip;">
+做任何事情都要首先找一个入口？ &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -119,8 +119,8 @@
 	<h1 class="title" itemprop="name"><a href="/blog/2014/05/29/runtime-string-pool-2/" itemprop="url">JVM 之 String 常量池 二</a></h1>
 	<div class="entry-content" itemprop="articleBody">
 		<p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
-我们从哪里入手呢，要首先找到一个可以和常量池有交互的入口才可以？<br/>
-我们首先想到String里面有个intern方法，可以在运行时动态的向常量池中添加字符串。我们就从这个方法入手。<br/>
+做任何事情都要首先找一个入口？我们怎么才能找到常量池的入口呢？<br/>
+我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
 先看String 的intern的源代码:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -128,7 +128,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中找了，经过不懈的努力，终于找到了，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有好多其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在Object.c里面。 <br/>
+<p>这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多与其他java类中对应的native方法的实现，比如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
 String.c 中只有一个方法：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
