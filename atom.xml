@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://zarue.github.io//atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-06-01T15:57:55+08:00</updated>
+  <updated>2014-06-01T16:59:09+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -129,49 +129,17 @@ String.c 中只有一个方法：</p>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">intern</span><span class="o">(</span><span class="n">Handle</span> <span class="n">string_or_null</span><span class="o">,</span> <span class="n">jchar</span><span class="o">*</span> <span class="n">name</span><span class="o">,</span>
 </span><span class='line'>                        <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>  <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hashValue</span> <span class="o">=</span> <span class="n">hash_string</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">);</span>
 </span><span class='line'>  <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">the_table</span><span class="o">()-&gt;</span><span class="n">hash_to_index</span><span class="o">(</span><span class="n">hashValue</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">oop</span> <span class="n">found_string</span> <span class="o">=</span> <span class="n">the_table</span><span class="o">()-&gt;</span><span class="n">lookup</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">hashValue</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">oop</span> <span class="n">string</span> <span class="o">=</span> <span class="n">the_table</span><span class="o">()-&gt;</span><span class="n">lookup</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">hashValue</span><span class="o">);</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Found</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">found_string</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">found_string</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">debug_only</span><span class="o">(</span><span class="n">StableMemoryChecker</span> <span class="n">smc</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span> <span class="o">*</span> <span class="n">sizeof</span><span class="o">(</span><span class="n">name</span><span class="o">[</span><span class="mi">0</span><span class="o">])));</span>
-</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is_in_reserved</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="o">||</span> <span class="nl">GC_locker:</span><span class="o">:</span><span class="n">is_active</span><span class="o">(),</span>
-</span><span class='line'>         <span class="s">&quot;proposed name of symbol must be stable&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">Handle</span> <span class="n">string</span><span class="o">;</span>
-</span><span class='line'>  <span class="c1">// try to reuse the string if possible</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">string_or_null</span><span class="o">.</span><span class="na">is_null</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">(!</span><span class="n">JavaObjectsInPerm</span> <span class="o">||</span> <span class="n">string_or_null</span><span class="o">()-&gt;</span><span class="n">is_perm</span><span class="o">()))</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="n">string_or_null</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">create_tenured_from_unicode</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// Grab the StringTable_lock before getting the_table() because it could</span>
-</span><span class='line'>  <span class="c1">// change at safepoint.</span>
-</span><span class='line'>  <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="o">(</span><span class="n">StringTable_lock</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">string</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="k">return</span> <span class="n">string</span><span class="o">;</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Otherwise, add to symbol to table</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nf">the_table</span><span class="o">()-&gt;</span><span class="n">basic_add</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">string</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">the_table</span><span class="o">()-&gt;</span><span class="n">basic_add</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">string_or_null</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span>
 </span><span class='line'>                                <span class="n">hashValue</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -245,8 +213,80 @@ String.c 中只有一个方法：</p>
 2.判断该entry的hash值和字符串值是否都相等(是不是很眼熟)，如果都相等则返回该entry中存储的字符串对象。<br/>
 3.如果(2)条件不成立则继续循环next entry。</p>
 
-<p>第19行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。<br/>
-第27行: 将新创建的Sting对象添加到常量池<code>_buckets</code>中。代码:</p>
+<p>第11行:调用StringTable的<code>basic_add(...)</code>方法将字符串添加到常量池。代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">StringTable:</span><span class="o">:</span><span class="n">basic_add</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">Handle</span> <span class="n">string_or_null</span><span class="o">,</span> <span class="n">jchar</span><span class="o">*</span> <span class="n">name</span><span class="o">,</span>
+</span><span class='line'>                           <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hashValue</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">debug_only</span><span class="o">(</span><span class="n">StableMemoryChecker</span> <span class="n">smc</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span> <span class="o">*</span> <span class="n">sizeof</span><span class="o">(</span><span class="n">name</span><span class="o">[</span><span class="mi">0</span><span class="o">])));</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is_in_reserved</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="o">||</span> <span class="nl">GC_locker:</span><span class="o">:</span><span class="n">is_active</span><span class="o">(),</span>
+</span><span class='line'>         <span class="s">&quot;proposed name of symbol must be stable&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">Handle</span> <span class="n">string</span><span class="o">;</span>
+</span><span class='line'>  <span class="c1">// try to reuse the string if possible</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">string_or_null</span><span class="o">.</span><span class="na">is_null</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">string_or_null</span><span class="o">()-&gt;</span><span class="n">is_perm</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="n">string_or_null</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">string</span> <span class="o">=</span> <span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">create_tenured_from_unicode</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Allocation must be done before grapping the SymbolTable_lock lock</span>
+</span><span class='line'>  <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="o">(</span><span class="n">StringTable_lock</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(</span><span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">equals</span><span class="o">(</span><span class="n">string</span><span class="o">(),</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">),</span>
+</span><span class='line'>         <span class="s">&quot;string must be properly initialized&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Since look-up was done lock-free, we need to check if another</span>
+</span><span class='line'>  <span class="c1">// thread beat us in the race to insert the symbol.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">oop</span> <span class="n">test</span> <span class="o">=</span> <span class="n">lookup</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">hashValue</span><span class="o">);</span> <span class="c1">// calls lookup(u1*, int)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">test</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Entry already added</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">test</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">HashtableEntry</span><span class="o">*</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">new_entry</span><span class="o">(</span><span class="n">hashValue</span><span class="o">,</span> <span class="n">string</span><span class="o">());</span>
+</span><span class='line'>  <span class="n">add_entry</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">entry</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">string</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第12行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。<br/>
+第30行:创建一个HashtableEntry对象。<br/>
+第31行: 将新创建的Sting对象添加到常量池<code>_buckets</code>中。代码:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

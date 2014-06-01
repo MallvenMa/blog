@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://zarue.github.io//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://zarue.github.io//"/>
-  <updated>2014-06-01T15:57:55+08:00</updated>
+  <updated>2014-06-01T16:59:09+08:00</updated>
   <id>http://zarue.github.io//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -90,37 +90,13 @@ private:
 
 <p>  unsigned int hashValue = hash_string(name, len);
   int index = the_table()&ndash;>hash_to_index(hashValue);
-  oop found_string = the_table()&ndash;>lookup(index, name, len, hashValue);</p>
+  oop string = the_table()&ndash;>lookup(index, name, len, hashValue);</p>
 
 <p>  // Found
-  if (found_string != NULL) return found_string;</p>
-
-<p>  debug_only(StableMemoryChecker smc(name, len * sizeof(name[0])));
-  assert(!Universe::heap()&ndash;>is_in_reserved(name) || GC_locker::is_active(),</p>
-
-<pre><code>     "proposed name of symbol must be stable");
-</code></pre>
-
-<p>  Handle string;
-  // try to reuse the string if possible
-  if (!string_or_null.is_null() &amp;&amp; (!JavaObjectsInPerm || string_or_null()&ndash;>is_perm())) {</p>
-
-<pre><code>string = string_or_null;
-</code></pre>
-
-<p>  } else {</p>
-
-<pre><code>string = java_lang_String::create_tenured_from_unicode(name, len, CHECK_NULL);
-</code></pre>
-
-<p>  }</p>
-
-<p>  // Grab the StringTable_lock before getting the_table() because it could
-  // change at safepoint.
-  MutexLocker ml(StringTable_lock, THREAD);</p>
+  if (string != NULL) return string;</p>
 
 <p>  // Otherwise, add to symbol to table
-  return the_table()&ndash;>basic_add(index, string, name, len,</p>
+  return the_table()&ndash;>basic_add(index, string_or_null, name, len,</p>
 
 <pre><code>                            hashValue, CHECK_NULL);
 </code></pre>
@@ -177,8 +153,62 @@ oop StringTable::lookup(int index, jchar* name,</p>
 2.判断该entry的hash值和字符串值是否都相等(是不是很眼熟)，如果都相等则返回该entry中存储的字符串对象。<br/>
 3.如果(2)条件不成立则继续循环next entry。</p>
 
-<p>第19行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。<br/>
-第27行: 将新创建的Sting对象添加到常量池<code>_buckets</code>中。代码:<br/>
+<p>第11行:调用StringTable的<code>basic_add(...)</code>方法将字符串添加到常量池。代码:<br/>
+```java
+oop StringTable::basic_add(int index, Handle string_or_null, jchar* name,</p>
+
+<pre><code>                       int len, unsigned int hashValue, TRAPS) {
+</code></pre>
+
+<p>  debug_only(StableMemoryChecker smc(name, len * sizeof(name[0])));
+  assert(!Universe::heap()&ndash;>is_in_reserved(name) || GC_locker::is_active(),</p>
+
+<pre><code>     "proposed name of symbol must be stable");
+</code></pre>
+
+<p>  Handle string;
+  // try to reuse the string if possible
+  if (!string_or_null.is_null() &amp;&amp; string_or_null()&ndash;>is_perm()) {</p>
+
+<pre><code>string = string_or_null;
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>string = java_lang_String::create_tenured_from_unicode(name, len, CHECK_NULL);
+</code></pre>
+
+<p>  }</p>
+
+<p>  // Allocation must be done before grapping the SymbolTable_lock lock
+  MutexLocker ml(StringTable_lock, THREAD);</p>
+
+<p>  assert(java_lang_String::equals(string(), name, len),</p>
+
+<pre><code>     "string must be properly initialized");
+</code></pre>
+
+<p>  // Since look-up was done lock-free, we need to check if another
+  // thread beat us in the race to insert the symbol.</p>
+
+<p>  oop test = lookup(index, name, len, hashValue); // calls lookup(u1*, int)
+  if (test != NULL) {</p>
+
+<pre><code>// Entry already added
+return test;
+</code></pre>
+
+<p>  }</p>
+
+<p>  HashtableEntry* entry = new_entry(hashValue, string());
+  add_entry(index, entry);
+  return string();
+}
+```</p>
+
+<p>第12行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。<br/>
+第30行:创建一个HashtableEntry对象。<br/>
+第31行: 将新创建的Sting对象添加到常量池<code>_buckets</code>中。代码:<br/>
 <code>java
 inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
   entry-&gt;set_next(bucket(index));
