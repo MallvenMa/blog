@@ -377,7 +377,9 @@ String.c 中只有一个方法：</p>
 
 <h3>总结:</h3>
 
-<p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象，不会被垃圾收集器回收掉。</p>
+<p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象，不会被垃圾收集器回收掉。<br/>
+Hashtable 的结构看起来应该是这样的：<br/>
+<img src="/images/blog/2014-06/20140602-hashtable.png" alt="Hasttable" /></p>
 </div>
 
 </article>
