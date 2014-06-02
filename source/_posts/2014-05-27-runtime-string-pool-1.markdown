@@ -3,7 +3,9 @@ layout: post
 title: "JVM 之 String 常量池 一"
 date: 2014-05-27 20:30:20 +0800
 comments: true
-categories: jvm 
+categories: jvm
+keywords: string,常量池,字符串池 
+description: JVM 之 String 常量池 一
 ---
 ####1.Sting对象创建方式
 JAVA里面创建字符串有两种方式：  

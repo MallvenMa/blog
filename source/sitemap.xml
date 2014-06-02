@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>http://blog.zarue.com/blog/2014/05/29/runtime-string-pool-2/</loc>
+		<lastmod>2014-06-01</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.6</priority>
+	</url>
+	<url>
+		<loc>http://blog.zarue.com/blog/2014/05/27/runtime-string-pool-1/</loc>
+		<lastmod>2014-06-01</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.6</priority>
+	</url>
+	<url>
+		<loc>http://blog.zarue.com/blog/2014/05/22/jvm-object-structure/</loc>
+		<lastmod>2014-06-01</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.6</priority>
+	</url>
+	<url>
+		<loc>http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/</loc>
+		<lastmod>2014-06-01</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.6</priority>
+	</url>
+	<url>
+		<loc>http://blog.zarue.com/blog/2014/05/18/vim-chinese-error/</loc>
+		<lastmod>2014-06-01</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.6</priority>
+	</url>
+</urlset>

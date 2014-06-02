@@ -4,6 +4,8 @@ title: "关于CPU寻址和物理内存结构"
 date: 2014-05-21 20:35:18 +0800
 comments: true
 categories: system
+keywords: cpu,内存,寻址,总线
+description: 关于CPU寻址和物理内存结构
 ---
 ##本文讨论的都是概念模型，实际实现方式肯定会有不同
 ### 1. 关于CPU的几个概念

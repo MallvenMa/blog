@@ -3,7 +3,9 @@ layout: post
 title: "JVM 之 String 常量池 二"
 date: 2014-05-29 20:58:21 +0800
 comments: true
-categories:  jvm 
+categories:  jvm
+keywords: jvm,string,pool,stringtable,hashtable,常量池,字符串池
+description: JVM 之 String 常量池 二 
 ---
 
 上一篇文章[JVM 之 String 常量池 一](/blog/2014/05/27/runtime-string-pool-1)中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。  
@@ -170,4 +172,6 @@ inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
 3.将entry设置到_buckets的index位置  
 
 ###总结:  
-String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象，不会被垃圾收集器回收掉。
+String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象，不会被垃圾收集器回收掉。  
+Hashtable 的结构看起来应该是这样的：  
+![Hasttable](/images/blog/2014-06/20140602-hashtable.png)

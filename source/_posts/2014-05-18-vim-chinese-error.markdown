@@ -3,7 +3,9 @@ layout: post
 title: "Mac OSX vim 输入中文乱码问题"
 date: 2014-05-18 22:05:24 +0800
 comments: true
-categories: vim 
+categories: vim
+keywords: mac,vim,乱码,中文
+description: Mac OSX vim 输入中文乱码问题
 ---
 ###出现问题的环境:
 1. OSX 10.9.2 英文  

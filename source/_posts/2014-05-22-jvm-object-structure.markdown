@@ -4,7 +4,9 @@ title: "JVM 之 Java 对象结构"
 date: 2014-05-22 14:09:15 +0800
 comments: true
 categories: jvm
-styles: [data-table] 
+styles: [data-table]
+keywords: jvm,对象结构,sa,hsdb
+description: JVM 之 Java 对象结构 
 ---
 ##1. Java对象在内存中到底是什么样?
 JAVA对象在内存中的表现形式就是一系列按照*某种规范*排列的字节(如果不清楚物理内存j的实现方式，请参考：[关于CPU寻址和物理内存结构][1] )。
