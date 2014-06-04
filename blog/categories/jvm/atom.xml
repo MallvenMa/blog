@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://blog.zarue.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-02T10:05:44+08:00</updated>
+  <updated>2014-06-04T16:07:06+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -223,7 +223,7 @@ inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
 
 <h3>总结:</h3>
 
-<p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象，不会被垃圾收集器回收掉。<br/>
+<p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象不会被垃圾收集器回收掉。<br/>
 Hashtable 的结构看起来应该是这样的：<br/>
 <img src="/images/blog/2014-06/20140602-hashtable.png" alt="Hasttable" /></p>
 ]]></content>
