@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://blog.zarue.com//atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-10T08:44:44+08:00</updated>
+  <updated>2014-06-14T16:03:53+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -12,6 +12,782 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Java对象创建之加载和连接]]></title>
+    <link href="http://blog.zarue.com//blog/2014/06/14/java-object-create-1/"/>
+    <updated>2014-06-14T08:53:49+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/06/14/java-object-create-1</id>
+    <content type="html"><![CDATA[<p>Java对象的生命周期可以分为：<code>加载</code>，<code>验证</code>，<code>准备</code>，<code>解析</code>，<code>初始化</code>，<code>使用</code>，<code>卸载</code> 八个阶段。其中<code>验证</code>，<code>准备</code>，<code>解析</code>又被统称为<code>连接</code>，今天主要看一下<code>加载</code>和<code>连接</code>，下一篇文章讲<code>初始化</code>。<br/>
+<img src="http://blog.zarue.com//images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
+说明：本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a></p>
+
+<!--more-->
+
+
+<p>要想了解jvm底层的对象创建过程，还是要首先找到一个入口。new关键字无疑是最先想到的，但是看着这段代码“new Animal()” ,我还是找不到什么有用的信息，于是又想到了另一种方式。自定义classloader。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Animal</span> <span class="o">{</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">Integer</span> <span class="n">age</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(){</span>
+</span><span class='line'>      
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>关于自定义classloader 的文章，一搜一大堆，这里就不多说了。我自己定义了一个简单的Classloader。代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ClassLoaderTest</span> <span class="kd">extends</span> <span class="n">ClassLoader</span> <span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">findClass</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ClassNotFoundException</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kt">byte</span><span class="o">[]</span> <span class="n">classBytes</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">InputStream</span> <span class="n">is</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">name</span><span class="o">));</span>
+</span><span class='line'>          <span class="n">ByteArrayOutputStream</span> <span class="n">bos</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">();</span>
+</span><span class='line'>          <span class="kt">byte</span><span class="o">[]</span> <span class="n">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="mi">256</span><span class="o">];</span>
+</span><span class='line'>          <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>          <span class="k">while</span><span class="o">((</span><span class="n">length</span> <span class="o">=</span> <span class="n">is</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">))!=-</span><span class="mi">1</span><span class="o">){</span>
+</span><span class='line'>              <span class="n">bos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">buffer</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">length</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>          <span class="n">classBytes</span> <span class="o">=</span> <span class="n">bos</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+</span><span class='line'>          <span class="n">bos</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>          <span class="n">is</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">if</span><span class="o">(</span><span class="n">classBytes</span><span class="o">==</span><span class="kc">null</span><span class="o">){</span>
+</span><span class='line'>          <span class="k">throw</span> <span class="k">new</span> <span class="nf">ClassNotFoundException</span><span class="o">(</span><span class="s">&quot;class not found:&quot;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nf">defineClass</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">classBytes</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">classBytes</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[]){</span>
+</span><span class='line'>      <span class="n">ClassLoaderTest</span> <span class="n">clt</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassLoaderTest</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">Class</span> <span class="n">claszz</span> <span class="o">=</span> <span class="n">clt</span><span class="o">.</span><span class="na">loadClass</span><span class="o">(</span><span class="s">&quot;Animal&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="n">Animal</span> <span class="n">animal</span> <span class="o">=</span> <span class="o">(</span><span class="n">Animal</span><span class="o">)</span><span class="n">claszz</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>findClass（） 方法主要是加载class文件,然后调用defineClass（&hellip;）。<br/>
+看一下defineClass(&hellip;)的代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">protected</span> <span class="kd">final</span> <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">defineClass</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">b</span><span class="o">,</span> <span class="kt">int</span> <span class="n">off</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">,</span>
+</span><span class='line'>                                         <span class="n">ProtectionDomain</span> <span class="n">protectionDomain</span><span class="o">)</span>
+</span><span class='line'>        <span class="kd">throws</span> <span class="n">ClassFormatError</span>
+</span><span class='line'>    <span class="o">{</span>
+</span><span class='line'>        <span class="n">protectionDomain</span> <span class="o">=</span> <span class="n">preDefineClass</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">protectionDomain</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">Class</span> <span class="n">c</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">source</span> <span class="o">=</span> <span class="n">defineClassSourceLocation</span><span class="o">(</span><span class="n">protectionDomain</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">c</span> <span class="o">=</span> <span class="n">defineClass1</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">off</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">protectionDomain</span><span class="o">,</span> <span class="n">source</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClassFormatError</span> <span class="n">cfe</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">c</span> <span class="o">=</span> <span class="n">defineTransformedClass</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">off</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">protectionDomain</span><span class="o">,</span> <span class="n">cfe</span><span class="o">,</span>
+</span><span class='line'>                                       <span class="n">source</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">postDefineClass</span><span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="n">protectionDomain</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">c</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第5行：<code>preDefineClass(name, protectionDomain);</code>主要是进行一些预处理，比如检查名字是否合法，证书是否正确等等。有兴趣的自己看一下。<br/>
+第11行：<code>defineClass1(...)</code>调用了native方法，这个方法位于：/share/native/java/lang/ClassLoader.c中。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Java_java_lang_ClassLoader_defineClass1</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jobject</span> <span class="n">loader</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jstring</span> <span class="n">name</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jbyteArray</span> <span class="n">data</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jint</span> <span class="n">offset</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jint</span> <span class="n">length</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jobject</span> <span class="n">pd</span><span class="o">,</span>
+</span><span class='line'>                                        <span class="n">jstring</span> <span class="n">source</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="n">jbyte</span> <span class="o">*</span><span class="n">body</span><span class="o">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">utfName</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">jclass</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">buf</span><span class="o">[</span><span class="mi">128</span><span class="o">];</span>
+</span><span class='line'>    <span class="kt">char</span><span class="o">*</span> <span class="n">utfSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">sourceBuf</span><span class="o">[</span><span class="mi">1024</span><span class="o">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">data</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">JNU_ThrowNullPointerException</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'> <span class="k">if</span> <span class="o">(</span><span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">JNU_ThrowArrayIndexOutOfBoundsException</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">body</span> <span class="o">=</span> <span class="o">(</span><span class="n">jbyte</span> <span class="o">*)</span><span class="n">malloc</span><span class="o">(</span><span class="n">length</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">body</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">JNU_ThrowOutOfMemoryError</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">(*</span><span class="n">env</span><span class="o">)-&gt;</span><span class="n">GetByteArrayRegion</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">data</span><span class="o">,</span> <span class="n">offset</span><span class="o">,</span> <span class="n">length</span><span class="o">,</span> <span class="n">body</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">((*</span><span class="n">env</span><span class="o">)-&gt;</span><span class="n">ExceptionOccurred</span><span class="o">(</span><span class="n">env</span><span class="o">))</span>
+</span><span class='line'>        <span class="k">goto</span> <span class="n">free_body</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">name</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">utfName</span> <span class="o">=</span> <span class="n">getUTF</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">buf</span><span class="o">,</span> <span class="n">sizeof</span><span class="o">(</span><span class="n">buf</span><span class="o">));</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">utfName</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">JNU_ThrowOutOfMemoryError</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">NULL</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">goto</span> <span class="n">free_body</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">VerifyFixClassname</span><span class="o">(</span><span class="n">utfName</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">utfName</span> <span class="o">=</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">source</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">utfSource</span> <span class="o">=</span> <span class="n">getUTF</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">source</span><span class="o">,</span> <span class="n">sourceBuf</span><span class="o">,</span> <span class="n">sizeof</span><span class="o">(</span><span class="n">sourceBuf</span><span class="o">));</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">utfSource</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">JNU_ThrowOutOfMemoryError</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">NULL</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">goto</span> <span class="n">free_utfName</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">utfSource</span> <span class="o">=</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">JVM_DefineClassWithSource</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">utfName</span><span class="o">,</span> <span class="n">loader</span><span class="o">,</span> <span class="n">body</span><span class="o">,</span> <span class="n">length</span><span class="o">,</span> <span class="n">pd</span><span class="o">,</span> <span class="n">utfSource</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">utfSource</span> <span class="o">&amp;&amp;</span> <span class="n">utfSource</span> <span class="o">!=</span> <span class="n">sourceBuf</span><span class="o">)</span>
+</span><span class='line'>        <span class="n">free</span><span class="o">(</span><span class="n">utfSource</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'> <span class="nl">free_utfName:</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">utfName</span> <span class="o">&amp;&amp;</span> <span class="n">utfName</span> <span class="o">!=</span> <span class="n">buf</span><span class="o">)</span>
+</span><span class='line'>        <span class="n">free</span><span class="o">(</span><span class="n">utfName</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'> <span class="nl">free_body:</span>
+</span><span class='line'>    <span class="n">free</span><span class="o">(</span><span class="n">body</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第33行：<code>(*env)-&gt;GetByteArrayRegion(env, data, offset, length, body);</code>把传进来的clas对应的字节数组复制给body。<code>GetByteArrayRegion</code>此函数将Java传来的字节数组data，复制offset->length长度的数据给body。<br/>
+第39行：把name转为UTF格式。<br/>
+第58行：<code>JVM_DefineClassWithSource(env, utfName, loader, body, length, pd, utfSource);</code>该方法位于:<code>/share/vm/prims/jvm.cpp</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM_ENTRY</span><span class="o">(</span><span class="n">jclass</span><span class="o">,</span> <span class="n">JVM_DefineClassWithSource</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">loader</span><span class="o">,</span> <span class="kd">const</span> <span class="n">jbyte</span> <span class="o">*</span><span class="n">buf</span><span class="o">,</span> <span class="n">jsize</span> <span class="n">len</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">pd</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span><span class="o">))</span>
+</span><span class='line'><span class="n">JVMWrapper2</span><span class="o">(</span><span class="s">&quot;JVM_DefineClassWithSource %s&quot;</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="nf">jvm_define_class_common</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">loader</span><span class="o">,</span> <span class="n">buf</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">pd</span><span class="o">,</span> <span class="n">source</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'><span class="n">JVM_END</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+调用了<code>jvm_define_class_common(...)</code>方法:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">static</span> <span class="n">jclass</span> <span class="nf">jvm_define_class_common</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="n">jobject</span> <span class="n">loader</span><span class="o">,</span> <span class="kd">const</span> <span class="n">jbyte</span> <span class="o">*</span><span class="n">buf</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="n">jsize</span> <span class="n">len</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">pd</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="n">jboolean</span> <span class="n">verify</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">source</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span>  <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;__JVM_DefineClass__&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(</span><span class="n">THREAD</span><span class="o">-&gt;</span><span class="n">is_Java_thread</span><span class="o">(),</span> <span class="s">&quot;must be a JavaThread&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">JavaThread</span><span class="o">*</span> <span class="n">jt</span> <span class="o">=</span> <span class="o">(</span><span class="n">JavaThread</span><span class="o">*)</span> <span class="n">THREAD</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">PerfClassTraceTime</span> <span class="nf">vmtimer</span><span class="o">(</span><span class="nl">ClassLoader:</span><span class="o">:</span><span class="n">perf_define_appclass_time</span><span class="o">(),</span>
+</span><span class='line'>                             <span class="nl">ClassLoader:</span><span class="o">:</span><span class="n">perf_define_appclass_selftime</span><span class="o">(),</span>
+</span><span class='line'>                             <span class="nl">ClassLoader:</span><span class="o">:</span><span class="n">perf_define_appclasses</span><span class="o">(),</span>
+</span><span class='line'>                             <span class="n">jt</span><span class="o">-&gt;</span><span class="n">get_thread_stat</span><span class="o">()-&gt;</span><span class="n">perf_recursion_counts_addr</span><span class="o">(),</span>
+</span><span class='line'>                             <span class="n">jt</span><span class="o">-&gt;</span><span class="n">get_thread_stat</span><span class="o">()-&gt;</span><span class="n">perf_timers_addr</span><span class="o">(),</span>
+</span><span class='line'>                             <span class="nl">PerfClassTraceTime:</span><span class="o">:</span><span class="n">DEFINE_CLASS</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">UsePerfData</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nl">ClassLoader:</span><span class="o">:</span><span class="n">perf_app_classfile_bytes_read</span><span class="o">()-&gt;</span><span class="n">inc</span><span class="o">(</span><span class="n">len</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Since exceptions can be thrown, class initialization can take place</span>
+</span><span class='line'>  <span class="c1">// if name is NULL no check for class name in .class stream has to be made.</span>
+</span><span class='line'>  <span class="n">symbolHandle</span> <span class="n">class_name</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">name</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">const</span> <span class="kt">int</span> <span class="n">str_len</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span><span class="n">strlen</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">str_len</span> <span class="o">&gt;</span> <span class="nl">symbolOopDesc:</span><span class="o">:</span><span class="n">max_length</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// It&#39;s impossible to create this class;  the name cannot fit</span>
+</span><span class='line'>      <span class="c1">// into the constant pool.</span>
+</span><span class='line'>      <span class="n">THROW_MSG_0</span><span class="o">(</span><span class="nl">vmSymbols:</span><span class="o">:</span><span class="n">java_lang_NoClassDefFoundError</span><span class="o">(),</span> <span class="n">name</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">class_name</span> <span class="o">=</span> <span class="nl">oopFactory:</span><span class="o">:</span><span class="n">new_symbol_handle</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">str_len</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ResourceMark</span> <span class="nf">rm</span><span class="o">(</span><span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">ClassFileStream</span> <span class="nf">st</span><span class="o">((</span><span class="n">u1</span><span class="o">*)</span> <span class="n">buf</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="o">(</span><span class="kt">char</span> <span class="o">*)</span><span class="n">source</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">Handle</span> <span class="nf">class_loader</span> <span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve</span><span class="o">(</span><span class="n">loader</span><span class="o">));</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">UsePerfData</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">is_lock_held_by_thread</span><span class="o">(</span><span class="n">class_loader</span><span class="o">,</span>
+</span><span class='line'>                           <span class="nl">ClassLoader:</span><span class="o">:</span><span class="n">sync_JVMDefineClassLockFreeCounter</span><span class="o">(),</span>
+</span><span class='line'>                           <span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">Handle</span> <span class="nf">protection_domain</span> <span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve</span><span class="o">(</span><span class="n">pd</span><span class="o">));</span>
+</span><span class='line'>  <span class="n">klassOop</span> <span class="n">k</span> <span class="o">=</span> <span class="nl">SystemDictionary:</span><span class="o">:</span><span class="n">resolve_from_stream</span><span class="o">(</span><span class="n">class_name</span><span class="o">,</span> <span class="n">class_loader</span><span class="o">,</span>
+</span><span class='line'>                                                     <span class="n">protection_domain</span><span class="o">,</span> <span class="o">&amp;</span><span class="n">st</span><span class="o">,</span>
+</span><span class='line'>                                                     <span class="n">verify</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">,</span>
+</span><span class='line'>                                                     <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">TraceClassResolution</span> <span class="o">&amp;&amp;</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">trace_class_resolution</span><span class="o">(</span><span class="n">k</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="n">jclass</span><span class="o">)</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">make_local</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="nl">Klass:</span><span class="o">:</span><span class="n">cast</span><span class="o">(</span><span class="n">k</span><span class="o">)-&gt;</span><span class="n">java_mirror</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第35行：把传入的字节数组转换为<code>ClassFileStream</code>对象，以后所有的class数据的提取，分析，验证，转换等都将依托于该对象，和之前的数组没有关系了。<br/>
+第43行：调用<code>SystemDictionary::resolve_from_stream(...)</code>进行class对象的解析工作。该方法位于：<code>share/vm/classfile/systemDictionary.cpp</code><br/>
+看一下这个方法里面的几行主要代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">instanceKlassHandle</span> <span class="n">k</span> <span class="o">=</span> <span class="n">ClassFileParser</span><span class="o">(</span><span class="n">st</span><span class="o">).</span><span class="na">parseClassFile</span><span class="o">(</span><span class="n">class_name</span><span class="o">,</span>
+</span><span class='line'>                                                             <span class="n">class_loader</span><span class="o">,</span>
+</span><span class='line'>                                                             <span class="n">protection_domain</span><span class="o">,</span>
+</span><span class='line'>                                                             <span class="n">parsed_name</span><span class="o">,</span>
+</span><span class='line'>                                                             <span class="n">verify</span><span class="o">,</span>
+</span><span class='line'>                                                             <span class="n">THREAD</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>调用了ClassFileParser的parseClassFile方法，这个方法里面完成Class对象的构建过程。代码位置:<code>src/share/vm/classfile/classFileParser.cpp</code><br/>
+说道这里就要了解一下Class文件的格式了，<a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html">Java语言规范</a>中是这么规定的,其实单讲这个格式也够写一篇文章的，这里不深入，有兴趣的自己网上搜吧。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ClassFile</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">u4</span>             <span class="n">magic</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">minor_version</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">major_version</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">constant_pool_count</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">cp_info</span>        <span class="n">constant_pool</span><span class="o">[</span><span class="n">constant_pool_count</span><span class="o">-</span><span class="mi">1</span><span class="o">];</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">access_flags</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">this_class</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">super_class</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">interfaces_count</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">interfaces</span><span class="o">[</span><span class="n">interfaces_count</span><span class="o">];</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">fields_count</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">field_info</span>     <span class="n">fields</span><span class="o">[</span><span class="n">fields_count</span><span class="o">];</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">methods_count</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">method_info</span>    <span class="n">methods</span><span class="o">[</span><span class="n">methods_count</span><span class="o">];</span>
+</span><span class='line'>    <span class="n">u2</span>             <span class="n">attributes_count</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">attribute_info</span> <span class="n">attributes</span><span class="o">[</span><span class="n">attributes_count</span><span class="o">];</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>再回到parseClassFile方法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">u4</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u4_fast</span><span class="o">();</span>
+</span><span class='line'>  <span class="n">guarantee_property</span><span class="o">(</span><span class="n">magic</span> <span class="o">==</span> <span class="n">JAVA_CLASSFILE_MAGIC</span><span class="o">,</span>
+</span><span class='line'>                     <span class="s">&quot;Incompatible magic value %u in class file %s&quot;</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">magic</span><span class="o">,</span> <span class="n">CHECK_</span><span class="o">(</span><span class="n">nullHandle</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对照上面的Class格式规范，首先获取magic标识(4字节)，然后判断它是不是等于CAFEBABE，如果不等于，则说明不是一个正确的Class文件格式。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// Version numbers</span>
+</span><span class='line'>  <span class="n">u2</span> <span class="n">minor_version</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="o">();</span>
+</span><span class='line'>  <span class="n">u2</span> <span class="n">major_version</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="o">();</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">is_supported_version</span><span class="o">(</span><span class="n">major_version</span><span class="o">,</span> <span class="n">minor_version</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">name</span><span class="o">.</span><span class="na">is_null</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="nl">Exceptions:</span><span class="o">:</span><span class="n">fthrow</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">THREAD_AND_LOCATION</span><span class="o">,</span>
+</span><span class='line'>        <span class="nl">vmSymbolHandles:</span><span class="o">:</span><span class="n">java_lang_UnsupportedClassVersionError</span><span class="o">(),</span>
+</span><span class='line'>        <span class="s">&quot;Unsupported major.minor version %u.%u&quot;</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">major_version</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">minor_version</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">ResourceMark</span> <span class="nf">rm</span><span class="o">(</span><span class="n">THREAD</span><span class="o">);</span>
+</span><span class='line'>      <span class="nl">Exceptions:</span><span class="o">:</span><span class="n">fthrow</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">THREAD_AND_LOCATION</span><span class="o">,</span>
+</span><span class='line'>        <span class="nl">vmSymbolHandles:</span><span class="o">:</span><span class="n">java_lang_UnsupportedClassVersionError</span><span class="o">(),</span>
+</span><span class='line'>        <span class="s">&quot;%s : Unsupported major.minor version %u.%u&quot;</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">name</span><span class="o">-&gt;</span><span class="n">as_C_string</span><span class="o">(),</span>
+</span><span class='line'>        <span class="n">major_version</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">minor_version</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">nullHandle</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>获得Class文件的版本号，分为主版本号和次版本号。然后判断当前的JVM版本支不支持此版本的Class文件的解析。<br/>
+接下来就是常量池了，每一个Class对象里面都有一个对应的常量池(ConstantPoolOop)对象，用来存放Class中的常量。看一下<code>ClassFileParser::parse_constant_pool(.)</code>中的部分代码。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">parse_constant_pool_entries</span><span class="o">(</span><span class="n">cp</span><span class="o">,</span> <span class="n">length</span><span class="o">,</span> <span class="n">CHECK_</span><span class="o">(</span><span class="n">nullHandle</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+调用parse_constant_pool_entries(&hellip;)对象来创建常量池项：<br/>
+看一下<code>ClassFileParser::parse_constant_pool_entries(constantPoolHandle cp, int length, TRAPS)</code>中的部分代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">case</span> <span class="n">JVM_CONSTANT_Class</span> <span class="o">:</span>
+</span><span class='line'>        <span class="o">{</span>
+</span><span class='line'>          <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">CHECK</span><span class="o">);</span>  <span class="c1">// name_index, tag/access_flags</span>
+</span><span class='line'>          <span class="n">u2</span> <span class="n">name_index</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="o">();</span>
+</span><span class='line'>          <span class="n">cp</span><span class="o">-&gt;</span><span class="n">klass_index_at_put</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">name_index</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">break</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>常量池对象constantPoolOop使用一个<code>typeArrayOop</code>来存储常量池项，回到上面的代码，首先判断剩余的字节数是否满足一个<code>JVM_CONSTANT_Class</code>要求的字节数(通过Class文件规范可知是3),然后是获得u2长度的字节数作为name的真实值在常量池中对应的index(Animal的常量池可以参考<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d#file-3-animal-javap">Animal常量池</a>)。<br/>
+再来看一个：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">case</span> <span class="n">JVM_CONSTANT_Utf8</span> <span class="o">:</span>
+</span><span class='line'>        <span class="o">{</span>
+</span><span class='line'>          <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">CHECK</span><span class="o">);</span>  <span class="c1">// utf8_length</span>
+</span><span class='line'>          <span class="n">u2</span>  <span class="n">utf8_length</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="o">();</span>
+</span><span class='line'>          <span class="n">u1</span><span class="o">*</span> <span class="n">utf8_buffer</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u1_buffer</span><span class="o">();</span>
+</span><span class='line'>          <span class="k">assert</span><span class="o">(</span><span class="n">utf8_buffer</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">,</span> <span class="s">&quot;null utf8 buffer&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="c1">// Got utf8 string, guarantee utf8_length+1 bytes, set stream position forward.</span>
+</span><span class='line'>          <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="o">(</span><span class="n">utf8_length</span><span class="o">+</span><span class="mi">1</span><span class="o">,</span> <span class="n">CHECK</span><span class="o">);</span>  <span class="c1">// utf8 string, tag/access_flags</span>
+</span><span class='line'>          <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">skip_u1_fast</span><span class="o">(</span><span class="n">utf8_length</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="c1">// Before storing the symbol, make sure it&#39;s legal</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">_need_verify</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">verify_legal_utf8</span><span class="o">((</span><span class="n">unsigned</span> <span class="kt">char</span><span class="o">*)</span><span class="n">utf8_buffer</span><span class="o">,</span> <span class="n">utf8_length</span><span class="o">,</span> <span class="n">CHECK</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">AnonymousClasses</span> <span class="o">&amp;&amp;</span> <span class="n">has_cp_patch_at</span><span class="o">(</span><span class="n">index</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Handle</span> <span class="n">patch</span> <span class="o">=</span> <span class="n">clear_cp_patch_at</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">guarantee_property</span><span class="o">(</span><span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">is_instance</span><span class="o">(</span><span class="n">patch</span><span class="o">()),</span>
+</span><span class='line'>                               <span class="s">&quot;Illegal utf8 patch at %d in class file %s&quot;</span><span class="o">,</span>
+</span><span class='line'>                               <span class="n">index</span><span class="o">,</span> <span class="n">CHECK</span><span class="o">);</span>
+</span><span class='line'>            <span class="kt">char</span><span class="o">*</span> <span class="n">str</span> <span class="o">=</span> <span class="nl">java_lang_String:</span><span class="o">:</span><span class="n">as_utf8_string</span><span class="o">(</span><span class="n">patch</span><span class="o">());</span>
+</span><span class='line'>            <span class="c1">// (could use java_lang_String::as_symbol instead, but might as well batch them)</span>
+</span><span class='line'>            <span class="n">utf8_buffer</span> <span class="o">=</span> <span class="o">(</span><span class="n">u1</span><span class="o">*)</span> <span class="n">str</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">utf8_length</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">strlen</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">unsigned</span> <span class="kt">int</span> <span class="n">hash</span><span class="o">;</span>
+</span><span class='line'>          <span class="n">symbolOop</span> <span class="n">result</span> <span class="o">=</span> <span class="nl">SymbolTable:</span><span class="o">:</span><span class="n">lookup_only</span><span class="o">((</span><span class="kt">char</span><span class="o">*)</span><span class="n">utf8_buffer</span><span class="o">,</span> <span class="n">utf8_length</span><span class="o">,</span> <span class="n">hash</span><span class="o">);</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">names</span><span class="o">[</span><span class="n">names_count</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">*)</span><span class="n">utf8_buffer</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">lengths</span><span class="o">[</span><span class="n">names_count</span><span class="o">]</span> <span class="o">=</span> <span class="n">utf8_length</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">indices</span><span class="o">[</span><span class="n">names_count</span><span class="o">]</span> <span class="o">=</span> <span class="n">index</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">hashValues</span><span class="o">[</span><span class="n">names_count</span><span class="o">++]</span> <span class="o">=</span> <span class="n">hash</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">names_count</span> <span class="o">==</span> <span class="nl">SymbolTable:</span><span class="o">:</span><span class="n">symbol_alloc_batch_size</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>              <span class="nl">oopFactory:</span><span class="o">:</span><span class="n">new_symbols</span><span class="o">(</span><span class="n">cp</span><span class="o">,</span> <span class="n">names_count</span><span class="o">,</span> <span class="n">names</span><span class="o">,</span> <span class="n">lengths</span><span class="o">,</span> <span class="n">indices</span><span class="o">,</span> <span class="n">hashValues</span><span class="o">,</span> <span class="n">CHECK</span><span class="o">);</span>
+</span><span class='line'>              <span class="n">names_count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>          <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">cp</span><span class="o">-&gt;</span><span class="n">symbol_at_put</span><span class="o">(</span><span class="n">index</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">break</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这是Utf-8类型常量的处理方式，首先检查<code>SymbolTable</code>中是否存在该字符串，如果存在就返回已经存在的字符串对象。如果不存在，首先调用<code>oopFactory::new_symbols(...)</code>创建一个symbol对象，然后将它加入到SymbolTable中。这样就保证了同样的符号在jvm中仅仅会存在一个对象，可以大大节省存储空间。这里和之前讲的字符串池是一样的处理方式。 <br/>
+常量池项解析完成之后，我们回到<code>ClassFileParser::parse_constant_pool(.)</code>方法，接下来是对转换完成的常量池项进行检查，如果全部检查通过，则返回该常量池对象。<br/>
+然后再回到<code>ClassFileParser::parseClassFile(...)</code>方法。<br/>
+接下来会接着解析<code>access_flag</code>,<code>this_class</code>,<code>super_class</code>等项,具体看源代码即可。
+全都解析，验证完了之后，会创建一个描述这个类的对象即:instanceKlass来存储上面解析出来的各个项。instanceKlass的结构如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">instanceKlass</span> <span class="nl">layout:</span>
+</span><span class='line'><span class="o">[</span><span class="n">header</span>                     <span class="o">]</span> <span class="n">klassOop</span>
+</span><span class='line'><span class="o">[</span><span class="n">klass</span> <span class="n">pointer</span>              <span class="o">]</span> <span class="n">klassOop</span>
+</span><span class='line'><span class="o">[</span><span class="n">C</span><span class="o">++</span> <span class="n">vtbl</span> <span class="n">pointer</span>           <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">subtype</span> <span class="n">cache</span>              <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">instance</span> <span class="n">size</span>              <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">java</span> <span class="n">mirror</span>                <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="kd">super</span>                      <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">access_flags</span>               <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">name</span>                       <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">first</span> <span class="n">subklass</span>             <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">next</span> <span class="n">sibling</span>               <span class="o">]</span> <span class="n">Klass</span>
+</span><span class='line'><span class="o">[</span><span class="n">array</span> <span class="n">klasses</span>              <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">methods</span>                    <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">local</span> <span class="n">interfaces</span>           <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">transitive</span> <span class="n">interfaces</span>      <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">number</span> <span class="n">of</span> <span class="n">implementors</span>     <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">implementors</span>               <span class="o">]</span> <span class="n">klassOop</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">fields</span>                     <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">constants</span>                  <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="kd">class</span> <span class="nc">loader</span>               <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">protection</span> <span class="n">domain</span>          <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">signers</span>                    <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">source</span> <span class="n">file</span> <span class="n">name</span>           <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">inner</span> <span class="n">classes</span>              <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="kd">static</span> <span class="n">field</span> <span class="n">size</span>          <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">nonstatic</span> <span class="n">field</span> <span class="n">size</span>       <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="kd">static</span> <span class="n">oop</span> <span class="n">fields</span> <span class="n">size</span>     <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">nonstatic</span> <span class="n">oop</span> <span class="n">maps</span> <span class="n">size</span>    <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">has</span> <span class="n">finalize</span> <span class="n">method</span>        <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">deoptimization</span> <span class="n">mark</span> <span class="n">bit</span>    <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">initialization</span> <span class="n">state</span>       <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">initializing</span> <span class="n">thread</span>        <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">Java</span> <span class="n">vtable</span> <span class="n">length</span>         <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">oop</span> <span class="n">map</span> <span class="n">cache</span> <span class="o">(</span><span class="n">stack</span> <span class="n">maps</span><span class="o">)</span> <span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="n">EMBEDDED</span> <span class="n">Java</span> <span class="n">vtable</span>             <span class="o">]</span> <span class="n">size</span> <span class="n">in</span> <span class="n">words</span> <span class="o">=</span> <span class="n">vtable_len</span>
+</span><span class='line'><span class="o">[</span><span class="n">EMBEDDED</span> <span class="kd">static</span> <span class="n">oop</span> <span class="n">fields</span>       <span class="o">]</span> <span class="n">size</span> <span class="n">in</span> <span class="n">words</span> <span class="o">=</span> <span class="n">static_oop_fields_size</span>
+</span><span class='line'><span class="o">[</span>         <span class="kd">static</span> <span class="n">non</span><span class="o">-</span><span class="n">oop</span> <span class="n">fields</span>   <span class="o">]</span> <span class="n">size</span> <span class="n">in</span> <span class="n">words</span> <span class="o">=</span> <span class="n">static_field_size</span> <span class="o">-</span> <span class="n">static_oop_fields_size</span>
+</span><span class='line'><span class="o">[</span><span class="n">EMBEDDED</span> <span class="n">nonstatic</span> <span class="n">oop</span><span class="o">-</span><span class="n">map</span> <span class="n">blocks</span><span class="o">]</span> <span class="n">size</span> <span class="n">in</span> <span class="n">words</span> <span class="o">=</span> <span class="n">nonstatic_oop_map_size</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后是初始化静态变量(准备):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'> <span class="c1">// Initialize static fields</span>
+</span><span class='line'>    <span class="n">this_klass</span><span class="o">-&gt;</span><span class="n">do_local_static_fields</span><span class="o">(&amp;</span><span class="n">initialize_static_field</span><span class="o">,</span> <span class="n">CHECK_</span><span class="o">(</span><span class="n">nullHandle</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+然后经过一系列的验证，验证通过之后返回该对象。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 二]]></title>
