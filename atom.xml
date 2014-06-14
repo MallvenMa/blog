@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://blog.zarue.com//atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-14T16:23:38+08:00</updated>
+  <updated>2014-06-14T17:07:27+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Java对象创建之加载和连接]]></title>
+    <title type="html"><![CDATA[JVM 之 Java对象创建[加载和连接]]]></title>
     <link href="http://blog.zarue.com//blog/2014/06/14/java-object-create-1/"/>
     <updated>2014-06-14T08:53:49+08:00</updated>
     <id>http://blog.zarue.com//blog/2014/06/14/java-object-create-1</id>
@@ -324,7 +324,9 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM_ENTRY</span><span class="o">(</span><span class="n">jclass</span><span class="o">,</span> <span class="n">JVM_DefineClassWithSource</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">loader</span><span class="o">,</span> <span class="kd">const</span> <span class="n">jbyte</span> <span class="o">*</span><span class="n">buf</span><span class="o">,</span> <span class="n">jsize</span> <span class="n">len</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">pd</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span><span class="o">))</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM_ENTRY</span><span class="o">(</span><span class="n">jclass</span><span class="o">,</span> <span class="n">JVM_DefineClassWithSource</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">loader</span><span class="o">,</span> <span class="kd">const</span> <span class="n">jbyte</span> <span class="o">*</span><span class="n">buf</span><span class="o">,</span>
+</span><span class='line'> <span class="n">jsize</span> <span class="n">len</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">pd</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span><span class="o">))</span>
 </span><span class='line'><span class="n">JVMWrapper2</span><span class="o">(</span><span class="s">&quot;JVM_DefineClassWithSource %s&quot;</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">return</span> <span class="nf">jvm_define_class_common</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">loader</span><span class="o">,</span> <span class="n">buf</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">pd</span><span class="o">,</span> <span class="n">source</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">THREAD</span><span class="o">);</span>

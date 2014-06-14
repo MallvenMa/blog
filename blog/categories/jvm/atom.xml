@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://blog.zarue.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-14T16:23:38+08:00</updated>
+  <updated>2014-06-14T17:07:27+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Java对象创建之加载和连接]]></title>
+    <title type="html"><![CDATA[JVM 之 Java对象创建[加载和连接]]]></title>
     <link href="http://blog.zarue.com//blog/2014/06/14/java-object-create-1/"/>
     <updated>2014-06-14T08:53:49+08:00</updated>
     <id>http://blog.zarue.com//blog/2014/06/14/java-object-create-1</id>
@@ -197,7 +197,8 @@ return result;
 第39行：把name转为UTF格式。  
 第58行：`JVM_DefineClassWithSource(env, utfName, loader, body, length, pd, utfSource);`该方法位于:`/share/vm/prims/jvm.cpp`   
 </code>java
-JVM_ENTRY(jclass, JVM_DefineClassWithSource(JNIEnv <em>env, const char </em>name, jobject loader, const jbyte <em>buf, jsize len, jobject pd, const char </em>source))
+JVM_ENTRY(jclass, JVM_DefineClassWithSource(JNIEnv <em>env, const char </em>name, jobject loader, const jbyte <em>buf,
+ jsize len, jobject pd, const char </em>source))
 JVMWrapper2(&ldquo;JVM_DefineClassWithSource %s&rdquo;, name);</p>
 
 <p>return jvm_define_class_common(env, name, loader, buf, len, pd, source, true, THREAD);
