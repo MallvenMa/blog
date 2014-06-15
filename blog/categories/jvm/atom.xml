@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://blog.zarue.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-15T09:57:01+08:00</updated>
+  <updated>2014-06-15T11:40:16+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -12,6 +12,388 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 Java对象创建[初始化]]]></title>
+    <link href="http://blog.zarue.com//blog/2014/06/15/java-object-create-2/"/>
+    <updated>2014-06-15T10:01:00+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/06/15/java-object-create-2</id>
+    <content type="html"><![CDATA[<p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
+还是使用上文的例子:<br/>
+<code>java
+Class claszz = clt.loadClass("Animal");
+Animal animal = (Animal)claszz.newInstance();
+</code>
+<code>newInstance</code>的native方法在:src/share/native/sun/reflect/NativeAccessors.c<br/>
+<code>java
+JNIEXPORT jobject JNICALL Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0
+(JNIEnv *env, jclass unused, jobject c, jobjectArray args)
+{
+return JVM_NewInstanceFromConstructor(env, c, args);
+}
+</code></p>
+
+<!--more-->
+
+
+<p><code>JVM_NewInstanceFromConstructor</code>在jvm.cpp 中的实现： <br/>
+<code>java
+JVM_ENTRY(jobject, JVM_NewInstanceFromConstructor(JNIEnv *env, jobject c, jobjectArray args0))
+JVMWrapper("JVM_NewInstanceFromConstructor");
+oop constructor_mirror = JNIHandles::resolve(c);
+objArrayHandle args(THREAD, objArrayOop(JNIHandles::resolve(args0)));
+oop result = Reflection::invoke_constructor(constructor_mirror, args, CHECK_NULL);
+jobject res = JNIHandles::make_local(env, result);
+if (JvmtiExport::should_post_vm_object_alloc()) {
+JvmtiExport::post_vm_object_alloc(JavaThread::current(), result);
+}
+return res;
+JVM_END
+</code>
+第4行：创建构造方法参数数组。 <br/>
+第5行：<code>invoke_constructor(...)</code>位于/src/share/vm/runtime/reflection.cpp,这个方法包含了对象的创建过程。<br/>
+```java
+oop Reflection::invoke_constructor(oop constructor_mirror, objArrayHandle args, TRAPS) {
+  oop mirror             = java_lang_reflect_Constructor::clazz(constructor_mirror);
+  int slot               = java_lang_reflect_Constructor::slot(constructor_mirror);
+  bool override          = java_lang_reflect_Constructor::override(constructor_mirror) != 0;
+  objArrayHandle ptypes(THREAD, objArrayOop(java_lang_reflect_Constructor::parameter_types(constructor_mirror)));</p>
+
+<p>  instanceKlassHandle klass(THREAD, java_lang_Class::as_klassOop(mirror));
+  methodOop m = klass->method_with_idnum(slot);
+  if (m == NULL) {</p>
+
+<pre><code>THROW_MSG_0(vmSymbols::java_lang_InternalError(), "invoke");
+</code></pre>
+
+<p>  }
+  methodHandle method(THREAD, m);
+  assert(method->name() == vmSymbols::object_initializer_name(), &ldquo;invalid constructor&rdquo;);</p>
+
+<p>  // Make sure klass gets initialize
+  klass->initialize(CHECK_NULL);</p>
+
+<p>  // Create new instance (the receiver)
+  klass->check_valid_for_instantiation(false, CHECK_NULL);
+  Handle receiver = klass->allocate_instance_handle(CHECK_NULL);</p>
+
+<p>  // Ignore result from call and return receiver
+  invoke(klass, method, receiver, override, ptypes, T_VOID, args, false, CHECK_NULL);
+  return receiver();
+}
+<code>
+直接从为对象分配内存开始看src/share/vm/oops/instanceKlass.cpp  
+</code>java
+Handle receiver = klass->allocate_instance_handle(CHECK_NULL);
+<code>
+继续看:`allocate_instance(...)`  
+</code>java
+instanceOop instanceKlass::allocate_instance(TRAPS) {
+  bool has_finalizer_flag = has_finalizer(); // Query before possible GC
+  int size = size_helper();  // Query before forming handle.</p>
+
+<p>  KlassHandle h_k(THREAD, as_klassOop());</p>
+
+<p>  instanceOop i;</p>
+
+<p>  i = (instanceOop)CollectedHeap::obj_allocate(h_k, size, CHECK_NULL);
+  if (has_finalizer_flag &amp;&amp; !RegisterFinalizersAtInit) {</p>
+
+<pre><code>i = register_finalizer(i, CHECK_NULL);
+</code></pre>
+
+<p>  }
+  return i;
+}
+<code>
+第9行:`i = (instanceOop)CollectedHeap::obj_allocate(h_k, size, CHECK_NULL);`位于collectedHeap.inline.hpp中:  
+</code>java
+oop CollectedHeap::obj_allocate(KlassHandle klass, int size, TRAPS) {
+  debug_only(check_for_valid_allocation_state());
+  assert(!Universe::heap()&ndash;>is_gc_active(), &ldquo;Allocation during gc not allowed&rdquo;);
+  assert(size >= 0, &ldquo;int won&rsquo;t convert to size_t&rdquo;);
+  HeapWord<em> obj = common_mem_allocate_init(size, false, CHECK_NULL);
+  post_allocation_setup_obj(klass, obj, size);
+  NOT_PRODUCT(Universe::heap()&ndash;>check_for_bad_heap_word_value(obj, size));
+  return (oop)obj;
+}
+<code>
+看一下`common_mem_allocate_init(size, false, CHECK_NULL);`  
+</code>java
+HeapWord</em> CollectedHeap::common_mem_allocate_init(size_t size, bool is_noref, TRAPS) {
+  HeapWord<em> obj = common_mem_allocate_noinit(size, is_noref, CHECK_NULL);
+  init_obj(obj, size);
+  return obj;
+}
+<code>
+继续看`common_mem_allocate_noinit(...)`  
+</code>java
+HeapWord</em> CollectedHeap::common_mem_allocate_noinit(size_t size, bool is_noref, TRAPS) {</p>
+
+<p>  // Clear unhandled oops for memory allocation.  Memory allocation might
+  // not take out a lock if from tlab, so clear here.
+  CHECK_UNHANDLED_OOPS_ONLY(THREAD->clear_unhandled_oops();)</p>
+
+<p>  if (HAS_PENDING_EXCEPTION) {</p>
+
+<pre><code>NOT_PRODUCT(guarantee(false, "Should not allocate with exception pending"));
+return NULL;  // caller does a CHECK_0 too
+</code></pre>
+
+<p>  }</p>
+
+<p>  // We may want to update this, is_noref objects might not be allocated in TLABs.
+  HeapWord* result = NULL;
+  if (UseTLAB) {</p>
+
+<pre><code>result = CollectedHeap::allocate_from_tlab(THREAD, size);
+if (result != NULL) {
+  assert(!HAS_PENDING_EXCEPTION,
+         "Unexpected exception, will result in uninitialized storage");
+  return result;
+}
+</code></pre>
+
+<p>  }
+  bool gc_overhead_limit_was_exceeded = false;
+  result = Universe::heap()&ndash;>mem_allocate(size,</p>
+
+<pre><code>                                      is_noref,
+                                      false,
+                                      &amp;gc_overhead_limit_was_exceeded);
+</code></pre>
+
+<p>  if (result != NULL) {</p>
+
+<pre><code>NOT_PRODUCT(Universe::heap()-&gt;
+  check_for_non_bad_heap_word_value(result, size));
+assert(!HAS_PENDING_EXCEPTION,
+       "Unexpected exception, will result in uninitialized storage");
+return result;
+</code></pre>
+
+<p>  }</p>
+
+<p>  if (!gc_overhead_limit_was_exceeded) {</p>
+
+<pre><code>// -XX:+HeapDumpOnOutOfMemoryError and -XX:OnOutOfMemoryError support
+report_java_out_of_memory("Java heap space");
+
+if (JvmtiExport::should_post_resource_exhausted()) {
+  JvmtiExport::post_resource_exhausted(
+    JVMTI_RESOURCE_EXHAUSTED_OOM_ERROR | JVMTI_RESOURCE_EXHAUSTED_JAVA_HEAP,
+    "Java heap space");
+}
+
+THROW_OOP_0(Universe::out_of_memory_error_java_heap());
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>// -XX:+HeapDumpOnOutOfMemoryError and -XX:OnOutOfMemoryError support
+report_java_out_of_memory("GC overhead limit exceeded");
+
+if (JvmtiExport::should_post_resource_exhausted()) {
+  JvmtiExport::post_resource_exhausted(
+    JVMTI_RESOURCE_EXHAUSTED_OOM_ERROR | JVMTI_RESOURCE_EXHAUSTED_JAVA_HEAP,
+    "GC overhead limit exceeded");
+}
+
+THROW_OOP_0(Universe::out_of_memory_error_gc_overhead_limit());
+</code></pre>
+
+<p>  }
+}
+<code>
+第15行，如果启用了UseTLAB则优先在TLAB上分配：allocate_from_tlab(...)  
+</code>java
+HeapWord<em> CollectedHeap::allocate_from_tlab(Thread</em> thread, size_t size) {
+  assert(UseTLAB, &ldquo;should use UseTLAB&rdquo;);</p>
+
+<p>  HeapWord* obj = thread->tlab().allocate(size);
+  if (obj != NULL) {</p>
+
+<pre><code>return obj;
+</code></pre>
+
+<p>  }
+  // Otherwise&hellip;
+  return allocate_from_tlab_slow(thread, size);
+}
+<code>
+如果在TLAB分配失败则调用`allocate_from_tlab_slow(...)`，该方法会重新计算TLAB的大小，然后重新创建一个新的TLAB用于分配该对象。   
+如果`allocate_from_tlab_slow(...)`也没成功，则调用  
+</code>java
+Universe::heap()&ndash;>mem_allocate(size,</p>
+
+<pre><code>                                      is_noref,
+                                      false,
+                                      &amp;gc_overhead_limit_was_exceeded);
+</code></pre>
+
+<p><code>
+在共享内存区域分配内存。在该区域分配内存需要加锁，所以速度要比在TLAB上分配效率低一些。该方法位于：/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.cpp  
+</code>java
+eapWord* ParallelScavengeHeap::mem_allocate(</p>
+
+<pre><code>                                 size_t size,
+                                 bool is_noref,
+                                 bool is_tlab,
+                                 bool* gc_overhead_limit_was_exceeded) {
+</code></pre>
+
+<p>  assert(!SafepointSynchronize::is_at_safepoint(), &ldquo;should not be at safepoint&rdquo;);
+  assert(Thread::current() != (Thread*)VMThread::vm_thread(), &ldquo;should not be in vm thread&rdquo;);
+  assert(!Heap_lock->owned_by_self(), &ldquo;this thread should not own the Heap_lock&rdquo;);</p>
+
+<p>  // In general gc_overhead_limit_was_exceeded should be false so
+  // set it so here and reset it to true only if the gc time
+  // limit is being exceeded as checked below.
+  *gc_overhead_limit_was_exceeded = false;</p>
+
+<p>  HeapWord* result = young_gen()&ndash;>allocate(size, is_tlab);</p>
+
+<p>  uint loop_count = 0;
+  uint gc_count = 0;</p>
+
+<p>  while (result == NULL) {</p>
+
+<pre><code>// We don't want to have multiple collections for a single filled generation.
+// To prevent this, each thread tracks the total_collections() value, and if
+// the count has changed, does not do a new collection.
+//
+// The collection count must be read only while holding the heap lock. VM
+// operations also hold the heap lock during collections. There is a lock
+// contention case where thread A blocks waiting on the Heap_lock, while
+// thread B is holding it doing a collection. When thread A gets the lock,
+// the collection count has already changed. To prevent duplicate collections,
+// The policy MUST attempt allocations during the same period it reads the
+// total_collections() value!
+{
+  MutexLocker ml(Heap_lock);
+  gc_count = Universe::heap()-&gt;total_collections();
+
+  result = young_gen()-&gt;allocate(size, is_tlab);
+
+  // (1) If the requested object is too large to easily fit in the
+  //     young_gen, or
+  // (2) If GC is locked out via GCLocker, young gen is full and
+  //     the need for a GC already signalled to GCLocker (done
+  //     at a safepoint),
+  // ... then, rather than force a safepoint and (a potentially futile)
+  // collection (attempt) for each allocation, try allocation directly
+  // in old_gen. For case (2) above, we may in the future allow
+  // TLAB allocation directly in the old gen.
+  if (result != NULL) {
+    return result;
+  }
+  if (!is_tlab &amp;&amp;
+      size &gt;= (young_gen()-&gt;eden_space()-&gt;capacity_in_words(Thread::current()) / 2)) {
+    result = old_gen()-&gt;allocate(size, is_tlab);
+    if (result != NULL) {
+      return result;
+    }
+  }
+  if (GC_locker::is_active_and_needs_gc()) {
+    // GC is locked out. If this is a TLAB allocation,
+    // return NULL; the requestor will retry allocation
+    // of an idividual object at a time.
+    if (is_tlab) {
+      return NULL;
+    }
+
+    // If this thread is not in a jni critical section, we stall
+    // the requestor until the critical section has cleared and
+    // GC allowed. When the critical section clears, a GC is
+    // initiated by the last thread exiting the critical section; so
+    // we retry the allocation sequence from the beginning of the loop,
+    // rather than causing more, now probably unnecessary, GC attempts.
+    JavaThread* jthr = JavaThread::current();
+    if (!jthr-&gt;in_critical()) {
+      MutexUnlocker mul(Heap_lock);
+      GC_locker::stall_until_clear();
+      continue;
+    } else {
+      if (CheckJNICalls) {
+        fatal("Possible deadlock due to allocating while"
+              " in jni critical section");
+      }
+      return NULL;
+    }
+  }
+}
+
+if (result == NULL) {
+
+  // Generate a VM operation
+  VM_ParallelGCFailedAllocation op(size, is_tlab, gc_count);
+  VMThread::execute(&amp;op);
+
+  // Did the VM operation execute? If so, return the result directly.
+  // This prevents us from looping until time out on requests that can
+  // not be satisfied.
+  if (op.prologue_succeeded()) {
+    assert(Universe::heap()-&gt;is_in_or_null(op.result()),
+      "result not in heap");
+
+    // If GC was locked out during VM operation then retry allocation
+    // and/or stall as necessary.
+    if (op.gc_locked()) {
+      assert(op.result() == NULL, "must be NULL if gc_locked() is true");
+      continue;  // retry and/or stall as necessary
+    }
+
+    // Exit the loop if the gc time limit has been exceeded.
+    // The allocation must have failed above ("result" guarding
+    // this path is NULL) and the most recent collection has exceeded the
+    // gc overhead limit (although enough may have been collected to
+    // satisfy the allocation).  Exit the loop so that an out-of-memory
+    // will be thrown (return a NULL ignoring the contents of
+    // op.result()),
+    // but clear gc_overhead_limit_exceeded so that the next collection
+    // starts with a clean slate (i.e., forgets about previous overhead
+    // excesses).  Fill op.result() with a filler object so that the
+    // heap remains parsable.
+    const bool limit_exceeded = size_policy()-&gt;gc_overhead_limit_exceeded();
+    const bool softrefs_clear = collector_policy()-&gt;all_soft_refs_clear();
+    assert(!limit_exceeded || softrefs_clear, "Should have been cleared");
+    if (limit_exceeded &amp;&amp; softrefs_clear) {
+      *gc_overhead_limit_was_exceeded = true;
+      size_policy()-&gt;set_gc_overhead_limit_exceeded(false);
+      if (PrintGCDetails &amp;&amp; Verbose) {
+        gclog_or_tty-&gt;print_cr("ParallelScavengeHeap::mem_allocate: "
+          "return NULL because gc_overhead_limit_exceeded is set");
+      }
+      if (op.result() != NULL) {
+        CollectedHeap::fill_with_object(op.result(), size);
+      }
+      return NULL;
+    }
+
+    return op.result();
+  }
+}
+
+// The policy object will prevent us from looping forever. If the
+// time spent in gc crosses a threshold, we will bail out.
+loop_count++;
+if ((result == NULL) &amp;&amp; (QueuedAllocationWarningCount &gt; 0) &amp;&amp;
+    (loop_count % QueuedAllocationWarningCount == 0)) {
+  warning("ParallelScavengeHeap::mem_allocate retries %d times \n\t"
+          " size=%d %s", loop_count, size, is_tlab ? "(TLAB)" : "");
+}
+</code></pre>
+
+<p>  }</p>
+
+<p>  return result;
+}</p>
+
+<p>```
+首先在young_gen 分配，如果young 分配失败，则触发一次GC，然后重新尝试从young上分配，如果再分配失败，则从old 上分配。<br/>
+Java对象初始化并分配内存的过程基本就是这样了。这个过程中的很多细节我也还没有弄明白，接下来弄明白了再补过来吧。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[加载和连接]]]></title>

@@ -103,6 +103,67 @@
   
 
 
+<time datetime="2014-06-15T10:01:00+08:00" data-updated="true" itemprop="datePublished">Jun 15<span>th</span>, 2014</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/jvm/'>jvm</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2014/06/15/java-object-create-2/#duoshuo_comments">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2014/06/15/java-object-create-2/" itemprop="url">JVM 之 Java对象创建[初始化]</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
+还是使用上文的例子:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Class</span> <span class="n">claszz</span> <span class="o">=</span> <span class="n">clt</span><span class="o">.</span><span class="na">loadClass</span><span class="o">(</span><span class="s">&quot;Animal&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">Animal</span> <span class="n">animal</span> <span class="o">=</span> <span class="o">(</span><span class="n">Animal</span><span class="o">)</span><span class="n">claszz</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>newInstance</code>的native方法在:src/share/native/sun/reflect/NativeAccessors.c</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jobject</span> <span class="n">JNICALL</span> <span class="nf">Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0</span>
+</span><span class='line'><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jclass</span> <span class="n">unused</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">c</span><span class="o">,</span> <span class="n">jobjectArray</span> <span class="n">args</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'><span class="k">return</span> <span class="nf">JVM_NewInstanceFromConstructor</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+		
+		<a href="/blog/2014/06/15/java-object-create-2/" class="more-link">阅读全文</a>
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
 <time datetime="2014-06-14T08:53:49+08:00" data-updated="true" itemprop="datePublished">Jun 14<span>th</span>, 2014</time></div>
 		<div class="tags">
 

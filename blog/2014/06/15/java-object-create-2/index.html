@@ -1,0 +1,793 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>JVM 之 Java对象创建[初始化] - zarue</title>
+	<meta name="author" content="YungHua.Ma">
+
+	
+	<meta name="description" content="JVM 之 Java对象创建">
+	<meta name="keywords" content="jvm,对象,初始化,加载,连接">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="" rel="alternate" title="zarue" type="application/atom+xml">
+	
+	<link rel="canonical" href="http://blog.zarue.com//blog/2014/06/15/java-object-create-2/">
+	<link href="/favicon.ico" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">	
+	<script src="/javascripts/md5.js"></script>
+	<script type="text/javascript">
+		document.write("<img src='/images/myself.jpg' alt='Profile Picture' style='width: 160px;'/>");
+	</script>
+</div>
+<h2><a href="/">YungHua.Ma</a></h2>
+<h5 class="subtitle">天若有情天亦老 人丑就要多读书</h5>
+<nav id="main-nav"><ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		 
+                <a class="github" href="https://github.com/zarue" title="GitHub">GitHub</a>
+                		
+		
+		<a class="weibo" href="http://www.weibo.com/2403887405" title="Weibo">Weibo</a>
+		
+		
+		<a class="facebook" href="http://www.facebook.com/yonghua.ma" title="Facebook">Facebook</a>
+		
+		
+		
+		<a class="twitter" href="http://twitter.com/cheney_life" title="Twitter">Twitter</a>
+		
+		
+		
+		
+		
+		
+		
+	</div>
+</nav>
+<!-- <hgroup>
+  <h3>YungHua.Ma</h3>
+  
+    <h5>I hava a dream to walk around the world</h5>
+  
+</hgroup>
+-->
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">JVM 之 Java对象创建[初始化]</h1>
+	<div class="entry-content" itemprop="articleBody"><p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
+还是使用上文的例子:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Class</span> <span class="n">claszz</span> <span class="o">=</span> <span class="n">clt</span><span class="o">.</span><span class="na">loadClass</span><span class="o">(</span><span class="s">&quot;Animal&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">Animal</span> <span class="n">animal</span> <span class="o">=</span> <span class="o">(</span><span class="n">Animal</span><span class="o">)</span><span class="n">claszz</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>newInstance</code>的native方法在:src/share/native/sun/reflect/NativeAccessors.c</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JNIEXPORT</span> <span class="n">jobject</span> <span class="n">JNICALL</span> <span class="nf">Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0</span>
+</span><span class='line'><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jclass</span> <span class="n">unused</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">c</span><span class="o">,</span> <span class="n">jobjectArray</span> <span class="n">args</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'><span class="k">return</span> <span class="nf">JVM_NewInstanceFromConstructor</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<!--more-->
+
+
+<p><code>JVM_NewInstanceFromConstructor</code>在jvm.cpp 中的实现：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JVM_ENTRY</span><span class="o">(</span><span class="n">jobject</span><span class="o">,</span> <span class="n">JVM_NewInstanceFromConstructor</span><span class="o">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span> <span class="n">jobject</span> <span class="n">c</span><span class="o">,</span> <span class="n">jobjectArray</span> <span class="n">args0</span><span class="o">))</span>
+</span><span class='line'><span class="n">JVMWrapper</span><span class="o">(</span><span class="s">&quot;JVM_NewInstanceFromConstructor&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">oop</span> <span class="n">constructor_mirror</span> <span class="o">=</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+</span><span class='line'><span class="n">objArrayHandle</span> <span class="nf">args</span><span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="n">objArrayOop</span><span class="o">(</span><span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">resolve</span><span class="o">(</span><span class="n">args0</span><span class="o">)));</span>
+</span><span class='line'><span class="n">oop</span> <span class="n">result</span> <span class="o">=</span> <span class="nl">Reflection:</span><span class="o">:</span><span class="n">invoke_constructor</span><span class="o">(</span><span class="n">constructor_mirror</span><span class="o">,</span> <span class="n">args</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'><span class="n">jobject</span> <span class="n">res</span> <span class="o">=</span> <span class="nl">JNIHandles:</span><span class="o">:</span><span class="n">make_local</span><span class="o">(</span><span class="n">env</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="nl">JvmtiExport:</span><span class="o">:</span><span class="n">should_post_vm_object_alloc</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'><span class="nl">JvmtiExport:</span><span class="o">:</span><span class="n">post_vm_object_alloc</span><span class="o">(</span><span class="nl">JavaThread:</span><span class="o">:</span><span class="n">current</span><span class="o">(),</span> <span class="n">result</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="k">return</span> <span class="n">res</span><span class="o">;</span>
+</span><span class='line'><span class="n">JVM_END</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第4行：创建构造方法参数数组。 <br/>
+第5行：<code>invoke_constructor(...)</code>位于/src/share/vm/runtime/reflection.cpp,这个方法包含了对象的创建过程。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">Reflection:</span><span class="o">:</span><span class="n">invoke_constructor</span><span class="o">(</span><span class="n">oop</span> <span class="n">constructor_mirror</span><span class="o">,</span> <span class="n">objArrayHandle</span> <span class="n">args</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">oop</span> <span class="n">mirror</span>             <span class="o">=</span> <span class="nl">java_lang_reflect_Constructor:</span><span class="o">:</span><span class="n">clazz</span><span class="o">(</span><span class="n">constructor_mirror</span><span class="o">);</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">slot</span>               <span class="o">=</span> <span class="nl">java_lang_reflect_Constructor:</span><span class="o">:</span><span class="n">slot</span><span class="o">(</span><span class="n">constructor_mirror</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">bool</span> <span class="n">override</span>          <span class="o">=</span> <span class="nl">java_lang_reflect_Constructor:</span><span class="o">:</span><span class="n">override</span><span class="o">(</span><span class="n">constructor_mirror</span><span class="o">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>  <span class="n">objArrayHandle</span> <span class="nf">ptypes</span><span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="n">objArrayOop</span><span class="o">(</span><span class="nl">java_lang_reflect_Constructor:</span><span class="o">:</span><span class="n">parameter_types</span><span class="o">(</span><span class="n">constructor_mirror</span><span class="o">)));</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">instanceKlassHandle</span> <span class="nf">klass</span><span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="nl">java_lang_Class:</span><span class="o">:</span><span class="n">as_klassOop</span><span class="o">(</span><span class="n">mirror</span><span class="o">));</span>
+</span><span class='line'>  <span class="n">methodOop</span> <span class="n">m</span> <span class="o">=</span> <span class="n">klass</span><span class="o">-&gt;</span><span class="n">method_with_idnum</span><span class="o">(</span><span class="n">slot</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">THROW_MSG_0</span><span class="o">(</span><span class="nl">vmSymbols:</span><span class="o">:</span><span class="n">java_lang_InternalError</span><span class="o">(),</span> <span class="s">&quot;invoke&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">methodHandle</span> <span class="nf">method</span><span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="n">m</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(</span><span class="n">method</span><span class="o">-&gt;</span><span class="n">name</span><span class="o">()</span> <span class="o">==</span> <span class="nl">vmSymbols:</span><span class="o">:</span><span class="n">object_initializer_name</span><span class="o">(),</span> <span class="s">&quot;invalid constructor&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Make sure klass gets initialize</span>
+</span><span class='line'>  <span class="n">klass</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="o">(</span><span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Create new instance (the receiver)</span>
+</span><span class='line'>  <span class="n">klass</span><span class="o">-&gt;</span><span class="n">check_valid_for_instantiation</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">Handle</span> <span class="n">receiver</span> <span class="o">=</span> <span class="n">klass</span><span class="o">-&gt;</span><span class="n">allocate_instance_handle</span><span class="o">(</span><span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Ignore result from call and return receiver</span>
+</span><span class='line'>  <span class="n">invoke</span><span class="o">(</span><span class="n">klass</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="n">receiver</span><span class="o">,</span> <span class="n">override</span><span class="o">,</span> <span class="n">ptypes</span><span class="o">,</span> <span class="n">T_VOID</span><span class="o">,</span> <span class="n">args</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">receiver</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>直接从为对象分配内存开始看src/share/vm/oops/instanceKlass.cpp</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Handle</span> <span class="n">receiver</span> <span class="o">=</span> <span class="n">klass</span><span class="o">-&gt;</span><span class="n">allocate_instance_handle</span><span class="o">(</span><span class="n">CHECK_NULL</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>继续看:<code>allocate_instance(...)</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">instanceOop</span> <span class="nl">instanceKlass:</span><span class="o">:</span><span class="n">allocate_instance</span><span class="o">(</span><span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">bool</span> <span class="n">has_finalizer_flag</span> <span class="o">=</span> <span class="n">has_finalizer</span><span class="o">();</span> <span class="c1">// Query before possible GC</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="n">size_helper</span><span class="o">();</span>  <span class="c1">// Query before forming handle.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">KlassHandle</span> <span class="nf">h_k</span><span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="n">as_klassOop</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">instanceOop</span> <span class="n">i</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">i</span> <span class="o">=</span> <span class="o">(</span><span class="n">instanceOop</span><span class="o">)</span><span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">obj_allocate</span><span class="o">(</span><span class="n">h_k</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">has_finalizer_flag</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">RegisterFinalizersAtInit</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="n">register_finalizer</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">i</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第9行:<code>i = (instanceOop)CollectedHeap::obj_allocate(h_k, size, CHECK_NULL);</code>位于collectedHeap.inline.hpp中:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">oop</span> <span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">obj_allocate</span><span class="o">(</span><span class="n">KlassHandle</span> <span class="n">klass</span><span class="o">,</span> <span class="kt">int</span> <span class="n">size</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">debug_only</span><span class="o">(</span><span class="n">check_for_valid_allocation_state</span><span class="o">());</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is_gc_active</span><span class="o">(),</span> <span class="s">&quot;Allocation during gc not allowed&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">,</span> <span class="s">&quot;int won&#39;t convert to size_t&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">HeapWord</span><span class="o">*</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">common_mem_allocate_init</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">post_allocation_setup_obj</span><span class="o">(</span><span class="n">klass</span><span class="o">,</span> <span class="n">obj</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">NOT_PRODUCT</span><span class="o">(</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">check_for_bad_heap_word_value</span><span class="o">(</span><span class="n">obj</span><span class="o">,</span> <span class="n">size</span><span class="o">));</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="n">oop</span><span class="o">)</span><span class="n">obj</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>看一下<code>common_mem_allocate_init(size, false, CHECK_NULL);</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">HeapWord</span><span class="o">*</span> <span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">common_mem_allocate_init</span><span class="o">(</span><span class="n">size_t</span> <span class="n">size</span><span class="o">,</span> <span class="n">bool</span> <span class="n">is_noref</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">HeapWord</span><span class="o">*</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">common_mem_allocate_noinit</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">is_noref</span><span class="o">,</span> <span class="n">CHECK_NULL</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">init_obj</span><span class="o">(</span><span class="n">obj</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">obj</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>继续看<code>common_mem_allocate_noinit(...)</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">HeapWord</span><span class="o">*</span> <span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">common_mem_allocate_noinit</span><span class="o">(</span><span class="n">size_t</span> <span class="n">size</span><span class="o">,</span> <span class="n">bool</span> <span class="n">is_noref</span><span class="o">,</span> <span class="n">TRAPS</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Clear unhandled oops for memory allocation.  Memory allocation might</span>
+</span><span class='line'>  <span class="c1">// not take out a lock if from tlab, so clear here.</span>
+</span><span class='line'>  <span class="n">CHECK_UNHANDLED_OOPS_ONLY</span><span class="o">(</span><span class="n">THREAD</span><span class="o">-&gt;</span><span class="n">clear_unhandled_oops</span><span class="o">();)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">HAS_PENDING_EXCEPTION</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">NOT_PRODUCT</span><span class="o">(</span><span class="n">guarantee</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="s">&quot;Should not allocate with exception pending&quot;</span><span class="o">));</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>  <span class="c1">// caller does a CHECK_0 too</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// We may want to update this, is_noref objects might not be allocated in TLABs.</span>
+</span><span class='line'>  <span class="n">HeapWord</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">UseTLAB</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">allocate_from_tlab</span><span class="o">(</span><span class="n">THREAD</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">assert</span><span class="o">(!</span><span class="n">HAS_PENDING_EXCEPTION</span><span class="o">,</span>
+</span><span class='line'>             <span class="s">&quot;Unexpected exception, will result in uninitialized storage&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">bool</span> <span class="n">gc_overhead_limit_was_exceeded</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>  <span class="n">result</span> <span class="o">=</span> <span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">mem_allocate</span><span class="o">(</span><span class="n">size</span><span class="o">,</span>
+</span><span class='line'>                                          <span class="n">is_noref</span><span class="o">,</span>
+</span><span class='line'>                                          <span class="kc">false</span><span class="o">,</span>
+</span><span class='line'>                                          <span class="o">&amp;</span><span class="n">gc_overhead_limit_was_exceeded</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">NOT_PRODUCT</span><span class="o">(</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span>
+</span><span class='line'>      <span class="n">check_for_non_bad_heap_word_value</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">size</span><span class="o">));</span>
+</span><span class='line'>    <span class="k">assert</span><span class="o">(!</span><span class="n">HAS_PENDING_EXCEPTION</span><span class="o">,</span>
+</span><span class='line'>           <span class="s">&quot;Unexpected exception, will result in uninitialized storage&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">gc_overhead_limit_was_exceeded</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// -XX:+HeapDumpOnOutOfMemoryError and -XX:OnOutOfMemoryError support</span>
+</span><span class='line'>    <span class="n">report_java_out_of_memory</span><span class="o">(</span><span class="s">&quot;Java heap space&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="nl">JvmtiExport:</span><span class="o">:</span><span class="n">should_post_resource_exhausted</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="nl">JvmtiExport:</span><span class="o">:</span><span class="n">post_resource_exhausted</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">JVMTI_RESOURCE_EXHAUSTED_OOM_ERROR</span> <span class="o">|</span> <span class="n">JVMTI_RESOURCE_EXHAUSTED_JAVA_HEAP</span><span class="o">,</span>
+</span><span class='line'>        <span class="s">&quot;Java heap space&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">THROW_OOP_0</span><span class="o">(</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">out_of_memory_error_java_heap</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// -XX:+HeapDumpOnOutOfMemoryError and -XX:OnOutOfMemoryError support</span>
+</span><span class='line'>    <span class="n">report_java_out_of_memory</span><span class="o">(</span><span class="s">&quot;GC overhead limit exceeded&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="nl">JvmtiExport:</span><span class="o">:</span><span class="n">should_post_resource_exhausted</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="nl">JvmtiExport:</span><span class="o">:</span><span class="n">post_resource_exhausted</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">JVMTI_RESOURCE_EXHAUSTED_OOM_ERROR</span> <span class="o">|</span> <span class="n">JVMTI_RESOURCE_EXHAUSTED_JAVA_HEAP</span><span class="o">,</span>
+</span><span class='line'>        <span class="s">&quot;GC overhead limit exceeded&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">THROW_OOP_0</span><span class="o">(</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">out_of_memory_error_gc_overhead_limit</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第15行，如果启用了UseTLAB则优先在TLAB上分配：allocate_from_tlab(&hellip;)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">HeapWord</span><span class="o">*</span> <span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">allocate_from_tlab</span><span class="o">(</span><span class="n">Thread</span><span class="o">*</span> <span class="n">thread</span><span class="o">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(</span><span class="n">UseTLAB</span><span class="o">,</span> <span class="s">&quot;should use UseTLAB&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">HeapWord</span><span class="o">*</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">thread</span><span class="o">-&gt;</span><span class="n">tlab</span><span class="o">().</span><span class="na">allocate</span><span class="o">(</span><span class="n">size</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">obj</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">obj</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="c1">// Otherwise...</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">allocate_from_tlab_slow</span><span class="o">(</span><span class="n">thread</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果在TLAB分配失败则调用<code>allocate_from_tlab_slow(...)</code>，该方法会重新计算TLAB的大小，然后重新创建一个新的TLAB用于分配该对象。 <br/>
+如果<code>allocate_from_tlab_slow(...)</code>也没成功，则调用</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">mem_allocate</span><span class="o">(</span><span class="n">size</span><span class="o">,</span>
+</span><span class='line'>                                          <span class="n">is_noref</span><span class="o">,</span>
+</span><span class='line'>                                          <span class="kc">false</span><span class="o">,</span>
+</span><span class='line'>                                          <span class="o">&amp;</span><span class="n">gc_overhead_limit_was_exceeded</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在共享内存区域分配内存。在该区域分配内存需要加锁，所以速度要比在TLAB上分配效率低一些。该方法位于：/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.cpp</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">eapWord</span><span class="o">*</span> <span class="nl">ParallelScavengeHeap:</span><span class="o">:</span><span class="n">mem_allocate</span><span class="o">(</span>
+</span><span class='line'>                                     <span class="n">size_t</span> <span class="n">size</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="n">bool</span> <span class="n">is_noref</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="n">bool</span> <span class="n">is_tlab</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="n">bool</span><span class="o">*</span> <span class="n">gc_overhead_limit_was_exceeded</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="nl">SafepointSynchronize:</span><span class="o">:</span><span class="n">is_at_safepoint</span><span class="o">(),</span> <span class="s">&quot;should not be at safepoint&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(</span><span class="nl">Thread:</span><span class="o">:</span><span class="n">current</span><span class="o">()</span> <span class="o">!=</span> <span class="o">(</span><span class="n">Thread</span><span class="o">*)</span><span class="nl">VMThread:</span><span class="o">:</span><span class="n">vm_thread</span><span class="o">(),</span> <span class="s">&quot;should not be in vm thread&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">assert</span><span class="o">(!</span><span class="n">Heap_lock</span><span class="o">-&gt;</span><span class="n">owned_by_self</span><span class="o">(),</span> <span class="s">&quot;this thread should not own the Heap_lock&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// In general gc_overhead_limit_was_exceeded should be false so</span>
+</span><span class='line'>  <span class="c1">// set it so here and reset it to true only if the gc time</span>
+</span><span class='line'>  <span class="c1">// limit is being exceeded as checked below.</span>
+</span><span class='line'>  <span class="o">*</span><span class="n">gc_overhead_limit_was_exceeded</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">HeapWord</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">young_gen</span><span class="o">()-&gt;</span><span class="n">allocate</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">is_tlab</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">uint</span> <span class="n">loop_count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>  <span class="n">uint</span> <span class="n">gc_count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">while</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// We don&#39;t want to have multiple collections for a single filled generation.</span>
+</span><span class='line'>    <span class="c1">// To prevent this, each thread tracks the total_collections() value, and if</span>
+</span><span class='line'>    <span class="c1">// the count has changed, does not do a new collection.</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// The collection count must be read only while holding the heap lock. VM</span>
+</span><span class='line'>    <span class="c1">// operations also hold the heap lock during collections. There is a lock</span>
+</span><span class='line'>    <span class="c1">// contention case where thread A blocks waiting on the Heap_lock, while</span>
+</span><span class='line'>    <span class="c1">// thread B is holding it doing a collection. When thread A gets the lock,</span>
+</span><span class='line'>    <span class="c1">// the collection count has already changed. To prevent duplicate collections,</span>
+</span><span class='line'>    <span class="c1">// The policy MUST attempt allocations during the same period it reads the</span>
+</span><span class='line'>    <span class="c1">// total_collections() value!</span>
+</span><span class='line'>    <span class="o">{</span>
+</span><span class='line'>      <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="o">(</span><span class="n">Heap_lock</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">gc_count</span> <span class="o">=</span> <span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">total_collections</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">young_gen</span><span class="o">()-&gt;</span><span class="n">allocate</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">is_tlab</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// (1) If the requested object is too large to easily fit in the</span>
+</span><span class='line'>      <span class="c1">//     young_gen, or</span>
+</span><span class='line'>      <span class="c1">// (2) If GC is locked out via GCLocker, young gen is full and</span>
+</span><span class='line'>      <span class="c1">//     the need for a GC already signalled to GCLocker (done</span>
+</span><span class='line'>      <span class="c1">//     at a safepoint),</span>
+</span><span class='line'>      <span class="c1">// ... then, rather than force a safepoint and (a potentially futile)</span>
+</span><span class='line'>      <span class="c1">// collection (attempt) for each allocation, try allocation directly</span>
+</span><span class='line'>      <span class="c1">// in old_gen. For case (2) above, we may in the future allow</span>
+</span><span class='line'>      <span class="c1">// TLAB allocation directly in the old gen.</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">is_tlab</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>          <span class="n">size</span> <span class="o">&gt;=</span> <span class="o">(</span><span class="n">young_gen</span><span class="o">()-&gt;</span><span class="n">eden_space</span><span class="o">()-&gt;</span><span class="n">capacity_in_words</span><span class="o">(</span><span class="nl">Thread:</span><span class="o">:</span><span class="n">current</span><span class="o">())</span> <span class="o">/</span> <span class="mi">2</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">old_gen</span><span class="o">()-&gt;</span><span class="n">allocate</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">is_tlab</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="nl">GC_locker:</span><span class="o">:</span><span class="n">is_active_and_needs_gc</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// GC is locked out. If this is a TLAB allocation,</span>
+</span><span class='line'>        <span class="c1">// return NULL; the requestor will retry allocation</span>
+</span><span class='line'>        <span class="c1">// of an idividual object at a time.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">is_tlab</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// If this thread is not in a jni critical section, we stall</span>
+</span><span class='line'>        <span class="c1">// the requestor until the critical section has cleared and</span>
+</span><span class='line'>        <span class="c1">// GC allowed. When the critical section clears, a GC is</span>
+</span><span class='line'>        <span class="c1">// initiated by the last thread exiting the critical section; so</span>
+</span><span class='line'>        <span class="c1">// we retry the allocation sequence from the beginning of the loop,</span>
+</span><span class='line'>        <span class="c1">// rather than causing more, now probably unnecessary, GC attempts.</span>
+</span><span class='line'>        <span class="n">JavaThread</span><span class="o">*</span> <span class="n">jthr</span> <span class="o">=</span> <span class="nl">JavaThread:</span><span class="o">:</span><span class="n">current</span><span class="o">();</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">jthr</span><span class="o">-&gt;</span><span class="n">in_critical</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">MutexUnlocker</span> <span class="nf">mul</span><span class="o">(</span><span class="n">Heap_lock</span><span class="o">);</span>
+</span><span class='line'>          <span class="nl">GC_locker:</span><span class="o">:</span><span class="n">stall_until_clear</span><span class="o">();</span>
+</span><span class='line'>          <span class="k">continue</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">CheckJNICalls</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">fatal</span><span class="o">(</span><span class="s">&quot;Possible deadlock due to allocating while&quot;</span>
+</span><span class='line'>                  <span class="s">&quot; in jni critical section&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Generate a VM operation</span>
+</span><span class='line'>      <span class="n">VM_ParallelGCFailedAllocation</span> <span class="nf">op</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">is_tlab</span><span class="o">,</span> <span class="n">gc_count</span><span class="o">);</span>
+</span><span class='line'>      <span class="nl">VMThread:</span><span class="o">:</span><span class="n">execute</span><span class="o">(&amp;</span><span class="n">op</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Did the VM operation execute? If so, return the result directly.</span>
+</span><span class='line'>      <span class="c1">// This prevents us from looping until time out on requests that can</span>
+</span><span class='line'>      <span class="c1">// not be satisfied.</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">op</span><span class="o">.</span><span class="na">prologue_succeeded</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">assert</span><span class="o">(</span><span class="nl">Universe:</span><span class="o">:</span><span class="n">heap</span><span class="o">()-&gt;</span><span class="n">is_in_or_null</span><span class="o">(</span><span class="n">op</span><span class="o">.</span><span class="na">result</span><span class="o">()),</span>
+</span><span class='line'>          <span class="s">&quot;result not in heap&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// If GC was locked out during VM operation then retry allocation</span>
+</span><span class='line'>        <span class="c1">// and/or stall as necessary.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">op</span><span class="o">.</span><span class="na">gc_locked</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">assert</span><span class="o">(</span><span class="n">op</span><span class="o">.</span><span class="na">result</span><span class="o">()</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">,</span> <span class="s">&quot;must be NULL if gc_locked() is true&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="k">continue</span><span class="o">;</span>  <span class="c1">// retry and/or stall as necessary</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Exit the loop if the gc time limit has been exceeded.</span>
+</span><span class='line'>        <span class="c1">// The allocation must have failed above (&quot;result&quot; guarding</span>
+</span><span class='line'>        <span class="c1">// this path is NULL) and the most recent collection has exceeded the</span>
+</span><span class='line'>        <span class="c1">// gc overhead limit (although enough may have been collected to</span>
+</span><span class='line'>        <span class="c1">// satisfy the allocation).  Exit the loop so that an out-of-memory</span>
+</span><span class='line'>        <span class="c1">// will be thrown (return a NULL ignoring the contents of</span>
+</span><span class='line'>        <span class="c1">// op.result()),</span>
+</span><span class='line'>        <span class="c1">// but clear gc_overhead_limit_exceeded so that the next collection</span>
+</span><span class='line'>        <span class="c1">// starts with a clean slate (i.e., forgets about previous overhead</span>
+</span><span class='line'>        <span class="c1">// excesses).  Fill op.result() with a filler object so that the</span>
+</span><span class='line'>        <span class="c1">// heap remains parsable.</span>
+</span><span class='line'>        <span class="kd">const</span> <span class="n">bool</span> <span class="n">limit_exceeded</span> <span class="o">=</span> <span class="n">size_policy</span><span class="o">()-&gt;</span><span class="n">gc_overhead_limit_exceeded</span><span class="o">();</span>
+</span><span class='line'>        <span class="kd">const</span> <span class="n">bool</span> <span class="n">softrefs_clear</span> <span class="o">=</span> <span class="n">collector_policy</span><span class="o">()-&gt;</span><span class="n">all_soft_refs_clear</span><span class="o">();</span>
+</span><span class='line'>        <span class="k">assert</span><span class="o">(!</span><span class="n">limit_exceeded</span> <span class="o">||</span> <span class="n">softrefs_clear</span><span class="o">,</span> <span class="s">&quot;Should have been cleared&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">limit_exceeded</span> <span class="o">&amp;&amp;</span> <span class="n">softrefs_clear</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="o">*</span><span class="n">gc_overhead_limit_was_exceeded</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>          <span class="n">size_policy</span><span class="o">()-&gt;</span><span class="n">set_gc_overhead_limit_exceeded</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">PrintGCDetails</span> <span class="o">&amp;&amp;</span> <span class="n">Verbose</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">gclog_or_tty</span><span class="o">-&gt;</span><span class="n">print_cr</span><span class="o">(</span><span class="s">&quot;ParallelScavengeHeap::mem_allocate: &quot;</span>
+</span><span class='line'>              <span class="s">&quot;return NULL because gc_overhead_limit_exceeded is set&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">op</span><span class="o">.</span><span class="na">result</span><span class="o">()</span> <span class="o">!=</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nl">CollectedHeap:</span><span class="o">:</span><span class="n">fill_with_object</span><span class="o">(</span><span class="n">op</span><span class="o">.</span><span class="na">result</span><span class="o">(),</span> <span class="n">size</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">NULL</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="na">result</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// The policy object will prevent us from looping forever. If the</span>
+</span><span class='line'>    <span class="c1">// time spent in gc crosses a threshold, we will bail out.</span>
+</span><span class='line'>    <span class="n">loop_count</span><span class="o">++;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">((</span><span class="n">result</span> <span class="o">==</span> <span class="n">NULL</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">QueuedAllocationWarningCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">loop_count</span> <span class="o">%</span> <span class="n">QueuedAllocationWarningCount</span> <span class="o">==</span> <span class="mi">0</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">warning</span><span class="o">(</span><span class="s">&quot;ParallelScavengeHeap::mem_allocate retries %d times \n\t&quot;</span>
+</span><span class='line'>              <span class="s">&quot; size=%d %s&quot;</span><span class="o">,</span> <span class="n">loop_count</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">is_tlab</span> <span class="o">?</span> <span class="s">&quot;(TLAB)&quot;</span> <span class="o">:</span> <span class="s">&quot;&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>首先在young_gen 分配，如果young 分配失败，则触发一次GC，然后重新尝试从young上分配，如果再分配失败，则从old 上分配。<br/>
+Java对象初始化并分配内存的过程基本就是这样了。这个过程中的很多细节我也还没有弄明白，接下来弄明白了再补过来吧。</p>
+</div>
+
+</article>
+
+<section id="comment">
+    <div id="duoshuo_comments" aria-live="polite"><!-- 多说评论框 start -->
+<div class="ds-thread" ></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"zarue"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+</div>
+</section>
+
+</div>
+			</div>
+			<footer id="footer" class="inner"><p>
+  Copyright &copy; 2014 - YungHua.Ma -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
+			<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+
+		</div>
+	</div>
+</body>
+</html>
