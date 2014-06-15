@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jvm | zarue]]></title>
   <link href="http://blog.zarue.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-14T17:07:27+08:00</updated>
+  <updated>2014-06-15T09:57:01+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -18,9 +18,12 @@
     <link href="http://blog.zarue.com//blog/2014/06/14/java-object-create-1/"/>
     <updated>2014-06-14T08:53:49+08:00</updated>
     <id>http://blog.zarue.com//blog/2014/06/14/java-object-create-1</id>
-    <content type="html"><![CDATA[<p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要看一下加载和连接，下一篇文章讲初始化。<br/>
+    <content type="html"><![CDATA[<p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要是简单看一下加载和连接，下一篇文章讲初始化。<br/>
 <img src="/images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
-说明：本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a></p>
+说明：</p>
+
+<blockquote><p>本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a><br/>
+本文使用是Jdk6u-Hotspot</p></blockquote>
 
 <!--more-->
 
@@ -476,15 +479,18 @@ case JVM_CONSTANT_Utf8 :</p>
 </code></pre>
 
 <p><code>
-然后是初始化静态变量(准备):  
+然后是初始化静态变量(准备阶段):  
 </code>java
  // Initialize static fields</p>
 
 <pre><code>this_klass-&gt;do_local_static_fields(&amp;initialize_static_field, CHECK_(nullHandle));
 </code></pre>
 
-<p>```
-然后经过一系列的验证，验证通过之后返回该对象。</p>
+<p><code>``
+然后是一系验证，验证通过之后返回该对象。  
+最后再回到</code>jvm_define_class_common(..)<code>方法，看如下代码:  
+</code>(jclass) JNIHandles::make_local(env, Klass::cast(k)&ndash;>java_mirror());`<br/>
+首先是把klassOop 转为Klass 对象，然后加入到当前线程中，然后转换为class对象返回。</p>
 ]]></content>
   </entry>
   

@@ -7,8 +7,8 @@
 	<meta name="author" content="YungHua.Ma">
 
 	
-	<meta name="description" content="JVM 之 Java对象创建[加载和连接] Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要看一下加载和连接，下一篇文章讲初始化。 说明：本文章所涉及的代码Gist地址:点击查看 要想了解jvm底层的对象创建过程， &hellip;">
-	
+	<meta name="description" content="JVM 之 Java对象创建">
+	<meta name="keywords" content="jvm,对象,初始化,加载,连接">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -87,9 +87,12 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 	<h1 class="title" itemprop="name">JVM 之 Java对象创建[加载和连接]</h1>
-	<div class="entry-content" itemprop="articleBody"><p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要看一下加载和连接，下一篇文章讲初始化。<br/>
+	<div class="entry-content" itemprop="articleBody"><p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要是简单看一下加载和连接，下一篇文章讲初始化。<br/>
 <img src="/images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
-说明：本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a></p>
+说明：</p>
+
+<blockquote><p>本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a><br/>
+本文使用是Jdk6u-Hotspot</p></blockquote>
 
 <!--more-->
 
@@ -846,7 +849,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>然后是初始化静态变量(准备):</p>
+<p>然后是初始化静态变量(准备阶段):</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -856,7 +859,10 @@
 
 
 <p>
-然后经过一系列的验证，验证通过之后返回该对象。</p>
+然后是一系验证，验证通过之后返回该对象。<br/>
+最后再回到<code>jvm_define_class_common(..)</code>方法，看如下代码:<br/>
+<code>(jclass) JNIHandles::make_local(env, Klass::cast(k)-&gt;java_mirror());</code><br/>
+首先是把klassOop 转为Klass 对象，然后加入到当前线程中，然后转换为class对象返回。</p>
 </div>
 
 </article>
