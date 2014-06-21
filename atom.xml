@@ -4,7 +4,7 @@
   <title><![CDATA[zarue]]></title>
   <link href="http://blog.zarue.com//atom.xml" rel="self"/>
   <link href="http://blog.zarue.com//"/>
-  <updated>2014-06-15T11:40:16+08:00</updated>
+  <updated>2014-06-21T19:26:22+08:00</updated>
   <id>http://blog.zarue.com//</id>
   <author>
     <name><![CDATA[YungHua.Ma]]></name>
@@ -12,6 +12,154 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[netbeans-debug-hotspot]]></title>
+    <link href="http://blog.zarue.com//blog/2014/06/21/netbeans-debug-hotspot/"/>
+    <updated>2014-06-21T18:02:59+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/06/21/netbeans-debug-hotspot</id>
+    <content type="html"><![CDATA[<p>学习JVM的过程中肯定不能少了对JVM的调试，进行就学习一下怎样用Netbeans调试Hotspot。</p>
+
+<h4>编译过程</h4>
+
+<p>环境：</p>
+
+<blockquote><p>Ubuntu12.04<br/>
+OpenJdk 7u<br/>
+Netbeans7.0.1(c/c++)</p></blockquote>
+
+<p>1.安装编译所需要的工具。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">ant</span> <span class="n">mercurial</span> <span class="n">gawk</span> <span class="n">g</span><span class="o">++</span> <span class="n">libcups2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libasound2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libfreetype6</span><span class="o">-</span><span class="n">dev</span> <span class="n">libx11</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxt</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxext</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrender</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxtst</span><span class="o">-</span><span class="n">dev</span> <span class="n">libfontconfig1</span><span class="o">-</span><span class="n">dev</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<!--more-->
+
+
+<p>2.clone openjdk</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">hg</span> <span class="n">clone</span> <span class="nl">http:</span><span class="c1">//hg.openjdk.java.net/jdk7u/jdk7u/ jdk7u</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.进入jdk7u目录，执行下面的脚本下载openjdk源代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">./</span><span class="n">get_source</span><span class="o">.</span><span class="na">sh</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.开始编译OpenJdk,为了方便写个小脚本(build.sh),该脚本的Gist的地址:<a href="https://gist.github.com/zarue/0c6dd39d3e271888f02d#file-1-build-sh">查看</a>,将该脚本放在jdk7u目录下面</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="err">#</span><span class="o">!/</span><span class="n">bin</span><span class="o">/</span><span class="n">bash</span>
+</span><span class='line'><span class="n">unset</span> <span class="n">JAVA_HOME</span>
+</span><span class='line'><span class="n">export</span> <span class="n">LANG</span><span class="o">=</span><span class="n">C</span>
+</span><span class='line'><span class="err">#必须开启，</span><span class="n">jdk</span><span class="err">在编译过程中会联网下载一些</span><span class="n">openjdk</span><span class="err">本身未包含的第三方库</span>
+</span><span class='line'><span class="n">export</span> <span class="n">ALLOW_DOWNLOADS</span><span class="o">=</span><span class="kc">true</span>
+</span><span class='line'><span class="n">export</span> <span class="n">USE_PRECOMPILED_HEADER</span><span class="o">=</span><span class="kc">true</span>
+</span><span class='line'><span class="n">export</span> <span class="n">SKIP_DEBUG_BUILD</span><span class="o">=</span><span class="kc">false</span>
+</span><span class='line'><span class="n">export</span> <span class="n">SKIP_FASTDEBUG_BUILD</span><span class="o">=</span><span class="kc">true</span>
+</span><span class='line'><span class="n">export</span> <span class="n">DEBUG_NAME</span><span class="o">=</span><span class="n">debug</span>
+</span><span class='line'><span class="err">#</span><span class="n">ALT_BOOTDIR</span> <span class="err">是你本机</span><span class="n">jdk</span><span class="err">的目录</span>
+</span><span class='line'><span class="n">export</span> <span class="n">ALT_BOOTDIR</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">cheney</span><span class="o">/</span><span class="n">Downloads</span><span class="o">/</span><span class="n">jdk1</span><span class="o">.</span><span class="mf">6.0</span><span class="n">_45</span>
+</span><span class='line'><span class="n">source</span> <span class="n">jdk</span><span class="o">/</span><span class="n">make</span><span class="o">/</span><span class="n">jdk_generic_profile</span><span class="o">.</span><span class="na">sh</span>
+</span><span class='line'><span class="n">make</span> <span class="n">sanity</span> <span class="o">&amp;&amp;</span> <span class="n">make</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>5.执行build.sh 开始编译过程，大约耗时20-30分分钟</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">./</span><span class="n">build</span><span class="o">.</span><span class="na">sh</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>可能遇到的问题:</h4>
+
+<p>1、</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">.</span><span class="na">src</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">vm</span><span class="o">/</span><span class="n">runtime</span><span class="o">/</span><span class="n">interfaceSupport</span><span class="o">.</span><span class="na">hpp</span><span class="o">:</span><span class="mi">430</span><span class="o">:</span><span class="mi">0</span><span class="o">:</span> <span class="nl">error:</span> <span class="s">&quot;__LEAF&quot;</span> <span class="n">redefined</span> <span class="o">[-</span><span class="n">Werror</span><span class="o">]</span>
+</span><span class='line'><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">cdefs</span><span class="o">.</span><span class="na">h</span><span class="o">:</span><span class="mi">44</span><span class="o">:</span><span class="mi">0</span><span class="o">:</span> <span class="nl">note:</span> <span class="k">this</span> <span class="n">is</span> <span class="n">the</span> <span class="n">location</span>
+</span><span class='line'><span class="n">of</span> <span class="n">the</span> <span class="n">previous</span> <span class="n">definition</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>有两种解决方法: <br/>
+1.参考这个：<a href="http://hg.openjdk.java.net/hsx/hotspot-comp/hotspot/rev/a6eef545f1a2">http://hg.openjdk.java.net/hsx/hotspot-comp/hotspot/rev/a6eef545f1a2</a>  <br/>
+2.这个问题在jdk7u中已经修复，直接使用jdk7u版本的源码就可以了。</p>
+
+<p>2、&#8221;*** This OS is not supported:&ldquo; &lsquo;uname -a&rsquo;; exit 1;
+解决方法:<br/>
+uname -r<br/>
+#查看当前的内核版本：3.11.0-15-generic<br/>
+找到下面的文件：/hotspot/make/linux/Makefile <br/>
+#在这行最后加上当前的内核版本3.11%，<br/>
+ SUPPORTED_OS_VERSION = 2.4% 2.5% 2.6% 2.7% 3.11%</p>
+
+<p>3、Error occurred during initialization of VM java/lang/NoClassDefFoundError: java/lang/invoke/AdapterMethodHandle  解决方法:<br/>
+这是因为编译Openjdk的所用的Jdk版本不符合要求导致的，我这里用的<code>jdk1.6.0_45</code><br/>
+如果还遇到其它问题可以自行Google,一般都能解决。</p>
+
+<h4>使用Netbeans调试</h4>
+
+<p>1.安装Netbeans7.0.1 我尝试了8.0，7.4 都不能正常进行Debug，最后换了7.0.1就正常了，这里仅供参考。<br/>
+2.新建一个项目，选择“基于现有源代码的C/C++项目”，在“源代码文件夹目录”选择openjdk下的hotspot目录，“选择配置模式”中选择“定制”。</p>
+
+<p>3.下一步，“使用现有的makefile”：选择hotspot/make目录下的Makefile文件。</p>
+
+<p>4.构建：“构建命令”：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">$</span><span class="o">{</span><span class="n">MAKE</span><span class="o">}</span> <span class="o">-</span><span class="n">f</span> <span class="n">Makefile</span> <span class="n">clean</span> <span class="n">jvmg</span> <span class="n">ALT_BOOTDIR</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">cheney</span><span class="o">/</span><span class="n">Downloads</span><span class="o">/</span><span class="n">jdk1</span><span class="o">.</span><span class="mf">6.0</span><span class="n">_45</span> <span class="n">ARCH_DATA_MODEL</span><span class="o">=</span><span class="mi">64</span> <span class="n">LANG</span><span class="o">=</span><span class="n">C</span>   <span class="n">ZIP_DEBUGINFO_FILES</span><span class="o">=</span><span class="mi">0</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> 如果你是64位系统那么需要指定ARCH_DATA_MODEL=64，另外如果不指定ZIP_DEBUGINFO_FILES=0，那么需要在编译完成后到jvmg目录下面执行unzip libjvm.diz 解压出调试需要的符号信息。否则将不能进行调试。</p>
+
+<p>5.运行-运行命令</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="s">&quot;/home/cheney/soft/jdk7u/hotspot/build/linux/linux_amd64_compiler2/jvmg/gamma&quot;</span>   <span class="o">-</span><span class="nl">XX:</span><span class="n">StopInterpreterAt</span><span class="o">=</span><span class="mi">1</span> <span class="n">Test</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>-XX:StopInterpreterAt=1的作用是当遇到序号为<n>的字节码指令时，便会中断程序执行，进入断点调试，但是我不指定这个参数也照样可以进行调试。Test 是我自己写的测试类，以后如果想调试哪个类就在这里更换。</p>
+
+<p>6.运行-环境变量</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">LD_LIBRARY_PATH</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">cheney</span><span class="o">/</span><span class="n">soft</span><span class="o">/</span><span class="n">jdk7u</span><span class="o">/</span><span class="n">hotspot</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">linux_amd64_compiler2</span><span class="o">/</span><span class="n">jvmg</span>
+</span><span class='line'><span class="n">JAVA_HOME</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">cheney</span><span class="o">/</span><span class="n">soft</span><span class="o">/</span><span class="n">jdk7u</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">linux</span><span class="o">-</span><span class="n">amd64</span><span class="o">/</span><span class="n">j2sdk</span><span class="o">-</span><span class="n">image</span>
+</span><span class='line'><span class="n">CLASSPATH</span><span class="o">=</span><span class="n">$</span><span class="o">{</span><span class="n">JAVA_HOME</span><span class="o">}/</span><span class="n">lib</span><span class="o">/</span><span class="n">dt</span><span class="o">.</span><span class="na">jar</span><span class="o">:</span><span class="n">$</span><span class="o">{</span><span class="n">JAVA_HOME</span><span class="o">}/</span><span class="n">lib</span><span class="o">/</span><span class="n">tools</span><span class="o">.</span><span class="na">jar</span><span class="o">:/</span><span class="n">home</span><span class="o">/</span><span class="n">cheney</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意：这里要把Test所在的目录添加到环境CLASSPATH里面。</p>
+
+<p>7.接下来就是等待编译过程了，编译完成之后就可以进行调试了。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[初始化]]]></title>
