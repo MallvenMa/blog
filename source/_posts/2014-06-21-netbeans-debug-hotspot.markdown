@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "netbeans-debug-hotspot"
+title: "netbeans debug hotspot"
 date: 2014-06-21 18:02:59 +0800
 comments: true
 categories: jvm
