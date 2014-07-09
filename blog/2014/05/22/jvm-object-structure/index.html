@@ -1,93 +1,116 @@
-
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
-	<meta charset="utf-8">
-	<title>JVM 之 Java 对象结构 - zarue</title>
-	<meta name="author" content="YungHua.Ma">
+  <meta charset="utf-8">
+  <title>JVM 之 Java 对象结构 - YungHua.Ma</title>
+  <meta name="author" content="YungHua.Ma">
 
-	
-	<meta name="description" content="JVM 之 Java 对象结构">
-	<meta name="keywords" content="jvm,对象结构,sa,hsdb">
+  <meta name="description" content="JVM 之 Java 对象结构">
+  <meta name="keywords" content="jvm,对象结构,sa,hsdb">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<link href="" rel="alternate" title="zarue" type="application/atom+xml">
-	
-	<link rel="canonical" href="http://blog.zarue.com//blog/2014/05/22/jvm-object-structure/">
-	<link href="/favicon.ico" rel="shortcut icon">
-	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-	<link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
-<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-	<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-	<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  
+  <link rel="canonical" href="http://blog.zarue.com//blog/2014/05/22/jvm-object-structure">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="" rel="alternate" title="YungHua.Ma" type="application/atom+xml">
+
+  <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+
+  <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
+  
 
 </head>
 
+  <body   >
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">YungHua.Ma</a>
+        </div>
 
-<body>
-	<div class="container">
-		<div class="left-col">
-			<div class="intrude-less">
-			<header id="header" class="inner"><div class="profilepic">	
-	<script src="/javascripts/md5.js"></script>
-	<script type="text/javascript">
-		document.write("<img src='/images/myself.jpg' alt='Profile Picture' style='width: 160px;'/>");
-	</script>
-</div>
-<h2><a href="/">YungHua.Ma</a></h2>
-<h5 class="subtitle">天若有情天亦老 人丑就要多读书</h5>
-<nav id="main-nav"><ul class="main-navigation">
-  <li><a href="/">Home</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/about">About</a></li>
-</ul>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+		<li >
+                    <a href="/about">About</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="subscribe-rss" href="" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
 </nav>
-<nav id="sub-nav">
-	<div class="social">
-		 
-                <a class="github" href="https://github.com/zarue" title="GitHub">GitHub</a>
-                		
-		
-		<a class="weibo" href="http://www.weibo.com/2403887405" title="Weibo">Weibo</a>
-		
-		
-		<a class="facebook" href="http://www.facebook.com/yonghua.ma" title="Facebook">Facebook</a>
-		
-		
-		
-		<a class="twitter" href="http://twitter.com/cheney_life" title="Twitter">Twitter</a>
-		
-		
-		
-		
-		
-		
-		
-	</div>
-</nav>
-<!-- <hgroup>
-  <h3>YungHua.Ma</h3>
-  
-    <h5>I hava a dream to walk around the world</h5>
-  
-</hgroup>
--->
-</header>				
-			</div>
-		</div>	
-		<div class="mid-col">
-			
-				
-			
-			<div class="mid-col-container">
-				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
-	<h1 class="title" itemprop="name">JVM 之 Java 对象结构</h1>
-	<div class="entry-content" itemprop="articleBody"><h2>1. Java对象在内存中到底是什么样?</h2>
+
+
+      </header>
+      <div id="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9">
+    <article class="hentry" role="article">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-22T14:09:15+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2014</time>
+        
+        
+          | <a href="#comments">Comments</a>
+         
+      </p>
+    
+    
+    <h1 class="entry-title">
+        JVM 之 Java 对象结构
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix"><h2>1. Java对象在内存中到底是什么样?</h2>
 
 <p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
 那在JVM中这个规范是怎么定义的呢？
@@ -306,10 +329,65 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 <a href="http://icyfenix.iteye.com/blog/1145044">http://icyfenix.iteye.com/blog/1145044</a></p>
 </div>
 
-</article>
 
-<section id="comment">
-    <div id="duoshuo_comments" aria-live="polite"><!-- 多说评论框 start -->
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard">Posted by <span class="fn">YungHua.Ma</span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-22T14:09:15+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2014</time>
+          
+
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/jvm/'>jvm</a>
+  
+</span>
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/blog/2014/05/21/cpu-and-memory/" title="Previous Post: 关于CPU寻址和物理内存结构">&laquo; 关于CPU寻址和物理内存结构</a></li>
+            
+            
+            <li class="next"><a href="/blog/2014/05/27/runtime-string-pool-1/" title="Next Post: JVM 之 String 常量池 一">JVM 之 String 常量池 一 &raquo;</a></li>
+            
+          </ul>
+        
+      </footer>
+    </article>
+  
+
+
+  <section>
+    <h1>Comments</h1>
+    <div id="comments" aria-live="polite"><!-- 多说评论框 start -->
 <div class="ds-thread" ></div>
 <!-- 多说评论框 end -->
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
@@ -326,23 +404,99 @@ var duoshuoQuery = {short_name:"zarue"};
 	</script>
 <!-- 多说公共JS代码 end -->
 </div>
-</section>
+  </section>
 
 </div>
-			</div>
-			<footer id="footer" class="inner"><p>
-  Copyright &copy; 2014 - YungHua.Ma -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Author</h3>
+  </div>
+  <div id="about_me" class="list-group">
+  <div style="padding-top:15px;padding-bottom:15px;text-align:center">
+	<span >天若有情天亦老 人丑就要多读书</span>	  </div>
+  <div class="social" style="text-align:center">
+		 
+                <a class="github" target="_blank"  href="https://github.com/zarue" title="GitHub">GitHub</a>
+                		
+		
+		<a class="weibo" target="_blank"  href="http://www.weibo.com/2403887405" title="Weibo">Weibo</a>
+		
+		
+		<a class="facebook" target="_blank"  href="http://www.facebook.com/yonghua.ma" title="Facebook">Facebook</a>
+		
+		
+		
+		<a class="twitter" target="_blank"  href="http://twitter.com/cheney_life" title="Twitter">Twitter</a>
+		
+		
+		
+		
+		
+		
+		
+	</div>  
+</div>
+</section>
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item " href="/blog/2014/06/21/netbeans-debug-hotspot/">Netbeans Debug Hotspot</a>
+    
+    <a class="list-group-item " href="/blog/2014/06/15/java-object-create-2/">JVM 之 Java对象创建[初始化]</a>
+    
+    <a class="list-group-item " href="/blog/2014/06/14/java-object-create-1/">JVM 之 Java对象创建[加载和连接]</a>
+    
+    <a class="list-group-item " href="/blog/2014/05/29/runtime-string-pool-2/">JVM 之 String 常量池 二</a>
+    
+    <a class="list-group-item " href="/blog/2014/05/27/runtime-string-pool-1/">JVM 之 String 常量池 一</a>
+    
+  </div>
+</section>
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Categories</h3>
+  </div>
+  <div id="categories" class="list-group">
+  <a class='list-group-item'  href='/blog/categories/jvm/'>jvm (6)</a>
+<a class='list-group-item'  href='/blog/categories/system/'>system (1)</a>
+<a class='list-group-item'  href='/blog/categories/vim/'>vim (1)</a>
+ 
+ </div>
+</section>
+
+
+
+
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2014 - YungHua.Ma<br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
 </p>
 
-Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
-			<script src="/javascripts/slash.js"></script>
-<script src="/javascripts/jquery.fancybox.pack.js"></script>
-<script type="text/javascript">
-(function($){
-	$('.fancybox').fancybox();
-})(jQuery);
-</script> <!-- Delete or comment this line to disable Fancybox -->
+</div>
+</footer>
+    <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-2.0.js"></script>
 
 
 
@@ -350,7 +504,10 @@ Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Sha
 
 
 
-		</div>
-	</div>
-</body>
+
+
+
+
+
+  </body>
 </html>
