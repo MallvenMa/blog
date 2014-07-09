@@ -1,0 +1,44 @@
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Author</h3>
+  </div>
+  <div id="about_me" class="list-group">
+  <div style="padding-top:15px;padding-bottom:15px;text-align:center">
+	<span >天若有情天亦老 人丑就要多读书</span>	  </div>
+  <div class="social" style="text-align:center">
+		 {% if site.github_user %}
+                <a class="github" target="_blank"  href="https://github.com/{{ site.github_user }}" title="GitHub">GitHub</a>
+                {% endif %}		
+		{% if site.weibo_user %}
+		<a class="weibo" target="_blank"  href="http://www.weibo.com/{{ site.weibo_user }}" title="Weibo">Weibo</a>
+		{% endif %}
+		{% if site.facebook_user %}
+		<a class="facebook" target="_blank"  href="http://www.facebook.com/{{ site.facebook_user }}" title="Facebook">Facebook</a>
+		{% endif %}
+		{% if site.googleplus_user and site.googleplus_hidden == false %}
+		<a class="google" target="_blank"  href="https://plus.google.com/{{ site.googleplus_user }}" rel="author" title="Google+">Google+</a>
+		{% endif %}
+		{% if site.twitter_user %}
+		<a class="twitter" target="_blank"  href="http://twitter.com/{{ site.twitter_user }}" title="Twitter">Twitter</a>
+		{% endif %}
+		{% if site.dribbble_user %}
+		<a class="dribbble" href="http://www.dribbble.com/{{ site.dribbble_user }}" title="Dribbble">Dribbble</a>
+		{% endif %}
+		{% if site.linkedin_user %}
+		<a class="linkedin" target="_blank"  href="http://www.linkedin.com/in/{{ site.linkedin_user }}">LinkedIn</a>
+		{% endif %}
+		{% if site.pinterest_user %}
+		<a class="pinterest" href="https://pinterest.com/{{ site.pinterest_user }}" title="Pinterest">Pinterest</a>
+		{% endif %}
+		{% if site.delicious_user %}
+		<a class="delicious" href="http://delicious.com/{{ site.delicious_user }}" title="Delicious">Delicious</a>
+		{% endif %}
+		{% if site.pinboard_user %}
+		<a class="pinboard" href="https://pinboard.in/u:{{ site.pinboard_user }}" title="Pinboard">Pinboard</a>
+		{% endif %}
+		{% if site.subscribe_rss %}
+		<a class="rss" href="{{ site.subscribe_rss }}" title="RSS">RSS</a>
+		{% endif %}
+	</div>  
+</div>
+</section>
