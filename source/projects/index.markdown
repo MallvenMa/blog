@@ -1,13 +1,28 @@
 ---
 layout: page
-title: "关于作者"
+title: "Some Project Developed By Myself"
 date: 2014-05-31 00:03
 comments: true
 sharing: true
 footer: true
 ---
-![](/images/blog/2014-06/20140602-about.png)
->ME: 喜欢早睡早起,不运动吃不下饭,从不闯红灯,正在学习英语的攻城狮一枚。  
->OLD BLOG: cheney-mydream.iteye.com  
->MAIL: yunghua.ma[at]gmail.com  
->寻海外工作机会  
+>####LnMoGoo (A android app that can protect your phone from stolen)
+>GitHub:  [View code and details in GitHub](https://github.com/zarue/lnmogoo)
+>
+
+----
+>####Ituer (A android app that can learn how to handle image)
+>GitHub:   [View code and details in GitHub](https://github.com/zarue/Ituer)
+
+----
+>####EnglishEveryDay (A android app that can learn how to handle audio)
+>GitHub:  [View code and details in GitHub](https://github.com/zarue/englisheveryday)
+
+----
+>####DiandiReader (A android app that can learn how to handle text)
+>GitHub:  [View code and details in GitHub](https://github.com/zarue/DiandiReader)
+
+
+----
+>####z-calendar (This is an imitation of google calendar)(js/css)
+>GitHub:  [View code and details in GitHub](https://github.com/zarue/z-calendar)
