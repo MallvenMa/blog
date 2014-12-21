@@ -1,3 +1,6 @@
+body {
+  background:whitesmoke;
+}
 h1,h2,h3 {
 	margin-top:32px;
 	margin-bottom:12px
