@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "Some Project Developed By Myself"
+title: "Some Projects Developed by Myself"
 date: 2014-05-31 00:03
 comments: true
 sharing: true

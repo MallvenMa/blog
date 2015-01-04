@@ -26,3 +26,13 @@ This year I want to improve my english ability, so I start to read more english 
 >This child noval was wrote by Roald Dahl in 1964. The story features the adventures of young Charlie Bucket inside the chocolate factory of eccentric chocolatier Willy Wonka  
 >
 
+------  
+>####The NoteBook(★★★)
+>This is a very lovely story between to young people.I was impressed by this book.  
+>
+>
+
+------  
+>####Zero To One(★★★★)
+>Written by Peter Thiel one of the founders of paypal,This book is too hard for me  
+>
