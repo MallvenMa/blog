@@ -7,7 +7,7 @@ sharing: true
 footer: true
 ---
 ![](/images/blog/2014-06/20140602-about.png)
->ME:I am learning  
->OLD BLOG: cheney-mydream.iteye.com  
->MAIL: mallven.ma[at]gmail.com  
+>Me:I am learning  
+>Blog(old): cheney-mydream.iteye.com  
+>Mail: mallven.ma[at]gmail.com  
 >  
