@@ -1,0 +1,44 @@
+article .entry-content table {
+  border-style:solid;
+  border-width:1px;
+  border-color:#dddddd;
+  border-collapse:collapse;
+}
+
+article .entry-content table tr {
+  height:20px;
+}
+ 
+article .entry-content table th, article .entry-content table td {
+  border-style:solid;
+  border-width:1px;
+  border-color:#dddddd;
+  padding-left: 15px;
+  padding-right: 15px;
+  height:40px;
+  background:#FFF;
+  font-weight:100;
+}
+ 
+article .entry-content table th {
+  border-style:solid;
+  font-weight:100;
+  background: #FFF;
+}
+ 
+article .entry-content table th[align="left"],article .entry-content table td[align="left"] {
+  text-align:left;
+}
+ 
+article .entry-content table th[align="right"], article .entry-content table td[align="right"] {
+  text-align:right;
+}
+ 
+article .entry-content table th[align="center"], article .entry-content table td[align=center] {
+  text-align:center;
+}
+
+/*********code********/
+td.code {
+  background:#ddd;
+}

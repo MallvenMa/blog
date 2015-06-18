@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: vim | YungHua.Ma]]></title>
+  <link href="http://blog.zarue.com//blog/categories/vim/atom.xml" rel="self"/>
+  <link href="http://blog.zarue.com//"/>
+  <updated>2015-01-04T09:28:51+08:00</updated>
+  <id>http://blog.zarue.com//</id>
+  <author>
+    <name><![CDATA[YungHua.Ma]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Mac OSX vim 输入中文乱码问题]]></title>
+    <link href="http://blog.zarue.com//blog/2014/05/18/vim-chinese-error/"/>
+    <updated>2014-05-18T22:05:24+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/05/18/vim-chinese-error</id>
+    <content type="html"><![CDATA[<h3>出现问题的环境:</h3>
+
+<ol>
+<li>OSX 10.9.2 英文</li>
+<li>VIM 7.3</li>
+</ol>
+
+
+<h3>问题描述:</h3>
+
+<ol>
+<li>可以正常显示文件中得中文字符</li>
+<li>输入中文字符会出现乱码</li>
+<li>通过在.vimrc中设置编码格式无效</li>
+</ol>
+
+
+<h3>解决方案:</h3>
+
+<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。</p>
+
+<!--more-->
+
+
+<p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br/>
+如图:<br/>
+<img src="/images/blog/2014-05/20140519-1-vim.png" alt="示例" /></p>
+]]></content>
+  </entry>
+  
+</feed>

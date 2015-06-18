@@ -1,0 +1,1381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: jvm | YungHua.Ma]]></title>
+  <link href="http://blog.zarue.com//blog/categories/jvm/atom.xml" rel="self"/>
+  <link href="http://blog.zarue.com//"/>
+  <updated>2015-01-04T09:28:51+08:00</updated>
+  <id>http://blog.zarue.com//</id>
+  <author>
+    <name><![CDATA[YungHua.Ma]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[netbeans debug hotspot]]></title>
+    <link href="http://blog.zarue.com//blog/2014/06/21/netbeans-debug-hotspot/"/>
+    <updated>2014-06-21T18:02:59+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/06/21/netbeans-debug-hotspot</id>
+    <content type="html"><![CDATA[<p>学习JVM的过程中肯定不能少了对JVM的调试，进行就学习一下怎样用Netbeans调试Hotspot。</p>
+
+<h4>编译过程</h4>
+
+<p>环境：</p>
+
+<blockquote><p>Ubuntu12.04<br/>
+OpenJdk 7u<br/>
+Netbeans7.0.1(c/c++)</p></blockquote>
+
+<p>1.安装编译所需要的工具。<br/>
+<code>java
+apt-get install ant mercurial gawk g++ libcups2-dev libasound2-dev libfreetype6-dev libx11-dev libxt-dev libxext-dev libxrender-dev libxtst-dev libfontconfig1-dev
+</code></p>
+
+<!--more-->
+
+
+<p>2.clone openjdk
+<code>java
+hg clone http://hg.openjdk.java.net/jdk7u/jdk7u/ jdk7u
+</code>
+3.进入jdk7u目录，执行下面的脚本下载openjdk源代码<br/>
+<code>java
+./get_source.sh
+</code>
+4.开始编译OpenJdk,为了方便写个小脚本(build.sh),该脚本的Gist的地址:<a href="https://gist.github.com/zarue/0c6dd39d3e271888f02d#file-1-build-sh">查看</a>,将该脚本放在jdk7u目录下面<br/>
+```java</p>
+
+<h1>!/bin/bash</h1>
+
+<p>unset JAVA_HOME
+export LANG=C</p>
+
+<h1>必须开启，jdk在编译过程中会联网下载一些openjdk本身未包含的第三方库</h1>
+
+<p>export ALLOW_DOWNLOADS=true
+export USE_PRECOMPILED_HEADER=true
+export SKIP_DEBUG_BUILD=false
+export SKIP_FASTDEBUG_BUILD=true
+export DEBUG_NAME=debug</p>
+
+<h1>ALT_BOOTDIR 是你本机jdk的目录</h1>
+
+<p>export ALT_BOOTDIR=/home/cheney/Downloads/jdk1.6.0_45
+source jdk/make/jdk_generic_profile.sh
+make sanity &amp;&amp; make
+<code>
+5.执行build.sh 开始编译过程，大约耗时20-30分分钟  
+</code>java
+./build.sh
+```</p>
+
+<h4>可能遇到的问题:</h4>
+
+<p>1、<br/>
+<code>java
+.src/share/vm/runtime/interfaceSupport.hpp:430:0: error: "__LEAF" redefined [-Werror]
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:44:0: note: this is the location
+of the previous definition
+</code>
+有两种解决方法: <br/>
+1.参考这个：<a href="http://hg.openjdk.java.net/hsx/hotspot-comp/hotspot/rev/a6eef545f1a2">http://hg.openjdk.java.net/hsx/hotspot-comp/hotspot/rev/a6eef545f1a2</a>  <br/>
+2.这个问题在jdk7u中已经修复，直接使用jdk7u版本的源码就可以了。</p>
+
+<p>2、"*** This OS is not supported:&ldquo; &lsquo;uname -a&rsquo;; exit 1;
+解决方法:<br/>
+uname -r<br/>
+#查看当前的内核版本：3.11.0-15-generic<br/>
+找到下面的文件：/hotspot/make/linux/Makefile <br/>
+#在这行最后加上当前的内核版本3.11%，<br/>
+ SUPPORTED_OS_VERSION = 2.4% 2.5% 2.6% 2.7% 3.11%</p>
+
+<p>3、Error occurred during initialization of VM java/lang/NoClassDefFoundError: java/lang/invoke/AdapterMethodHandle  解决方法:<br/>
+这是因为编译Openjdk的所用的Jdk版本不符合要求导致的，我这里用的<code>jdk1.6.0_45</code><br/>
+如果还遇到其它问题可以自行Google,一般都能解决。</p>
+
+<h4>使用Netbeans调试</h4>
+
+<p>1.安装Netbeans7.0.1 我尝试了8.0，7.4 都不能正常进行Debug，最后换了7.0.1就正常了，这里仅供参考。<br/>
+2.新建一个项目，选择“基于现有源代码的C/C++项目”，在“源代码文件夹目录”选择openjdk下的hotspot目录，“选择配置模式”中选择“定制”。</p>
+
+<p>3.下一步，“使用现有的makefile”：选择hotspot/make目录下的Makefile文件。</p>
+
+<p>4.构建：“构建命令”：
+<code>java
+${MAKE} -f Makefile clean jvmg ALT_BOOTDIR=/home/cheney/Downloads/jdk1.6.0_45 ARCH_DATA_MODEL=64 LANG=C   ZIP_DEBUGINFO_FILES=0
+</code>
+ 如果你是64位系统那么需要指定ARCH_DATA_MODEL=64，另外如果不指定ZIP_DEBUGINFO_FILES=0，那么需要在编译完成后到jvmg目录下面执行unzip libjvm.diz 解压出调试需要的符号信息。否则将不能进行调试。</p>
+
+<p>5.运行-运行命令
+<code>java
+"/home/cheney/soft/jdk7u/hotspot/build/linux/linux_amd64_compiler2/jvmg/gamma"   -XX:StopInterpreterAt=1 Test
+</code>
+-XX:StopInterpreterAt=1的作用是当遇到序号为<n>的字节码指令时，便会中断程序执行，进入断点调试，但是我不指定这个参数也照样可以进行调试。Test 是我自己写的测试类，以后如果想调试哪个类就在这里更换。</p>
+
+<p>6.运行-环境变量
+<code>java
+LD_LIBRARY_PATH /home/cheney/soft/jdk7u/hotspot/build/linux/linux_amd64_compiler2/jvmg
+JAVA_HOME /home/cheney/soft/jdk7u/build/linux-amd64/j2sdk-image
+CLASSPATH=${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar:/home/cheney
+</code>
+注意：这里要把Test所在的目录添加到环境CLASSPATH里面。</p>
+
+<p>7.接下来就是等待编译过程了，编译完成之后就可以进行调试了。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 Java对象创建[初始化]]]></title>
+    <link href="http://blog.zarue.com//blog/2014/06/15/java-object-create-2/"/>
+    <updated>2014-06-15T10:01:00+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/06/15/java-object-create-2</id>
+    <content type="html"><![CDATA[<p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
+还是使用上文的例子:<br/>
+<code>java
+Class claszz = clt.loadClass("Animal");
+Animal animal = (Animal)claszz.newInstance();
+</code>
+<code>newInstance</code>的native方法在:src/share/native/sun/reflect/NativeAccessors.c<br/>
+<code>java
+JNIEXPORT jobject JNICALL Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0
+(JNIEnv *env, jclass unused, jobject c, jobjectArray args)
+{
+return JVM_NewInstanceFromConstructor(env, c, args);
+}
+</code></p>
+
+<!--more-->
+
+
+<p><code>JVM_NewInstanceFromConstructor</code>在jvm.cpp 中的实现： <br/>
+<code>java
+JVM_ENTRY(jobject, JVM_NewInstanceFromConstructor(JNIEnv *env, jobject c, jobjectArray args0))
+JVMWrapper("JVM_NewInstanceFromConstructor");
+oop constructor_mirror = JNIHandles::resolve(c);
+objArrayHandle args(THREAD, objArrayOop(JNIHandles::resolve(args0)));
+oop result = Reflection::invoke_constructor(constructor_mirror, args, CHECK_NULL);
+jobject res = JNIHandles::make_local(env, result);
+if (JvmtiExport::should_post_vm_object_alloc()) {
+JvmtiExport::post_vm_object_alloc(JavaThread::current(), result);
+}
+return res;
+JVM_END
+</code>
+第4行：创建构造方法参数数组。 <br/>
+第5行：<code>invoke_constructor(...)</code>位于/src/share/vm/runtime/reflection.cpp,这个方法包含了对象的创建过程。<br/>
+```java
+oop Reflection::invoke_constructor(oop constructor_mirror, objArrayHandle args, TRAPS) {
+  oop mirror             = java_lang_reflect_Constructor::clazz(constructor_mirror);
+  int slot               = java_lang_reflect_Constructor::slot(constructor_mirror);
+  bool override          = java_lang_reflect_Constructor::override(constructor_mirror) != 0;
+  objArrayHandle ptypes(THREAD, objArrayOop(java_lang_reflect_Constructor::parameter_types(constructor_mirror)));</p>
+
+<p>  instanceKlassHandle klass(THREAD, java_lang_Class::as_klassOop(mirror));
+  methodOop m = klass->method_with_idnum(slot);
+  if (m == NULL) {</p>
+
+<pre><code>THROW_MSG_0(vmSymbols::java_lang_InternalError(), "invoke");
+</code></pre>
+
+<p>  }
+  methodHandle method(THREAD, m);
+  assert(method->name() == vmSymbols::object_initializer_name(), &ldquo;invalid constructor&rdquo;);</p>
+
+<p>  // Make sure klass gets initialize
+  klass->initialize(CHECK_NULL);</p>
+
+<p>  // Create new instance (the receiver)
+  klass->check_valid_for_instantiation(false, CHECK_NULL);
+  Handle receiver = klass->allocate_instance_handle(CHECK_NULL);</p>
+
+<p>  // Ignore result from call and return receiver
+  invoke(klass, method, receiver, override, ptypes, T_VOID, args, false, CHECK_NULL);
+  return receiver();
+}
+<code>
+直接从为对象分配内存开始看src/share/vm/oops/instanceKlass.cpp  
+</code>java
+Handle receiver = klass->allocate_instance_handle(CHECK_NULL);
+<code>
+继续看:`allocate_instance(...)`  
+</code>java
+instanceOop instanceKlass::allocate_instance(TRAPS) {
+  bool has_finalizer_flag = has_finalizer(); // Query before possible GC
+  int size = size_helper();  // Query before forming handle.</p>
+
+<p>  KlassHandle h_k(THREAD, as_klassOop());</p>
+
+<p>  instanceOop i;</p>
+
+<p>  i = (instanceOop)CollectedHeap::obj_allocate(h_k, size, CHECK_NULL);
+  if (has_finalizer_flag &amp;&amp; !RegisterFinalizersAtInit) {</p>
+
+<pre><code>i = register_finalizer(i, CHECK_NULL);
+</code></pre>
+
+<p>  }
+  return i;
+}
+<code>
+第9行:`i = (instanceOop)CollectedHeap::obj_allocate(h_k, size, CHECK_NULL);`位于collectedHeap.inline.hpp中:  
+</code>java
+oop CollectedHeap::obj_allocate(KlassHandle klass, int size, TRAPS) {
+  debug_only(check_for_valid_allocation_state());
+  assert(!Universe::heap()&ndash;>is_gc_active(), &ldquo;Allocation during gc not allowed&rdquo;);
+  assert(size >= 0, &ldquo;int won&rsquo;t convert to size_t&rdquo;);
+  HeapWord<em> obj = common_mem_allocate_init(size, false, CHECK_NULL);
+  post_allocation_setup_obj(klass, obj, size);
+  NOT_PRODUCT(Universe::heap()&ndash;>check_for_bad_heap_word_value(obj, size));
+  return (oop)obj;
+}
+<code>
+看一下`common_mem_allocate_init(size, false, CHECK_NULL);`  
+</code>java
+HeapWord</em> CollectedHeap::common_mem_allocate_init(size_t size, bool is_noref, TRAPS) {
+  HeapWord<em> obj = common_mem_allocate_noinit(size, is_noref, CHECK_NULL);
+  init_obj(obj, size);
+  return obj;
+}
+<code>
+继续看`common_mem_allocate_noinit(...)`  
+</code>java
+HeapWord</em> CollectedHeap::common_mem_allocate_noinit(size_t size, bool is_noref, TRAPS) {</p>
+
+<p>  // Clear unhandled oops for memory allocation.  Memory allocation might
+  // not take out a lock if from tlab, so clear here.
+  CHECK_UNHANDLED_OOPS_ONLY(THREAD->clear_unhandled_oops();)</p>
+
+<p>  if (HAS_PENDING_EXCEPTION) {</p>
+
+<pre><code>NOT_PRODUCT(guarantee(false, "Should not allocate with exception pending"));
+return NULL;  // caller does a CHECK_0 too
+</code></pre>
+
+<p>  }</p>
+
+<p>  // We may want to update this, is_noref objects might not be allocated in TLABs.
+  HeapWord* result = NULL;
+  if (UseTLAB) {</p>
+
+<pre><code>result = CollectedHeap::allocate_from_tlab(THREAD, size);
+if (result != NULL) {
+  assert(!HAS_PENDING_EXCEPTION,
+         "Unexpected exception, will result in uninitialized storage");
+  return result;
+}
+</code></pre>
+
+<p>  }
+  bool gc_overhead_limit_was_exceeded = false;
+  result = Universe::heap()&ndash;>mem_allocate(size,</p>
+
+<pre><code>                                      is_noref,
+                                      false,
+                                      &amp;gc_overhead_limit_was_exceeded);
+</code></pre>
+
+<p>  if (result != NULL) {</p>
+
+<pre><code>NOT_PRODUCT(Universe::heap()-&gt;
+  check_for_non_bad_heap_word_value(result, size));
+assert(!HAS_PENDING_EXCEPTION,
+       "Unexpected exception, will result in uninitialized storage");
+return result;
+</code></pre>
+
+<p>  }</p>
+
+<p>  if (!gc_overhead_limit_was_exceeded) {</p>
+
+<pre><code>// -XX:+HeapDumpOnOutOfMemoryError and -XX:OnOutOfMemoryError support
+report_java_out_of_memory("Java heap space");
+
+if (JvmtiExport::should_post_resource_exhausted()) {
+  JvmtiExport::post_resource_exhausted(
+    JVMTI_RESOURCE_EXHAUSTED_OOM_ERROR | JVMTI_RESOURCE_EXHAUSTED_JAVA_HEAP,
+    "Java heap space");
+}
+
+THROW_OOP_0(Universe::out_of_memory_error_java_heap());
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>// -XX:+HeapDumpOnOutOfMemoryError and -XX:OnOutOfMemoryError support
+report_java_out_of_memory("GC overhead limit exceeded");
+
+if (JvmtiExport::should_post_resource_exhausted()) {
+  JvmtiExport::post_resource_exhausted(
+    JVMTI_RESOURCE_EXHAUSTED_OOM_ERROR | JVMTI_RESOURCE_EXHAUSTED_JAVA_HEAP,
+    "GC overhead limit exceeded");
+}
+
+THROW_OOP_0(Universe::out_of_memory_error_gc_overhead_limit());
+</code></pre>
+
+<p>  }
+}
+<code>
+第15行，如果启用了UseTLAB则优先在TLAB上分配：allocate_from_tlab(...)  
+</code>java
+HeapWord<em> CollectedHeap::allocate_from_tlab(Thread</em> thread, size_t size) {
+  assert(UseTLAB, &ldquo;should use UseTLAB&rdquo;);</p>
+
+<p>  HeapWord* obj = thread->tlab().allocate(size);
+  if (obj != NULL) {</p>
+
+<pre><code>return obj;
+</code></pre>
+
+<p>  }
+  // Otherwise&hellip;
+  return allocate_from_tlab_slow(thread, size);
+}
+<code>
+如果在TLAB分配失败则调用`allocate_from_tlab_slow(...)`，该方法会重新计算TLAB的大小，然后重新创建一个新的TLAB用于分配该对象。   
+如果`allocate_from_tlab_slow(...)`也没成功，则调用  
+</code>java
+Universe::heap()&ndash;>mem_allocate(size,</p>
+
+<pre><code>                                      is_noref,
+                                      false,
+                                      &amp;gc_overhead_limit_was_exceeded);
+</code></pre>
+
+<p><code>
+在共享内存区域分配内存。在该区域分配内存需要加锁，所以速度要比在TLAB上分配效率低一些。该方法位于：/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.cpp  
+</code>java
+eapWord* ParallelScavengeHeap::mem_allocate(</p>
+
+<pre><code>                                 size_t size,
+                                 bool is_noref,
+                                 bool is_tlab,
+                                 bool* gc_overhead_limit_was_exceeded) {
+</code></pre>
+
+<p>  assert(!SafepointSynchronize::is_at_safepoint(), &ldquo;should not be at safepoint&rdquo;);
+  assert(Thread::current() != (Thread*)VMThread::vm_thread(), &ldquo;should not be in vm thread&rdquo;);
+  assert(!Heap_lock->owned_by_self(), &ldquo;this thread should not own the Heap_lock&rdquo;);</p>
+
+<p>  // In general gc_overhead_limit_was_exceeded should be false so
+  // set it so here and reset it to true only if the gc time
+  // limit is being exceeded as checked below.
+  *gc_overhead_limit_was_exceeded = false;</p>
+
+<p>  HeapWord* result = young_gen()&ndash;>allocate(size, is_tlab);</p>
+
+<p>  uint loop_count = 0;
+  uint gc_count = 0;</p>
+
+<p>  while (result == NULL) {</p>
+
+<pre><code>// We don't want to have multiple collections for a single filled generation.
+// To prevent this, each thread tracks the total_collections() value, and if
+// the count has changed, does not do a new collection.
+//
+// The collection count must be read only while holding the heap lock. VM
+// operations also hold the heap lock during collections. There is a lock
+// contention case where thread A blocks waiting on the Heap_lock, while
+// thread B is holding it doing a collection. When thread A gets the lock,
+// the collection count has already changed. To prevent duplicate collections,
+// The policy MUST attempt allocations during the same period it reads the
+// total_collections() value!
+{
+  MutexLocker ml(Heap_lock);
+  gc_count = Universe::heap()-&gt;total_collections();
+
+  result = young_gen()-&gt;allocate(size, is_tlab);
+
+  // (1) If the requested object is too large to easily fit in the
+  //     young_gen, or
+  // (2) If GC is locked out via GCLocker, young gen is full and
+  //     the need for a GC already signalled to GCLocker (done
+  //     at a safepoint),
+  // ... then, rather than force a safepoint and (a potentially futile)
+  // collection (attempt) for each allocation, try allocation directly
+  // in old_gen. For case (2) above, we may in the future allow
+  // TLAB allocation directly in the old gen.
+  if (result != NULL) {
+    return result;
+  }
+  if (!is_tlab &amp;&amp;
+      size &gt;= (young_gen()-&gt;eden_space()-&gt;capacity_in_words(Thread::current()) / 2)) {
+    result = old_gen()-&gt;allocate(size, is_tlab);
+    if (result != NULL) {
+      return result;
+    }
+  }
+  if (GC_locker::is_active_and_needs_gc()) {
+    // GC is locked out. If this is a TLAB allocation,
+    // return NULL; the requestor will retry allocation
+    // of an idividual object at a time.
+    if (is_tlab) {
+      return NULL;
+    }
+
+    // If this thread is not in a jni critical section, we stall
+    // the requestor until the critical section has cleared and
+    // GC allowed. When the critical section clears, a GC is
+    // initiated by the last thread exiting the critical section; so
+    // we retry the allocation sequence from the beginning of the loop,
+    // rather than causing more, now probably unnecessary, GC attempts.
+    JavaThread* jthr = JavaThread::current();
+    if (!jthr-&gt;in_critical()) {
+      MutexUnlocker mul(Heap_lock);
+      GC_locker::stall_until_clear();
+      continue;
+    } else {
+      if (CheckJNICalls) {
+        fatal("Possible deadlock due to allocating while"
+              " in jni critical section");
+      }
+      return NULL;
+    }
+  }
+}
+
+if (result == NULL) {
+
+  // Generate a VM operation
+  VM_ParallelGCFailedAllocation op(size, is_tlab, gc_count);
+  VMThread::execute(&amp;op);
+
+  // Did the VM operation execute? If so, return the result directly.
+  // This prevents us from looping until time out on requests that can
+  // not be satisfied.
+  if (op.prologue_succeeded()) {
+    assert(Universe::heap()-&gt;is_in_or_null(op.result()),
+      "result not in heap");
+
+    // If GC was locked out during VM operation then retry allocation
+    // and/or stall as necessary.
+    if (op.gc_locked()) {
+      assert(op.result() == NULL, "must be NULL if gc_locked() is true");
+      continue;  // retry and/or stall as necessary
+    }
+
+    // Exit the loop if the gc time limit has been exceeded.
+    // The allocation must have failed above ("result" guarding
+    // this path is NULL) and the most recent collection has exceeded the
+    // gc overhead limit (although enough may have been collected to
+    // satisfy the allocation).  Exit the loop so that an out-of-memory
+    // will be thrown (return a NULL ignoring the contents of
+    // op.result()),
+    // but clear gc_overhead_limit_exceeded so that the next collection
+    // starts with a clean slate (i.e., forgets about previous overhead
+    // excesses).  Fill op.result() with a filler object so that the
+    // heap remains parsable.
+    const bool limit_exceeded = size_policy()-&gt;gc_overhead_limit_exceeded();
+    const bool softrefs_clear = collector_policy()-&gt;all_soft_refs_clear();
+    assert(!limit_exceeded || softrefs_clear, "Should have been cleared");
+    if (limit_exceeded &amp;&amp; softrefs_clear) {
+      *gc_overhead_limit_was_exceeded = true;
+      size_policy()-&gt;set_gc_overhead_limit_exceeded(false);
+      if (PrintGCDetails &amp;&amp; Verbose) {
+        gclog_or_tty-&gt;print_cr("ParallelScavengeHeap::mem_allocate: "
+          "return NULL because gc_overhead_limit_exceeded is set");
+      }
+      if (op.result() != NULL) {
+        CollectedHeap::fill_with_object(op.result(), size);
+      }
+      return NULL;
+    }
+
+    return op.result();
+  }
+}
+
+// The policy object will prevent us from looping forever. If the
+// time spent in gc crosses a threshold, we will bail out.
+loop_count++;
+if ((result == NULL) &amp;&amp; (QueuedAllocationWarningCount &gt; 0) &amp;&amp;
+    (loop_count % QueuedAllocationWarningCount == 0)) {
+  warning("ParallelScavengeHeap::mem_allocate retries %d times \n\t"
+          " size=%d %s", loop_count, size, is_tlab ? "(TLAB)" : "");
+}
+</code></pre>
+
+<p>  }</p>
+
+<p>  return result;
+}</p>
+
+<p>```
+首先在young_gen 分配，如果young 分配失败，则触发一次GC，然后重新尝试从young上分配，如果再分配失败，则从old 上分配。<br/>
+Java对象初始化并分配内存的过程基本就是这样了。这个过程中的很多细节我也还没有弄明白，接下来弄明白了再补过来吧。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 Java对象创建[加载和连接]]]></title>
+    <link href="http://blog.zarue.com//blog/2014/06/14/java-object-create-1/"/>
+    <updated>2014-06-14T08:53:49+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/06/14/java-object-create-1</id>
+    <content type="html"><![CDATA[<p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要是简单看一下加载和连接，下一篇文章讲初始化。<br/>
+<img src="/images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
+说明：</p>
+
+<blockquote><p>本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a><br/>
+本文使用是Jdk6u-Hotspot</p></blockquote>
+
+<!--more-->
+
+
+<p>要想了解jvm底层的对象创建过程，还是要首先找到一个入口。new关键字无疑是最先想到的，但是看着这段代码“new Animal()” ,我还是找不到什么有用的信息，于是又想到了另一种方式。自定义classloader。<br/>
+```java
+public class Animal {</p>
+
+<pre><code>String name;
+
+Integer age;
+
+public void run(){
+
+}
+</code></pre>
+
+<p>}
+<code>
+关于自定义classloader 的文章，一搜一大堆，这里就不多说了。我自己定义了一个简单的Classloader。代码：  
+</code>java
+public class ClassLoaderTest extends ClassLoader {</p>
+
+<pre><code>@Override
+protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+    byte[] classBytes = null;
+    try {
+        InputStream is = new FileInputStream(new File(name));
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[256];
+        int length = 0;
+        while((length = is.read(buffer))!=-1){
+            bos.write(buffer, 0, length);
+        }
+        classBytes = bos.toByteArray();
+        bos.close();
+        is.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    if(classBytes==null){
+        throw new ClassNotFoundException("class not found:"+name);
+    }
+    return defineClass(name, classBytes, 0, classBytes.length);
+}
+
+public static void main(String args[]){
+    ClassLoaderTest clt = new ClassLoaderTest();
+    try {
+        Class claszz = clt.loadClass("Animal");
+        Animal animal = (Animal)claszz.newInstance();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre>
+
+<p>}
+<code>
+findClass（） 方法主要是加载class文件,然后调用defineClass（...）。  
+看一下defineClass(...)的代码:  
+</code>java
+protected final Class&lt;?> defineClass(String name, byte[] b, int off, int len,</p>
+
+<pre><code>                                     ProtectionDomain protectionDomain)
+    throws ClassFormatError
+{
+    protectionDomain = preDefineClass(name, protectionDomain);
+
+    Class c = null;
+    String source = defineClassSourceLocation(protectionDomain);
+
+    try {
+        c = defineClass1(name, b, off, len, protectionDomain, source);
+    } catch (ClassFormatError cfe) {
+        c = defineTransformedClass(name, b, off, len, protectionDomain, cfe,
+                                   source);
+    }
+
+    postDefineClass(c, protectionDomain);
+    return c;
+}
+</code></pre>
+
+<p><code>
+第5行：`preDefineClass(name, protectionDomain);`主要是进行一些预处理，比如检查名字是否合法，证书是否正确等等。有兴趣的自己看一下。  
+第11行：`defineClass1(...)`调用了native方法，这个方法位于：/share/native/java/lang/ClassLoader.c中。  
+</code>java
+Java_java_lang_ClassLoader_defineClass1(JNIEnv *env,</p>
+
+<pre><code>                                    jobject loader,
+                                    jstring name,
+                                    jbyteArray data,
+                                    jint offset,
+                                    jint length,
+                                    jobject pd,
+                                    jstring source)
+</code></pre>
+
+<p>{</p>
+
+<pre><code>jbyte *body;
+char *utfName;
+jclass result = 0;
+char buf[128];
+char* utfSource;
+char sourceBuf[1024];
+
+if (data == NULL) {
+    JNU_ThrowNullPointerException(env, 0);
+    return 0;
+}
+</code></pre>
+
+<p> if (length &lt; 0) {</p>
+
+<pre><code>    JNU_ThrowArrayIndexOutOfBoundsException(env, 0);
+    return 0;
+}
+
+body = (jbyte *)malloc(length);
+
+if (body == 0) {
+    JNU_ThrowOutOfMemoryError(env, 0);
+    return 0;
+}
+
+(*env)-&gt;GetByteArrayRegion(env, data, offset, length, body);
+
+if ((*env)-&gt;ExceptionOccurred(env))
+    goto free_body;
+
+if (name != NULL) {
+    utfName = getUTF(env, name, buf, sizeof(buf));
+    if (utfName == NULL) {
+        JNU_ThrowOutOfMemoryError(env, NULL);
+        goto free_body;
+    }
+    VerifyFixClassname(utfName);
+} else {
+    utfName = NULL;
+}
+
+if (source != NULL) {
+    utfSource = getUTF(env, source, sourceBuf, sizeof(sourceBuf));
+    if (utfSource == NULL) {
+        JNU_ThrowOutOfMemoryError(env, NULL);
+        goto free_utfName;
+    }
+} else {
+    utfSource = NULL;
+}
+result = JVM_DefineClassWithSource(env, utfName, loader, body, length, pd, utfSource);
+
+if (utfSource &amp;&amp; utfSource != sourceBuf)
+    free(utfSource);
+</code></pre>
+
+<p> free_utfName:</p>
+
+<pre><code>if (utfName &amp;&amp; utfName != buf)
+    free(utfName);
+</code></pre>
+
+<p> free_body:</p>
+
+<pre><code>free(body);
+return result;
+</code></pre>
+
+<p>}
+<code>
+第33行：`(*env)-&gt;GetByteArrayRegion(env, data, offset, length, body);`把传进来的clas对应的字节数组复制给body。`GetByteArrayRegion`此函数将Java传来的字节数组data，复制offset-&gt;length长度的数据给body。  
+第39行：把name转为UTF格式。  
+第58行：`JVM_DefineClassWithSource(env, utfName, loader, body, length, pd, utfSource);`该方法位于:`/share/vm/prims/jvm.cpp`   
+</code>java
+JVM_ENTRY(jclass, JVM_DefineClassWithSource(JNIEnv <em>env, const char </em>name, jobject loader, const jbyte <em>buf,
+ jsize len, jobject pd, const char </em>source))
+JVMWrapper2(&ldquo;JVM_DefineClassWithSource %s&rdquo;, name);</p>
+
+<p>return jvm_define_class_common(env, name, loader, buf, len, pd, source, true, THREAD);
+JVM_END
+<code>
+调用了`jvm_define_class_common(...) `方法:  
+</code>java
+static jclass jvm_define_class_common(JNIEnv <em>env, const char </em>name,</p>
+
+<pre><code>                                  jobject loader, const jbyte *buf,
+                                  jsize len, jobject pd, const char *source,
+                                  jboolean verify, TRAPS) {
+</code></pre>
+
+<p>  if (source == NULL)  source = &ldquo;<strong>JVM_DefineClass</strong>&rdquo;;</p>
+
+<p>  assert(THREAD->is_Java_thread(), &ldquo;must be a JavaThread&rdquo;);
+  JavaThread<em> jt = (JavaThread</em>) THREAD;</p>
+
+<p>  PerfClassTraceTime vmtimer(ClassLoader::perf_define_appclass_time(),</p>
+
+<pre><code>                         ClassLoader::perf_define_appclass_selftime(),
+                         ClassLoader::perf_define_appclasses(),
+                         jt-&gt;get_thread_stat()-&gt;perf_recursion_counts_addr(),
+                         jt-&gt;get_thread_stat()-&gt;perf_timers_addr(),
+                         PerfClassTraceTime::DEFINE_CLASS);
+</code></pre>
+
+<p>  if (UsePerfData) {</p>
+
+<pre><code>ClassLoader::perf_app_classfile_bytes_read()-&gt;inc(len);
+</code></pre>
+
+<p>  }</p>
+
+<p>  // Since exceptions can be thrown, class initialization can take place
+  // if name is NULL no check for class name in .class stream has to be made.
+  symbolHandle class_name;
+  if (name != NULL) {</p>
+
+<pre><code>const int str_len = (int)strlen(name);
+if (str_len &gt; symbolOopDesc::max_length()) {
+  // It's impossible to create this class;  the name cannot fit
+  // into the constant pool.
+  THROW_MSG_0(vmSymbols::java_lang_NoClassDefFoundError(), name);
+}
+class_name = oopFactory::new_symbol_handle(name, str_len, CHECK_NULL);
+</code></pre>
+
+<p>  }</p>
+
+<p>  ResourceMark rm(THREAD);
+  ClassFileStream st((u1<em>) buf, len, (char </em>)source);
+  Handle class_loader (THREAD, JNIHandles::resolve(loader));
+  if (UsePerfData) {</p>
+
+<pre><code>is_lock_held_by_thread(class_loader,
+                       ClassLoader::sync_JVMDefineClassLockFreeCounter(),
+                       THREAD);
+</code></pre>
+
+<p>  }
+  Handle protection_domain (THREAD, JNIHandles::resolve(pd));
+  klassOop k = SystemDictionary::resolve_from_stream(class_name, class_loader,</p>
+
+<pre><code>                                                 protection_domain, &amp;st,
+                                                 verify != 0,
+                                                 CHECK_NULL);
+</code></pre>
+
+<p>  if (TraceClassResolution &amp;&amp; k != NULL) {</p>
+
+<pre><code>trace_class_resolution(k);
+</code></pre>
+
+<p>  }</p>
+
+<p>  return (jclass) JNIHandles::make_local(env, Klass::cast(k)&ndash;>java_mirror());
+}</p>
+
+<p><code>
+第35行：把传入的字节数组转换为`ClassFileStream `对象，以后所有的class数据的提取，分析，验证，转换等都将依托于该对象，和之前的数组没有关系了。  
+第43行：调用`SystemDictionary::resolve_from_stream(...)`进行class对象的解析工作。该方法位于：`share/vm/classfile/systemDictionary.cpp`  
+看一下这个方法里面的几行主要代码：  
+</code>java
+instanceKlassHandle k = ClassFileParser(st).parseClassFile(class_name,</p>
+
+<pre><code>                                                         class_loader,
+                                                         protection_domain,
+                                                         parsed_name,
+                                                         verify,
+                                                         THREAD);
+</code></pre>
+
+<p><code>
+调用了ClassFileParser的parseClassFile方法，这个方法里面完成Class对象的构建过程。代码位置:`src/share/vm/classfile/classFileParser.cpp`  
+说道这里就要了解一下Class文件的格式了，[Java语言规范](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html)中是这么规定的,其实单讲这个格式也够写一篇文章的，这里不深入，有兴趣的自己网上搜吧。  
+</code>java
+ClassFile {</p>
+
+<pre><code>u4             magic;
+u2             minor_version;
+u2             major_version;
+u2             constant_pool_count;
+cp_info        constant_pool[constant_pool_count-1];
+u2             access_flags;
+u2             this_class;
+u2             super_class;
+u2             interfaces_count;
+u2             interfaces[interfaces_count];
+u2             fields_count;
+field_info     fields[fields_count];
+u2             methods_count;
+method_info    methods[methods_count];
+u2             attributes_count;
+attribute_info attributes[attributes_count];
+</code></pre>
+
+<p>}
+<code>
+再回到parseClassFile方法：  
+</code>java
+u4 magic = cfs->get_u4_fast();
+  guarantee_property(magic == JAVA_CLASSFILE_MAGIC,</p>
+
+<pre><code>                 "Incompatible magic value %u in class file %s",
+                 magic, CHECK_(nullHandle));
+</code></pre>
+
+<p><code>
+对照上面的Class格式规范，首先获取magic标识(4字节)，然后判断它是不是等于CAFEBABE，如果不等于，则说明不是一个正确的Class文件格式。  
+</code>java
+// Version numbers
+  u2 minor_version = cfs->get_u2_fast();
+  u2 major_version = cfs->get_u2_fast();
+  if (!is_supported_version(major_version, minor_version)) {</p>
+
+<pre><code>if (name.is_null()) {
+  Exceptions::fthrow(
+    THREAD_AND_LOCATION,
+    vmSymbolHandles::java_lang_UnsupportedClassVersionError(),
+    "Unsupported major.minor version %u.%u",
+    major_version,
+    minor_version);
+} else {
+  ResourceMark rm(THREAD);
+  Exceptions::fthrow(
+    THREAD_AND_LOCATION,
+    vmSymbolHandles::java_lang_UnsupportedClassVersionError(),
+    "%s : Unsupported major.minor version %u.%u",
+    name-&gt;as_C_string(),
+    major_version,
+    minor_version);
+}
+return nullHandle;
+</code></pre>
+
+<p>  }</p>
+
+<p><code>
+获得Class文件的版本号，分为主版本号和次版本号。然后判断当前的JVM版本支不支持此版本的Class文件的解析。  
+接下来就是常量池了，每一个Class对象里面都有一个对应的常量池(ConstantPoolOop)对象，用来存放Class中的常量。看一下`ClassFileParser::parse_constant_pool(.)`中的部分代码。   
+</code>java
+parse_constant_pool_entries(cp, length, CHECK_(nullHandle));
+<code>
+调用parse_constant_pool_entries(...)对象来创建常量池项：  
+看一下` ClassFileParser::parse_constant_pool_entries(constantPoolHandle cp, int length, TRAPS)`中的部分代码：  
+</code>java
+case JVM_CONSTANT_Class :</p>
+
+<pre><code>    {
+      cfs-&gt;guarantee_more(3, CHECK);  // name_index, tag/access_flags
+      u2 name_index = cfs-&gt;get_u2_fast();
+      cp-&gt;klass_index_at_put(index, name_index);
+    }
+    break;
+</code></pre>
+
+<p><code>
+常量池对象constantPoolOop使用一个`typeArrayOop`来存储常量池项，回到上面的代码，首先判断剩余的字节数是否满足一个`JVM_CONSTANT_Class`要求的字节数(通过Class文件规范可知是3),然后是获得u2长度的字节数作为name的真实值在常量池中对应的index(Animal的常量池可以参考[Animal常量池](https://gist.github.com/zarue/0d5f83fa8458a9298b9d#file-3-animal-javap))。  
+再来看一个：  
+</code>java
+case JVM_CONSTANT_Utf8 :</p>
+
+<pre><code>    {
+      cfs-&gt;guarantee_more(2, CHECK);  // utf8_length
+      u2  utf8_length = cfs-&gt;get_u2_fast();
+      u1* utf8_buffer = cfs-&gt;get_u1_buffer();
+      assert(utf8_buffer != NULL, "null utf8 buffer");
+      // Got utf8 string, guarantee utf8_length+1 bytes, set stream position forward.
+      cfs-&gt;guarantee_more(utf8_length+1, CHECK);  // utf8 string, tag/access_flags
+      cfs-&gt;skip_u1_fast(utf8_length);
+
+      // Before storing the symbol, make sure it's legal
+      if (_need_verify) {
+        verify_legal_utf8((unsigned char*)utf8_buffer, utf8_length, CHECK);
+      }
+
+      if (AnonymousClasses &amp;&amp; has_cp_patch_at(index)) {
+        Handle patch = clear_cp_patch_at(index);
+        guarantee_property(java_lang_String::is_instance(patch()),
+                           "Illegal utf8 patch at %d in class file %s",
+                           index, CHECK);
+        char* str = java_lang_String::as_utf8_string(patch());
+        // (could use java_lang_String::as_symbol instead, but might as well batch them)
+        utf8_buffer = (u1*) str;
+        utf8_length = (int) strlen(str);
+      }
+
+      unsigned int hash;
+      symbolOop result = SymbolTable::lookup_only((char*)utf8_buffer, utf8_length, hash);
+      if (result == NULL) {
+        names[names_count] = (char*)utf8_buffer;
+        lengths[names_count] = utf8_length;
+        indices[names_count] = index;
+        hashValues[names_count++] = hash;
+        if (names_count == SymbolTable::symbol_alloc_batch_size) {
+          oopFactory::new_symbols(cp, names_count, names, lengths, indices, hashValues, CHECK);
+          names_count = 0;
+        }
+      } else {
+        cp-&gt;symbol_at_put(index, result);
+      }
+    }
+    break;
+</code></pre>
+
+<p><code>
+这是Utf-8类型常量的处理方式，首先检查`SymbolTable`中是否存在该字符串，如果存在就返回已经存在的字符串对象。如果不存在，首先调用`oopFactory::new_symbols(...)`创建一个symbol对象，然后将它加入到SymbolTable中。这样就保证了同样的符号在jvm中仅仅会存在一个对象，可以大大节省存储空间。这里和之前讲的字符串池是一样的处理方式。   
+常量池项解析完成之后，我们回到`ClassFileParser::parse_constant_pool(.)`方法，接下来是对转换完成的常量池项进行检查，如果全部检查通过，则返回该常量池对象。  
+然后再回到`ClassFileParser::parseClassFile(...)`方法。  
+接下来会接着解析`access_flag`,`this_class`,`super_class`等项,具体看源代码即可。
+全都解析，验证完了之后，会创建一个描述这个类的对象即:instanceKlass来存储上面解析出来的各个项。instanceKlass的结构如下：  
+</code>java</p>
+
+<pre><code>instanceKlass layout:
+[header                     ] klassOop
+[klass pointer              ] klassOop
+[C++ vtbl pointer           ] Klass
+[subtype cache              ] Klass
+[instance size              ] Klass
+[java mirror                ] Klass
+[super                      ] Klass
+[access_flags               ] Klass
+[name                       ] Klass
+[first subklass             ] Klass
+[next sibling               ] Klass
+[array klasses              ]
+[methods                    ]
+[local interfaces           ]
+[transitive interfaces      ]
+[number of implementors     ]
+[implementors               ] klassOop[2]
+[fields                     ]
+[constants                  ]
+[class loader               ]
+[protection domain          ]
+[signers                    ]
+[source file name           ]
+[inner classes              ]
+[static field size          ]
+[nonstatic field size       ]
+[static oop fields size     ]
+[nonstatic oop maps size    ]
+[has finalize method        ]
+[deoptimization mark bit    ]
+[initialization state       ]
+[initializing thread        ]
+[Java vtable length         ]
+[oop map cache (stack maps) ]
+[EMBEDDED Java vtable             ] size in words = vtable_len
+[EMBEDDED static oop fields       ] size in words = static_oop_fields_size
+[         static non-oop fields   ] size in words = static_field_size - static_oop_fields_size
+[EMBEDDED nonstatic oop-map blocks] size in words = nonstatic_oop_map_size
+</code></pre>
+
+<p><code>
+然后是初始化静态变量(准备阶段):  
+</code>java
+ // Initialize static fields</p>
+
+<pre><code>this_klass-&gt;do_local_static_fields(&amp;initialize_static_field, CHECK_(nullHandle));
+</code></pre>
+
+<p><code>``
+然后是一系验证，验证通过之后返回该对象。  
+最后再回到</code>jvm_define_class_common(..)<code>方法，看如下代码:  
+</code>(jclass) JNIHandles::make_local(env, Klass::cast(k)&ndash;>java_mirror());`<br/>
+首先是把klassOop 转为Klass 对象，然后加入到当前线程中，然后转换为class对象返回。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 String 常量池 二]]></title>
+    <link href="http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2/"/>
+    <updated>2014-05-29T20:58:21+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2</id>
+    <content type="html"><![CDATA[<p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
+做任何事情都要首先找一个入口。我们怎么才能找到常量池的入口呢？<br/>
+我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
+先看String 的intern的源代码:<br/>
+<code>java
+public native String intern();
+</code>
+这是一个native 方法，也就是这个方法不是用java实现的，要找到这个native 方法就要去<a href="http://openjdk.java.net/">JDK的源代码</a>中查找，它位于<code>openjdk/jdk/src/share/native/java/lang</code>目录中的<code>String.c</code>中。这个目录下还有许多其他java类中对应的native方法的实现，例如object类中的<code>hashCode</code>,<code>getClass</code>,<code>clone</code>等方法都在<code>Object.c</code>里面。 <br/>
+String.c 中只有一个方法：<br/>
+```java</p>
+
+<h1>include &ldquo;jvm.h&rdquo;</h1>
+
+<h1>include &ldquo;java_lang_String.h&rdquo;</h1>
+
+<p>JNIEXPORT jobject JNICALL
+Java_java_lang_String_intern(JNIEnv *env, jobject this)
+{
+return JVM_InternString(env, this);
+}
+```</p>
+
+<!--more-->
+
+
+<p><code>Java_java_lang_String_intern</code> 就是String类intern 对应的native方法,然而<code>Java_java_lang_String_intern</code> 只是调用了<code>JVM_InternString</code>这个方法。<br/>
+那么这个方法又在哪呢？<br/>
+根据经验我们发现<code>String.c</code> 引入了<code>jvm.h</code>，去<code>jvm.h</code>中去看一下。<code>jvm.h</code> 位于<code>openjdk/jdk/src/share/javavm/export</code> 下面，<code>jvm.h</code>中正好定义了我们要找的<code>JVM_InternString</code><br/>
+<code>java
+/*
+* java.lang.String
+* */
+JNIEXPORT jstring JNICALL
+JVM_InternString(JNIEnv *env, jstring str);
+</code><br/>
+这里只是定义,我们继续找这个定义对应的实现方法。相关实现在<code>jvm.cpp</code>中,<code>jvm.cpp</code> 位于：<code>openjdk/hotspot/src/share/vm/prims</code> 目录中。<code>jvm.cpp</code> 中<code>JVM_InternString</code>的具体实现如下:<br/>
+<code>java
+JVM_ENTRY(jstring, JVM_InternString(JNIEnv *env, jstring str))
+JVMWrapper("JVM_InternString");
+JvmtiVMObjectAllocEventCollector oam;
+if (str == NULL) return NULL;
+oop string = JNIHandles::resolve_non_null(str);
+oop result = StringTable::intern(string, CHECK_NULL);
+return (jstring) JNIHandles::make_local(env, result);
+JVM_END
+</code>
+从上面的代码我们可以看出，实际上<code>JVM_InternString</code> 又调用了<code>StringTable</code> 的 <code>intern</code> 方法。<code>StringTable</code> 是在<code>symbolTable.hpp</code>  中被声明的，代码：<br/>
+<code>java
+class StringTable : public Hashtable&lt;oop, mtSymbol&gt; {
+  friend class VMStructs;
+private:
+  // The string table
+  static StringTable* _the_table;
+.......
+</code>
+我们先简单看一下<code>StringTable</code>这个类： <br/>
+1.  继承了Hashtable&lt;oop, mtSymbol>，在Hashtable中，字符串被包装成HashtableEntry对象存储，同时为了解决hash碰撞的问题，HashtableEntry对象被设计为链表结构。最后HashTable使用数组_buckets来存储这些HashtableEntry。 <br/>
+2. <code>static StringTable* _the_table</code> : StringTable的实例变量,在<code>create_table()</code> 中被实例化。<br/>
+3. <code>lookup(...)</code>: 用来查找常量池中是否包含某个实例。<br/>
+4. <code>basic_add(...)</code>: 往常量池中添加新实例。<br/>
+5. <code>intern(...)</code>: 判断常量池中是否有某个实例，有则返回该实例，没有则调用<code>basic_add</code> 添加。</p>
+
+<p>看一下intern方法:<br/>
+```java</p>
+
+<p>oop StringTable::intern(Handle string_or_null, jchar* name,</p>
+
+<pre><code>                    int len, TRAPS) {
+</code></pre>
+
+<p>  unsigned int hashValue = hash_string(name, len);
+  int index = the_table()&ndash;>hash_to_index(hashValue);
+  oop string = the_table()&ndash;>lookup(index, name, len, hashValue);</p>
+
+<p>  // Found
+  if (string != NULL) return string;</p>
+
+<p>  // Otherwise, add to symbol to table
+  return the_table()&ndash;>basic_add(index, string_or_null, name, len,</p>
+
+<pre><code>                            hashValue, CHECK_NULL);
+</code></pre>
+
+<p>}
+<code>
+第3行:首先调用hash_string()计算字符串的hash值。hash值计算规则:`s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]` 例如：`“a”.hashCode() = 97`。代码:  
+</code>java
+int StringTable::hash_string(jchar* s, int len) {
+  unsigned h = 0;
+  while (len&mdash; > 0) {</p>
+
+<pre><code>h = 31*h + (unsigned) *s;
+s++;
+</code></pre>
+
+<p>  }
+  return h;
+}
+<code>
+第4行:把hash值转换为数组的下标。转换规则：`hash % table_size`。代码:  
+</code>java
+int hash_to_index(unsigned int full_hash) {</p>
+
+<pre><code>int h = full_hash % _table_size;
+assert(h &gt;= 0 &amp;&amp; h &lt; _table_size, "Illegal hash value");
+return h;
+</code></pre>
+
+<p>  }
+<code>
+第5行:检查该字符串是否存在，如果存在，就返回。代码:
+</code>java
+oop StringTable::lookup(int index, jchar* name,</p>
+
+<pre><code>                    int len, unsigned int hash) {
+</code></pre>
+
+<p>  for (HashtableEntry* l = bucket(index); l != NULL; l = l->next()) {</p>
+
+<pre><code>if (l-&gt;hash() == hash) {
+  if (java_lang_String::equals(l-&gt;literal(), name, len)) {
+    return l-&gt;literal();
+  }
+}
+</code></pre>
+
+<p>  }
+  return NULL;
+}
+```
+说明:<br/>
+1.首先从数组_buckets获得当前下标对应的HashtableEntry。 <br/>
+2.判断该entry的hash值和字符串值是否都相等(是不是很眼熟)，如果都相等则返回该entry中存储的字符串对象。<br/>
+3.如果(2)条件不成立则继续循环next entry。</p>
+
+<p>第11行:调用StringTable的<code>basic_add(...)</code>方法将字符串添加到常量池。代码:<br/>
+```java
+oop StringTable::basic_add(int index, Handle string_or_null, jchar* name,</p>
+
+<pre><code>                       int len, unsigned int hashValue, TRAPS) {
+</code></pre>
+
+<p>  debug_only(StableMemoryChecker smc(name, len * sizeof(name[0])));
+  assert(!Universe::heap()&ndash;>is_in_reserved(name) || GC_locker::is_active(),</p>
+
+<pre><code>     "proposed name of symbol must be stable");
+</code></pre>
+
+<p>  Handle string;
+  // try to reuse the string if possible
+  if (!string_or_null.is_null() &amp;&amp; string_or_null()&ndash;>is_perm()) {</p>
+
+<pre><code>string = string_or_null;
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>string = java_lang_String::create_tenured_from_unicode(name, len, CHECK_NULL);
+</code></pre>
+
+<p>  }</p>
+
+<p>  // Allocation must be done before grapping the SymbolTable_lock lock
+  MutexLocker ml(StringTable_lock, THREAD);</p>
+
+<p>  assert(java_lang_String::equals(string(), name, len),</p>
+
+<pre><code>     "string must be properly initialized");
+</code></pre>
+
+<p>  // Since look-up was done lock-free, we need to check if another
+  // thread beat us in the race to insert the symbol.</p>
+
+<p>  oop test = lookup(index, name, len, hashValue); // calls lookup(u1*, int)
+  if (test != NULL) {</p>
+
+<pre><code>// Entry already added
+return test;
+</code></pre>
+
+<p>  }</p>
+
+<p>  HashtableEntry* entry = new_entry(hashValue, string());
+  add_entry(index, entry);
+  return string();
+}
+```</p>
+
+<p>第12行:创建一个String对象,创建过程可以参考<code>openjdk/hotspot/src/share/vm/classfile/javaClasses.cpp</code>中<code>java_lang_String</code>类的<code>create_tenured_from_unicode</code>方法。后面要单独讲对象的创建过程，这里就不展开了，后面文章写完了，会把链接贴过来。<br/>
+第30行:创建一个HashtableEntry对象。<br/>
+第31行: 将新创建的Sting对象添加到常量池<code>_buckets</code>中。代码:<br/>
+<code>java
+inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
+  entry-&gt;set_next(bucket(index));
+  _buckets[index].set_entry(entry);
+  ++_number_of_entries;
+}
+</code>
+说明:<br/>
+1.首先从<code>_buckets</code>数组获得index位置的HashtableEntry 记为oldEntry。 <br/>
+2.将oldEntry设置为entry的<code>_next</code>(HashtableEntry设计为链表结构,就是用在这里)<br/>
+3.将entry设置到_buckets的index位置</p>
+
+<h3>总结:</h3>
+
+<p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象不会被垃圾收集器回收掉。<br/>
+Hashtable 的结构看起来应该是这样的：<br/>
+<img src="/images/blog/2014-06/20140602-hashtable.png" alt="Hasttable" /></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[JVM 之 String 常量池 一]]></title>
+    <link href="http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1/"/>
+    <updated>2014-05-27T20:30:20+08:00</updated>
+    <id>http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1</id>
+    <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
+
+<p>JAVA里面创建字符串有两种方式：<br/>
+1. 通过字符串常量方式:String a = &ldquo;a&rdquo;;<br/>
+2. 通过new 关键字创建:new String(&ldquo;a&rdquo;);</p>
+
+<p>但是这两种创建字符串的方式有很大的不同。<br/>
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br/>
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。</p>
+
+<h4>2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+
+<!--more-->
+
+
+<p>```java
+public class StringConstantTest {</p>
+
+<pre><code>public static String str_0_static = "a";
+public String str_0 = "a";
+
+public static void main(String args[]){
+
+    StringConstantTest sct = new StringConstantTest();
+    //同package对象
+    StringConstantTest1 sct1 = new StringConstantTest1();
+    //不同package对象
+    StringConstantTest2 sct2 = new StringConstantTest2();
+
+    String str0 = "a";
+    String str1 = "b";
+    String str2 = "ab";
+    String str3 = "a"+"b";
+    String str4 = str0 + str1;
+    String str5 = str0 + "b";
+    String str6 = new String("ab");
+    String str7 = new String("ab");
+    String str8 = new String(str4);
+
+    //局部变量和成员变量
+    System.out.println("str0==sct.str_0: "+(str0 == sct.str_0));
+    System.out.println("str0==sct1.str_0: "+(str0 == sct1.str_0));
+    System.out.println("str0==sct2.str_0: "+(str0 == sct2.str_0));
+
+    //局部变量和静态变量
+    System.out.println("str0==str_0_static： "+(str0 == str_0_static));
+    System.out.println("str0==StringConstantTest1.str_0_static: "+(str0 == StringConstantTest1.str_0_static));
+    System.out.println("str0==StringConstantTest2.str_0_static: "+(str0 == StringConstantTest2.str_0_static));
+
+    //局部变量
+    System.out.println("str2==str3: "+(str2 == str3));
+    System.out.println("str2==str4: "+(str2 == str4));
+    System.out.println("str2==str5: "+(str2 == str5));
+
+    //局部变量和对象
+    System.out.println("str2==str6: "+(str2 == str6));
+    System.out.println("str2==str7: "+(str2 == str7));
+    System.out.println("str2==str8: "+(str2 == str8));
+
+    //对象和对象 intern
+    System.out.println("str2==str6.intern(): "+(str2 == str6.intern()));
+    System.out.println("str7.intern()==str6.intern(): "+(str7.intern() == str6.intern()));
+    System.out.println("str8.intern()==str6.intern(): "+(str8.intern() == str6.intern()));
+
+    //对象和对象equals
+    System.out.println("str6.equals(str7): "+str6.equals(str7));
+    System.out.println("str2.equals(str6): "+str2.equals(str6));
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class StringConstantTest1 {</p>
+
+<pre><code>public String str_0 = "a";
+public static String str_0_static = "a";
+</code></pre>
+
+<p>}
+```</p>
+
+<p><img src="/images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
+
+<h4>分析(下面所指行号均为源代码行号):</h4>
+
+<ol>
+<li><p><strong>24-31</strong>行的结果说明:<br/>
+只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。</p></li>
+<li><p><strong>34</strong>行为true, 是因为:<br/>
+String str3 = &ldquo;a&rdquo;+&ldquo;b&rdquo;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &ldquo;ab"。<br/>
+可以通过javap 反编译class字节码来看一下:<br/>
+<code>
+30: astore 5
+32: ldc #35 // String ab
+34: astore 6
+36: ldc #35 // String ab
+</code>
+上面第36行就是<code>String str3 = "a"+"b";</code>对应的字节码。这里可以看出"a&rdquo;+&ldquo;b"已经被优化为"ab"了。</p></li>
+<li><p><strong>35</strong>行为false, 是因为:<br/>
+String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br/>
+再看一下字节码文件:</p></li>
+</ol>
+
+
+<p><code>
+40: new #37 // class java/lang/StringBuilder
+43: dup
+44: aload 4
+46: invokestatic #39 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+49: invokespecial #45 // Method java/lang/StringBuilder."&lt;init&gt;":(Ljava/lang/String;)V
+52: aload 5
+54: invokevirtual #48 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+57: invokevirtual #52 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+60: astore 8
+</code>
+由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:<br/>
+<code>
+StringBuilder sb = new Stringbuilder(str0);  
+sb.append(str1);  
+sb.toString();  
+</code>
+再看一下StringBuilder的toString()方法:<br/>
+<code>
+public String toString() {
+// Create a copy, don't share the array
+return new String(value, 0, count);
+}
+</code>
+由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。</p>
+
+<ol>
+<li><strong>39-41</strong>行为false: 是因为:<br/>
+str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。</li>
+<li><p><strong>44-46</strong>行为true: 是因为:<br/>
+当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。</p></li>
+<li><p><strong>49-50</strong>行为true: 是因为:<br/>
+String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br/>
+看一下String的equals方法:<br/>
+<code>
+public boolean equals(Object anObject) {
+     if (this == anObject) {
+         return true;
+     }
+     if (anObject instanceof String) {
+         String anotherString = (String) anObject;
+         int n = value.length;
+         if (n == anotherString.value.length) {
+             char v1[] = value;
+             char v2[] = anotherString.value;
+             int i = 0;
+             while (n-- != 0) {
+                 if (v1[i] != v2[i])
+                         return false;
+                 i++;
+             }
+             return true;
+         }
+     }
+     return false;
+ }
+</code></p></li>
+</ol>
+
+
+<h5>下一节<a href="/blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
+]]></content>
+  </entry>
+  
+</feed>
