@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: java | YungHua.Ma]]></title>
-  <link href="http://blog.zarue.com//blog/categories/java/atom.xml" rel="self"/>
-  <link href="http://blog.zarue.com//"/>
-  <updated>2015-06-18T17:23:47+08:00</updated>
-  <id>http://blog.zarue.com//</id>
+  <title><![CDATA[Category: java | Hello Code]]></title>
+  <link href="http://mallven.com//blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://mallven.com//"/>
+  <updated>2015-06-18T21:02:36+08:00</updated>
+  <id>http://mallven.com//</id>
   <author>
-    <name><![CDATA[YungHua.Ma]]></name>
+    <name><![CDATA[Mallven]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[How HashMap Works]]></title>
-    <link href="http://blog.zarue.com//blog/2015/03/16/how-hashmap-works/"/>
+    <link href="http://mallven.com//blog/2015/03/16/how-hashmap-works/"/>
     <updated>2015-03-16T13:57:42+08:00</updated>
-    <id>http://blog.zarue.com//blog/2015/03/16/how-hashmap-works</id>
+    <id>http://mallven.com//blog/2015/03/16/how-hashmap-works</id>
     <content type="html"><![CDATA[<h3>1.The Structure Of HashMap</h3>
 
 <p>As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).</p>

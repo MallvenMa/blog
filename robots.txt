@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://blog.zarue.com//sitemap.xml 
+Sitemap: http://mallven.com//sitemap.xml 

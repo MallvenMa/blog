@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: jvm | YungHua.Ma]]></title>
-  <link href="http://blog.zarue.com//blog/categories/jvm/atom.xml" rel="self"/>
-  <link href="http://blog.zarue.com//"/>
-  <updated>2015-06-18T17:23:47+08:00</updated>
-  <id>http://blog.zarue.com//</id>
+  <title><![CDATA[Category: jvm | Hello Code]]></title>
+  <link href="http://mallven.com//blog/categories/jvm/atom.xml" rel="self"/>
+  <link href="http://mallven.com//"/>
+  <updated>2015-06-18T21:02:36+08:00</updated>
+  <id>http://mallven.com//</id>
   <author>
-    <name><![CDATA[YungHua.Ma]]></name>
+    <name><![CDATA[Mallven]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[netbeans debug hotspot]]></title>
-    <link href="http://blog.zarue.com//blog/2014/06/21/netbeans-debug-hotspot/"/>
+    <link href="http://mallven.com//blog/2014/06/21/netbeans-debug-hotspot/"/>
     <updated>2014-06-21T18:02:59+08:00</updated>
-    <id>http://blog.zarue.com//blog/2014/06/21/netbeans-debug-hotspot</id>
+    <id>http://mallven.com//blog/2014/06/21/netbeans-debug-hotspot</id>
     <content type="html"><![CDATA[<p>学习JVM的过程中肯定不能少了对JVM的调试，进行就学习一下怎样用Netbeans调试Hotspot。</p>
 
 <h4>编译过程</h4>
@@ -128,9 +128,9 @@ CLASSPATH=${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar:/home/cheney
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[初始化]]]></title>
-    <link href="http://blog.zarue.com//blog/2014/06/15/java-object-create-2/"/>
+    <link href="http://mallven.com//blog/2014/06/15/java-object-create-2/"/>
     <updated>2014-06-15T10:01:00+08:00</updated>
-    <id>http://blog.zarue.com//blog/2014/06/15/java-object-create-2</id>
+    <id>http://mallven.com//blog/2014/06/15/java-object-create-2</id>
     <content type="html"><![CDATA[<p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
 还是使用上文的例子:<br/>
 <code>java
@@ -510,9 +510,9 @@ Java对象初始化并分配内存的过程基本就是这样了。这个过程�
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[加载和连接]]]></title>
-    <link href="http://blog.zarue.com//blog/2014/06/14/java-object-create-1/"/>
+    <link href="http://mallven.com//blog/2014/06/14/java-object-create-1/"/>
     <updated>2014-06-14T08:53:49+08:00</updated>
-    <id>http://blog.zarue.com//blog/2014/06/14/java-object-create-1</id>
+    <id>http://mallven.com//blog/2014/06/14/java-object-create-1</id>
     <content type="html"><![CDATA[<p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要是简单看一下加载和连接，下一篇文章讲初始化。<br/>
 <img src="/images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
 说明：</p>
@@ -991,9 +991,9 @@ case JVM_CONSTANT_Utf8 :</p>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 二]]></title>
-    <link href="http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2/"/>
+    <link href="http://mallven.com//blog/2014/05/29/runtime-string-pool-2/"/>
     <updated>2014-05-29T20:58:21+08:00</updated>
-    <id>http://blog.zarue.com//blog/2014/05/29/runtime-string-pool-2</id>
+    <id>http://mallven.com//blog/2014/05/29/runtime-string-pool-2</id>
     <content type="html"><![CDATA[<p>上一篇文章<a href="/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
 做任何事情都要首先找一个入口。我们怎么才能找到常量池的入口呢？<br/>
 我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
@@ -1207,9 +1207,9 @@ Hashtable 的结构看起来应该是这样的：<br/>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 一]]></title>
-    <link href="http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1/"/>
+    <link href="http://mallven.com//blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
-    <id>http://blog.zarue.com//blog/2014/05/27/runtime-string-pool-1</id>
+    <id>http://mallven.com//blog/2014/05/27/runtime-string-pool-1</id>
     <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
 
 <p>JAVA里面创建字符串有两种方式：<br/>
