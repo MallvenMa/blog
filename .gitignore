@@ -11,3 +11,4 @@ source/_stash
 vendor
 node_modules
 *.lock
+*.swp
