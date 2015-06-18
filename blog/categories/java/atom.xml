@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: java | YungHua.Ma]]></title>
+  <link href="http://blog.zarue.com//blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://blog.zarue.com//"/>
+  <updated>2015-06-18T15:50:56+08:00</updated>
+  <id>http://blog.zarue.com//</id>
+  <author>
+    <name><![CDATA[YungHua.Ma]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How HashMap Works]]></title>
+    <link href="http://blog.zarue.com//blog/2015/03/16/how-hashmap-works/"/>
+    <updated>2015-03-16T13:57:42+08:00</updated>
+    <id>http://blog.zarue.com//blog/2015/03/16/how-hashmap-works</id>
+    <content type="html"><![CDATA[<h3>1.The Structure Of HashMap</h3>
+
+<p>As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).</p>
+
+<p><img src="/images/blog/2015-03/20150316-hashmap-structure.png" alt="HashMap Structure" /></p>
+
+<!--more-->
+
+
+<p>When we put a new item to a HashMap, First of all, HashMap will use hash algorithm to calculate the hashcode of the given key. Then use this hashcode to mod the capacity of the array to get the index of the array which will store the reference of this object. If the space of this index was already used by other object, HashMap will use linklist structure to store these object, the new one will be added before to the old one, And the  first one&rsquo;s reference is stored in this specified index of the array.</p>
+
+<p>fragments of HashMap source code<br/>
+Array:<br/>
+<code>java
+ transient Entry&lt;K,V&gt;[] table = (Entry&lt;K,V&gt;[]) EMPTY_TABLE;
+</code></p>
+
+<p>LinkList Node:</p>
+
+<p>```java
+ Entry(int h, K k, V v, Entry&lt;K,V> n) {</p>
+
+<pre><code>      value = v;
+      next = n;//point to the next entry 
+      key = k;
+      hash = h;
+</code></pre>
+
+<p>   }
+```</p>
+
+<h3>2.How hash function find the bucket location of the given key</h3>
+
+<p>From figure 1 ,we can know that If we want to find an object from HashMap,we must use the hashcode of the key to find the bucket’s location in the entry array.This is how HashMap in Java does:<br/>
+```java
+static int indexFor(int h, int length) {</p>
+
+<pre><code>    // assert Integer.bitCount(length) == 1 : "length must be a non-zero power of 2";
+    return h &amp; (length-1);
+</code></pre>
+
+<p> }
+```
+h &amp; (length-1) means h mod (length-1), but bits operation is more efficient than mod operation.<br/>
+but we notice that there is a line of comment “length must be a non-zero power of 2”,why power of 2? and why (length-1) not length.</p>
+
+<h4>2.1  why is length-1?</h4>
+
+<p>Okay, because h &amp; (length-1) equals h % length.</p>
+
+<h4>2.2  why the length must be power of 2</h4>
+
+<p>If we want to get a value from HashMap efficiently,the ideal situation is that every bucket only has one entry,so we can get the object directly without  traversing the linklist.  So we need the value are stored in the array evenly. But how HashMap make a hashcode evenly? The implementation in Java:</p>
+
+<h5>1.First,choose a suitable length to hash table array:</h5>
+
+<p>We will do a contrast experiment to find the advantange of using the power of 2 as the length of array.</p>
+
+<p>condition 1 : <code>length = 2^4 = 16, hash = 13 or hash = 12</code></p>
+
+<p><img src="/images/blog/2015-03/20150316-hashmap-hash-to-index-1.png" alt="contrast experiment" /></p>
+
+<p>condition 2 : <code>length = 15, hash = 13 or hash = 12</code></p>
+
+<p><img src="/images/blog/2015-03/20150316-hashmap-hash-to-index-2.png" alt="contrast experiment" /></p>
+
+<p>From figure 2 we can find that when we use 15 as the length of array hash=13 and hash=12 will get the same index=12, this is hash collision, beacuse if we use 2<sup>N</sup> as the length, we can guarantee length-1 has more 1 bits data in the binary representation than no use 2<sup>N</sup> as the length. So use power of 2 as length can reduce hash collision between two different hashcode.</p>
+
+<h5>2.Second : bit shift</h5>
+
+<p><code>java
+h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);
+return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);
+</code>
+These two lines  can ensure that every change of bit of hashcode can affect the final result of bucket index calculating.</p>
+]]></content>
+  </entry>
+  
+</feed>
