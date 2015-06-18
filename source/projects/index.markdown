@@ -7,22 +7,22 @@ sharing: true
 footer: true
 ---
 >####LnMoGoo (A android app that can protect your phone from stolen)
->GitHub:  [View code and details in GitHub](https://github.com/zarue/lnmogoo)
+>GitHub:  [show details on GitHub](https://github.com/zarue/lnmogoo)
 >
 
 ----
 >####Ituer (A android app that can learn how to handle image)
->GitHub:   [View code and details in GitHub](https://github.com/zarue/Ituer)
+>GitHub:   [show details on GitHub](https://github.com/zarue/Ituer)
 
 ----
 >####EnglishEveryDay (A android app that can learn how to handle audio)
->GitHub:  [View code and details in GitHub](https://github.com/zarue/englisheveryday)
+>GitHub:  [show details on GitHub](https://github.com/zarue/englisheveryday)
 
 ----
 >####DiandiReader (A android app that can learn how to handle text)
->GitHub:  [View code and details in GitHub](https://github.com/zarue/DiandiReader)
+>GitHub:  [show details on GitHub](https://github.com/zarue/DiandiReader)
 
 
 ----
 >####z-calendar (This is an imitation of google calendar)(js/css)
->GitHub:  [View code and details in GitHub](https://github.com/zarue/z-calendar)
+>GitHub:  [show details on GitHub](https://github.com/zarue/z-calendar)
