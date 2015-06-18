@@ -9,7 +9,10 @@ description: How HashMap Works
 ---
 ###1.The Structure Of HashMap
 As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).   
- 
+
+![HashMap Structure][1]   
+
+<!--more-->
 When we put a new item to a HashMap, First of all, HashMap will use hash algorithm to calculate the hashcode of the given key. Then use this hashcode to mod the capacity of the array to get the index of the array which will store the reference of this object. If the space of this index was already used by other object, HashMap will use linklist structure to store these object, the new one will be added before to the old one, And the  first one's reference is stored in this specified index of the array.  
 
 fragments of HashMap source code  
@@ -41,21 +44,38 @@ static int indexFor(int h, int length) {
 h & (length-1) means h mod (length-1), but bits operation is more efficient than mod operation.  
 but we notice that there is a line of comment “length must be a non-zero power of 2”,why power of 2? and why (length-1) not length.  
 ####2.1  why is length-1?
-Okey,because h & (length-1) equals h % length.  
+Okay, because h & (length-1) equals h % length.  
 ####2.2  why the length must be power of 2
 If we want to get a value from HashMap efficiently,the ideal situation is that every bucket only has one entry,so we can get the object directly without  traversing the linklist.  So we need the value are stored in the array evenly. But how HashMap make a hashcode evenly? The implementation in Java:  
 
-#####1.First,choose the suitable length of array:  
-We will do a contrast experiment to see the advantange of using the power of2 as the length of array.  
- 
+#####1.First,choose a suitable length to hash table array:  
+We will do a contrast experiment to find the advantange of using the power of 2 as the length of array.   
 
-From figure 2 we can find that use power of 2 as length can reduce the collision between two different hashcode.  
-Second:  
+condition 1 : `length = 2^4 = 16, hash = 13 or hash = 12`  
+ 
+![contrast experiment][2]  
+
+condition 2 : `length = 15, hash = 13 or hash = 12`  
+
+![contrast experiment][3]   
+
+From figure 2 we can find that when we use 15 as the length of array hash=13 and hash=12 will get the same index=12, this is hash collision, beacuse if we use 2^N as the length, we can guarantee length-1 has more 1 bits data in the binary representation than no use 2^N as the length. So use power of 2 as length can reduce hash collision between two different hashcode.  
+#####2.Second : bit shift  
 ```java
 h ^= (h >>> 20) ^ (h >>> 12);
 return h ^ (h >>> 7) ^ (h >>> 4);
 ```
-These two line codes can  make the hashcode disperse more evenly.  
+These two lines  can ensure that every change of bit of hashcode can affect the final result of bucket index calculating.  
 
 
 
+
+
+
+
+
+
+
+[1]:/images/blog/2015-03/20150316-hashmap-structure.png
+[2]:/images/blog/2015-03/20150316-hashmap-hash-to-index-1.png
+[3]:/images/blog/2015-03/20150316-hashmap-hash-to-index-2.png
