@@ -7,7 +7,7 @@ categories: java
 keywords: HashMap,Source
 description: How HashMap Works
 ---
-###1.The Structure Of HashMap
+###1.The Structure of HashMap
 As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).   
 
 ![HashMap Structure][1]   
