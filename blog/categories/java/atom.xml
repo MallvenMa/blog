@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Hello Code]]></title>
   <link href="http://mallven.com//blog/categories/java/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-06-18T21:18:49+08:00</updated>
+  <updated>2015-06-19T13:58:28+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -93,6 +93,40 @@ h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);
 return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);
 </code>
 These two lines  can ensure that every change of bit of hashcode can affect the final result of bucket index calculating.</p>
+
+<h3>3.The capacity of HashMap</h3>
+
+<h4>3.1 How many entries can be hold by an HashMap? only restricted by the system memory?</h4>
+
+<p>The answer is no, the maximum capacity of a HashMap is 2<sup>30</sup>, this value is defined in the class file of HashMap <br/>
+<code>java
+static final int MAXIMUM_CAPACITY = 1 &lt;&lt; 30;
+</code></p>
+
+<h4>3.2 What is the default capacity of HashMap?</h4>
+
+<p>The default capactity is 2<sup>4</sup>, we can specify the initial capacity in either of the constructors with arguments, but must be a power of two. If we specify a capacity not a power of two, HashMap will find a number of a power of two closet to the specified capacity  as the final capacity.<br/>
+<code>java
+// Find a power of 2 &gt;= toSize
+int capacity = roundUpToPowerOf2(toSize);
+</code></p>
+
+<h4>3.3 How HashMap to resize</h4>
+
+<p>HashMap has a variable named loadFactor to regulate when it needs to resize, if the amount of entries holded by HashMap over capacity*loadFactor, the resize function will be called. <br/>
+<code>java
+threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
+</code>
+```java
+if ((size >= threshold) &amp;&amp; (null != table[bucketIndex])) {</p>
+
+<pre><code>        resize(2 * table.length);
+        hash = (null != key) ? hash(key) : 0;
+        bucketIndex = indexFor(hash, table.length);
+    }
+</code></pre>
+
+<p>```</p>
 ]]></content>
   </entry>
   
