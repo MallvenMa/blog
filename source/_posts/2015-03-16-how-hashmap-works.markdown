@@ -67,6 +67,33 @@ return h ^ (h >>> 7) ^ (h >>> 4);
 ```
 These two lines  can ensure that every change of bit of hashcode can affect the final result of bucket index calculating.  
 
+###3.The capacity of HashMap
+####3.1 How many entries can be hold by an HashMap? only restricted by the system memory?  
+The answer is no, the maximum capacity of a HashMap is 2^30, this value is defined in the class file of HashMap   
+```java
+static final int MAXIMUM_CAPACITY = 1 << 30;
+```
+####3.2 What is the default capacity of HashMap?
+The default capactity is 2^4, we can specify the initial capacity in either of the constructors with arguments, but must be a power of two. If we specify a capacity not a power of two, HashMap will find a number of a power of two closet to the specified capacity  as the final capacity.  
+```java
+// Find a power of 2 >= toSize
+int capacity = roundUpToPowerOf2(toSize);
+```
+####3.3 How HashMap to resize
+HashMap has a variable named loadFactor to regulate when it needs to resize, if the amount of entries holded by HashMap over capacity*loadFactor, the resize function will be called.   
+```java
+threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
+```
+```java
+if ((size >= threshold) && (null != table[bucketIndex])) {
+            resize(2 * table.length);
+            hash = (null != key) ? hash(key) : 0;
+            bucketIndex = indexFor(hash, table.length);
+        }
+```
+
+
+
 
 
 
