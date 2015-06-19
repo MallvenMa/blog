@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Hello Code]]></title>
   <link href="http://mallven.com//blog/categories/java/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-06-19T13:58:28+08:00</updated>
+  <updated>2015-06-19T14:26:15+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -18,7 +18,7 @@
     <link href="http://mallven.com//blog/2015/03/16/how-hashmap-works/"/>
     <updated>2015-03-16T13:57:42+08:00</updated>
     <id>http://mallven.com//blog/2015/03/16/how-hashmap-works</id>
-    <content type="html"><![CDATA[<h3>1.The Structure Of HashMap</h3>
+    <content type="html"><![CDATA[<h3>1.The Structure of HashMap</h3>
 
 <p>As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).</p>
 

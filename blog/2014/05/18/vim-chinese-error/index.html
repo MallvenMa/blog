@@ -4,11 +4,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Mac OSX vim 输入中文乱码问题 - Hello Code</title>
+  <title>Mac OSX vim display Chinese as garbled characters - Hello Code</title>
   <meta name="author" content="Mallven">
 
-  <meta name="description" content="Mac OSX vim 输入中文乱码问题">
-  <meta name="keywords" content="mac,vim,乱码,中文">
+  <meta name="description" content="Mac OSX vim display Chinese as garbled characters">
+  <meta name="keywords" content="mac,vim,garbled,chinese">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -109,40 +109,40 @@
     
     
     <h1 class="entry-title">
-        Mac OSX Vim 输入中文乱码问题
+        Mac OSX Vim Display Chinese as Garbled Characters
         
     </h1>
     
   </header>
 
 
-<div class="entry-content clearfix"><h3>出现问题的环境:</h3>
+<div class="entry-content clearfix"><h3>Envrionment:</h3>
 
 <ol>
-<li>OSX 10.9.2 英文</li>
+<li>OSX 10.9.2 English</li>
 <li>VIM 7.3</li>
 </ol>
 
 
-<h3>问题描述:</h3>
+<h3>Problems:</h3>
 
 <ol>
-<li>可以正常显示文件中得中文字符</li>
-<li>输入中文字符会出现乱码</li>
-<li>通过在.vimrc中设置编码格式无效</li>
+<li>Can display Chinese characters in file</li>
+<li>Can not display Chinese characters inputed from screen</li>
+<li>Add encoding settings to .vimrc does not work</li>
 </ol>
 
 
-<h3>解决方案:</h3>
+<h3>Solution:</h3>
 
-<p>找到 <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> 取消该选项即可。</p>
+<p>find  <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> and uncheck this option。</p>
 
 <!--more-->
 
 
-<p>如果你尝试了设置各种编码格式都无法解决乱码问题的话，可以尝试一下该方法<br/>
-如图:<br/>
-<img src="/images/blog/2014-05/20140519-1-vim.png" alt="示例" /></p>
+<p>If you have tried many other approach to solve garbled characters problem like this, you should try this soution.  <br/>
+Figure:<br/>
+<img src="/images/blog/2014-05/20140519-1-vim.png" alt="Figure" /></p>
 </div>
 
 
