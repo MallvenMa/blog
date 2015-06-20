@@ -517,29 +517,29 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
       </p>
     
     
-      <h1 class="entry-title"><a href="/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><h2>本文讨论的都是概念模型，实际实现方式肯定会有不同</h2>
+  <div class="entry-content clearfix"><h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
 
-<h3>1. 关于CPU的几个概念</h3>
+<h3>1. Several concepts of CPU</h3>
 
 <ol>
-<li>数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。</li>
-<li>数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2<sup>32</sup> 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。</li>
-<li>地址总线：CPU是通过地址总线来进行内存寻址。</li>
-<li>地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。</li>
-<li>控制总线：主要是将CPU的控制指令传送到其它组件</li>
+<li>Data Bus：Data Bus are used to transfer data between CPU and other components(eg:memory)。</li>
+<li>Data Bus Width：Data Bus Width represent the number of bits that  Registers can hold, namely:bits of CPU can hold. for example an &ldquo;32-bit CPU&rdquo; or an &ldquo;64-bit CPU&rdquo;. Number of bits of CPU can hold could not represent CPU&rsquo;s addressing abilities.</li>
+<li>Address Bus：Address Bus is used to specify a physical address。</li>
+<li>Address Bus Width: The width of the Address Bus determines the amount of memory the system can address.For example, a system with a 32-bit address bus can address 0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF) locations. If each memory address holds one byte, the addressable memory space  is 4GiB.</li>
+<li>Control Bus: Control Bus are used to transmit instructions to other components</li>
 </ol>
 
 
-<p>关于总线更详细的文章网上有很多，例如：</p>
+<p>There are many articles about BUS  on the internet ，For example：</p>
 
 <ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">总线的内部结构</a></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">CPU位数，寻址能力，指令集，寄存器位数，操作系统位数</a></li>
+<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">Structures of CPU Bus</a></li>
+<li><a href="http://my.oschina.net/u/158589/blog/70813">Width of CPU, Addressing abilities, Instructions，Width of Register，Width of Operation System</a></li>
 </ul>
 
 
