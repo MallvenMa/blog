@@ -1,34 +1,33 @@
 ---
 layout: post
-title: "关于CPU寻址和物理内存结构"
+title: "CPU Addressing and Physical Memory Structure"
 date: 2014-05-21 20:35:18 +0800
 comments: true
 categories: system
-keywords: cpu,内存,寻址,总线
-description: 关于CPU寻址和物理内存结构
+keywords: cpu,memory,addressing,bus
+description: CPU Addressing and Physical Memory Structure
 ---
-##本文讨论的都是概念模型，实际实现方式肯定会有不同
-### 1. 关于CPU的几个概念
-1. 数据总线：数据总线是CPU和其它组件（比如：内存）之间进行数据交互的通道。  
-2. 数据总线宽度：是指CPU中寄存器的位数，即CPU位数，我们常说的32位，64位就是指的这个参数。CPU的位数和CPU的寻址能力没有关系。我们之前经常听到32位的CPU最大寻址能力是2^32 因此它最大可识别的内存是4G，64位CPU可以识别4G以上内存，其实这是不正确的，因为CPU的寻址能力和CPU的位数没有关系。  
-3. 地址总线：CPU是通过地址总线来进行内存寻址。  
-4. 地址总线宽度：地址总线宽度决定了CPU的寻址范围，如果地址总线是32位，那么该CPU的寻址范围就是0-2^32-1（0x00000000-0xFFFFFFFF），也就是4G个存储单元，如果存储单元是按字节编址，那么CPU可以寻址的最大内存量就是4G(byte)，这时候即使有再大的内存也不会被识别。  
-5. 控制总线：主要是将CPU的控制指令传送到其它组件 
+####What we are talking in this article are concept model, differ with the  specific implement
+### 1. Several concepts of CPU
+1. Data Bus：Data Bus are used to transfer data between CPU and other components(eg:memory)。  
+2. Data Bus Width：Data Bus Width represent the number of bits that  Registers can hold, namely:bits of CPU can hold. for example an "32-bit CPU" or an "64-bit CPU". Number of bits of CPU can hold could not represent CPU's addressing abilities.   
+3. Address Bus：Address Bus is used to specify a physical address。  
+4. Address Bus Width: The width of the Address Bus determines the amount of memory the system can address.For example, a system with a 32-bit address bus can address 0-2^32-1（0x00000000-0xFFFFFFFF) locations. If each memory address holds one byte, the addressable memory space  is 4GiB.    
+5. Control Bus: Control Bus are used to transmit instructions to other components   
 
-关于总线更详细的文章网上有很多，例如：  
+There are many articles about BUS  on the internet ，For example：  
 
-* [总线的内部结构](http://share.onlinesjtu.com/mod/tab/view.php?id=253)  
-* [CPU位数，寻址能力，指令集，寄存器位数，操作系统位数](http://my.oschina.net/u/158589/blog/70813)  
-
+* [Structures of CPU Bus](http://share.onlinesjtu.com/mod/tab/view.php?id=253)  
+* [Width of CPU, Addressing abilities, Instructions，Width of Register，Width of Operation System](http://my.oschina.net/u/158589/blog/70813)
 <!--more-->
-### 2. 关于内存的几个概念
-1. 存储元：是存储器的最小存储单位，它可以存放一个二进制代码。
-2. 存储单元：若干个存储元构成一个存储单元，每个存储单元可以存放一个字节（按字节编址），或者存放一个字（按字编址）,当然理论上也存在按bit编址的可能，当然用的非常少。一个字是几个字节呢？这个看计算机的具体实现。
-3. 存储单元地址：每个存储单元的编号，一般用一个十六进制数来表示。CPU就是根据这个地址访问存储单元中的数据。
-4. 存储器：若干个存储单元构成一个存储器。
+### 2. Several concepts of memory
+1. Memory cell: The memory cell is the fundamental building block of computer memory,every memory cell can store 1 bit.  
+2. Memory unit: The memory unit consists of memory cells，each memory unit can store one byte or one word, but how many byte a word represent? it depend on the specific implemention.  
+3. Memory unit address：the index of memory nuit，alway a hexadecimal number. CPU use this index to locate the data it needs.  
+4. Memory device：Memory device is a physical component of computer consists of memory units.  
 
-关于内存更详细的文章网上也有很多，例如：  
+There are many articles about the details of memory on the internet，For example：  
 
-* [互动百科-存储器](http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8)  
+* [Memory](http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8)  
 
-总结：了解一下CPU和内存的底层结构，再去学习底层程序实现的时候就不会感到那么迷茫了（一个数据到底在内存中是怎么存的呢？）。
+Conclusion: Comprehend the structures of CPU and Memory can help us to dispel the confusions about  how our program works on the computer and understand the principle of CPU addressing.  
