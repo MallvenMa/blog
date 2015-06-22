@@ -23,6 +23,7 @@
   <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 <link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
 <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+<link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css">
 
 
   <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
@@ -127,7 +128,7 @@
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2015/03/16/how-hashmap-works/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2015/03/16/how-hashmap-works/">MORE</a>
     </footer>
   
 
@@ -187,7 +188,7 @@ Netbeans7.0.1(c/c++)</p></blockquote>
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/06/21/netbeans-debug-hotspot/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/06/21/netbeans-debug-hotspot/">MORE</a>
     </footer>
   
 
@@ -255,7 +256,7 @@ Netbeans7.0.1(c/c++)</p></blockquote>
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/06/15/java-object-create-2/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/06/15/java-object-create-2/">MORE</a>
     </footer>
   
 
@@ -305,7 +306,7 @@ Netbeans7.0.1(c/c++)</p></blockquote>
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/06/14/java-object-create-1/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/06/14/java-object-create-1/">MORE</a>
     </footer>
   
 
@@ -378,7 +379,7 @@ String.c 中只有一个方法：</p>
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/29/runtime-string-pool-2/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/29/runtime-string-pool-2/">MORE</a>
     </footer>
   
 
@@ -433,7 +434,7 @@ String.c 中只有一个方法：</p>
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/27/runtime-string-pool-1/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/27/runtime-string-pool-1/">MORE</a>
     </footer>
   
 
@@ -467,23 +468,23 @@ String.c 中只有一个方法：</p>
       </p>
     
     
-      <h1 class="entry-title"><a href="/blog/2014/05/22/jvm-object-structure/">JVM 之 Java 对象结构</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/05/22/jvm-object-structure/">Layout of Java Object</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><h2>1. Java对象在内存中到底是什么样?</h2>
+  <div class="entry-content clearfix"><h2>1. What do a Java object looks like in the memory?</h2>
 
-<p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
-那在JVM中这个规范是怎么定义的呢？
-Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br/>
-<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
+<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
+But what is the definition of these <em>specific rules</em> in JVM？<br/>
+In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
+<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
 
 </div>
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/22/jvm-object-structure/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/22/jvm-object-structure/">MORE</a>
     </footer>
   
 
@@ -547,7 +548,7 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/21/cpu-and-memory/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/21/cpu-and-memory/">MORE</a>
     </footer>
   
 
@@ -611,7 +612,7 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
   
   
     <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/18/vim-chinese-error/">Read All</a>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/18/vim-chinese-error/">MORE</a>
     </footer>
   
 

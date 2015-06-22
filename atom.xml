@@ -4,7 +4,7 @@
   <title><![CDATA[Hello Code]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-06-20T11:08:38+08:00</updated>
+  <updated>2015-06-22T17:42:24+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -2330,67 +2330,67 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[JVM 之 Java 对象结构]]></title>
+    <title type="html"><![CDATA[Layout of Java Object]]></title>
     <link href="http://mallven.com//blog/2014/05/22/jvm-object-structure/"/>
     <updated>2014-05-22T14:09:15+08:00</updated>
     <id>http://mallven.com//blog/2014/05/22/jvm-object-structure</id>
-    <content type="html"><![CDATA[<h2>1. Java对象在内存中到底是什么样?</h2>
+    <content type="html"><![CDATA[<h2>1. What do a Java object looks like in the memory?</h2>
 
-<p>JAVA对象在内存中的表现形式就是一系列按照<em>某种规范</em>排列的字节(如果不清楚物理内存j的实现方式，请参考：<a href="http://blog.zarue.com/blog/2014/05/21/cpu-and-memory/">关于CPU寻址和物理内存结构</a> )。
-那在JVM中这个规范是怎么定义的呢？
-Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两类对象在内存中的布局可以分为三部分:<code>对象头，对象实例数据， 对齐填充</code> 。不同的是普通对象的对象头是由<code>MARK WORD，CLASS对象指针</code>两部分组成，而数组对象头是由<code>MARK WORD，CLASS对象指针，数组长度</code>三部分组成，如图:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="对象结构" /></p>
+<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="http://mallven.com//blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
+But what is the definition of these <em>specific rules</em> in JVM？<br/>
+In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
 
 <!--more-->
 
 
-<h4>1.首先看一下对象头的具体结构(表格中的“长度“同时标明了32位和64位虚拟机):</h4>
+<h4>1.This is a table about the details of object layout</h4>
 
 <table>
 <thead>
 <tr>
-<th align="center">内容</th>
-<th align="center">长度</th>
-<th align="left">说明</th>
+<th align="center">title</th>
+<th align="center">length</th>
+<th align="left">description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">  Mark Word  </td>
 <td align="center">  32/64bit  </td>
-<td align="left">  存储对象的hashCode或锁信息等。</td>
+<td align="left"> used to store object&rsquo;s hashcode and lock type</td>
 </tr>
 <tr>
-<td align="center">  Class对象指针  </td>
+<td align="center">  Class Pointer </td>
 <td align="center">  32/64bit  </td>
-<td align="left">  存储到对象类型数据的指针</td>
+<td align="left">  point to the class of this object </td>
 </tr>
 <tr>
-<td align="center">  数组长度  </td>
+<td align="center">  Array length  </td>
 <td align="center">  32/64bit  </td>
-<td align="left">  数组的长度（如果当前对象是数组）</td>
+<td align="left">  length of array（only exists in array object）</td>
 </tr>
 </tbody>
 </table>
 
 
-<p>Java对象头里的Mark Word里默认存储对象的HashCode，分代年龄和锁标记位。32位JVM的Mark Word的默认存储结构(无锁状态)如下：</p>
+<p>This is a table of the details of a 32-bit JVM&rsquo;s  <code>MARK WORD</code> with none lock,it contains <code>HashCode</code>,<code>Object Generation</code>,<code>Lock Type</code>.</p>
 
 <table>
 <thead>
 <tr>
-<th align="center">锁状态</th>
+<th align="center">Lock Status</th>
 <th align="center">25 bit</th>
 <th align="left"> 4 bit</th>
-<th align="left">1 bit是否是偏向锁</th>
-<th align="left">2 bit锁标志位</th>
+<th align="left">1 bit(biased lock)</th>
+<th align="left">2 bit(lock type)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center"> 无锁状态</td>
-<td align="center">对象的hashCode</td>
-<td align="left">对象分代年龄</td>
+<td align="center"> no lock</td>
+<td align="center">hashCode</td>
+<td align="left">object generation</td>
 <td align="left">0</td>
 <td align="left">01</td>
 </tr>
@@ -2398,22 +2398,22 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
 </table>
 
 
-<p>在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化。Mark Word可能变化为存储以下4种数据：<code>轻量级锁</code>，<code>重量级锁</code>，<code>GC标记</code> ，<code>偏向锁</code>。本文只讨论对象结构，如果想详细了解对象锁，可以参考:<a href="http://ifeve.com/java-synchronized/">Java SE1.6中的Synchronized</a></p>
+<p>Datas represented by <code>MARK WORD</code> will be different if <code>Lock Status</code> is different, <code>MARK WORD</code> can change to represent four type datas:<code>Lightweight Lock</code>, <code>Heavyweight Lock</code>, <code>GC Mrak</code>, <code>Biased Lock</code>. This article only talk about object layout, If you want to know more about <code>Object Lock</code>, please refer to <a href="http://ifeve.com/java-synchronized/">Java SE1.6 ynchronized</a></p>
 
-<h4>2.对象实例数据：</h4>
+<h4>2.Instance Data：</h4>
 
-<p>实例数据包括自身的实例变量和从父类继承的实例变量，这些变量的排序顺序受虚拟机分配策略参数（FieldsAllocationStyle）和字段在源代码中定义的顺序影响。HotSpot虚拟机默认的分配策略为longs/doubles、ints、shorts/chars、bytes/booleans、oops（Ordinary Object Pointers）。从分配策略中可以看出，相同宽度的字段总是被分配到一起。在满足这个前提条件的情况下，在父类中定义的变量会出现在子类之前。如果CompactFields参数值为true（默认为true），那子类之中较窄的变量也可能会插入到父类变量的空隙之中。</p>
+<p>Instance data includes instance variables of  itself  and instance variables extend from its parents.  the order of these variables are effected by jvm <code>FieldsAllocationStyle</code> and their orders in source code.  The default allocation strategy in HotSpot is longs/doubles, ints, shorts/chars, bytes/booleans, oops(Orginary Object Pointers). From these  allocation stragegies we can find that those fields has same width will be allocated  together. With this precondation, fields extends from parents will display before child&rsquo;s  autogeneic variables, but if variable <code>Compactfields</code> is set to true(defalut is true), child&rsquo;s variables with narrow width will be insert into parents&#8217; variable&rsquo;s gap.</p>
 
-<h4>3.对齐填充数据：</h4>
+<h4>3.Padding Data：</h4>
 
-<p>对齐填充数据不是必须的，它仅仅起着占位的作用。HotSpot VM的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是对象的大小必须是8字节的整数倍。对象头部分正好似8字节的倍数（1倍或者2倍），因此当对象实例数据部分没有对齐的话，就需要通过对齐填充来补全。</p>
+<p>Padding data is not necessary, They are only placeholders. HotSpot&rsquo;s <code>Automatic Memory Management System</code> requires the object&rsquo;s size must integral multiple of 8 bytes, object header is exactly integral multiple of 8 bytes(1 times or 2 times), So it will need padding data if instance data could not align as 8 bytes.</p>
 
-<h2>2. 现在我们就通过实例来看一下JVM中的对象结构是不是和上面所述一样呢?</h2>
+<h2>2. Observe object layout in run-time</h2>
 
-<p>说明:下面的实验我们将用到Hotspot提供的虚拟机调试工具ServiceAbility Agent。如果不太熟悉该工具可以参考:<a href="http://rednaxelafx.iteye.com/blog/1847971">借HSDB来探索HotSpot VM的运行时数据</a><br/>
-环境:Ubuntu 14.04 32bit</p>
+<p>Note:In this experiment we will use  <code>ServiceAbility Agent</code>(a debug tool provide by HostSpot) to observe object layout in run-time. If you don&rsquo;t familiar with it,please refer to :<a href="http://rednaxelafx.iteye.com/blog/1847971">Use HSDB to explore HotSpot VM&rsquo;s run-time data</a><br/>
+Environment:Ubuntu 14.04 32bit</p>
 
-<h4>1.先看一段简单代码：</h4>
+<h4>1.a sample class：</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2434,35 +2434,35 @@ Hotspot虚拟机中，对象分为两大类：普通对象和数组对象，两�
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>main方法里面包含3个对象：<code>Integer</code>,<code>Long</code>,<code>Boolean</code> ，我们现在通过SA依次来看一下每一个对象的结构和大小：<br/>
-1.运行上面的程序，在<code>System.out.println("")</code>这行打个断点是虚拟机进程暂停<br/>
-2.使用JPS查看虚拟机进程PID:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-objectsize-jps.png" alt="jps截图" /><br/>
-3.启动SA(HSDB)<br/>
+<p>main function contains three objects ：<code>Integer</code>,<code>Long</code>,<code>Boolean</code>, Now we use SA to inspect each object&rsquo;s structure and size：<br/>
+1.runing the program above，add a breakpoint at  <code>System.out.println("")</code><br/>
+2.use command <code>JPS</code> to query JVM&rsquo;s PID:<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-objectsize-jps.png" alt="jps" />  <br/>
+3.start <code>SA</code>(HSDB)<br/>
 <code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br/>
-4.attach 上面的PID 3813,连上之后我们进入内存查看界面，如图:</p>
+4.attach PID 3813,open <code>Stack Memory View</code>，Figure 1:</p>
 
-<p><img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory.png" alt="内存查看" /></p>
+<p><img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory.png" alt="memory inspector" /></p>
 
-<p>红色方框中的内容就是main方法中我们new的三个对象，通过右边的注释我们也可以看出来。<br/>
-三个对象在内存中的地址分别是：</p>
+<p>This red rectangle shows us the three objects we decliared in the  main function,the left hand is the addresses of objects in JVM  and the  right hand is the notes about these addresses.<br/>
+The addresses of these three objects are ：</p>
 
 <blockquote><p>Integer i &nbsp;&nbsp;&nbsp; 0xa0159410<br/>
 Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br/>
 Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
-<p>首先我们先看Integer i 对象,选择SA中的菜单:<code>Tool--&gt;Inspect</code>子菜单,在address中输入<code>0xa0159410</code>可以得到这个对象，如图:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Integer对象内存结构" /></p>
+<p>We will inspect <code>Integer i</code> first,select menu:<code>Tool--&gt;Inspect</code>,input <code>0xa0159410</code> in the textfield to get this object，Figure 2:<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Layout of Integer" /></p>
 
-<p>按照刚才得方法，接下来我们看一下Long l 对象，如图：<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Long对象内存结构" /></p>
+<p>Use the same way to get <code>Long l</code> object，Figure 3：<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Layout of Long" /></p>
 
-<p>再看一下Boolean b 对象,如图:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Boolean对象内存结构" /></p>
+<p>also <code>Boolean b</code> ,Figure 4:<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Layout of Boolean" /></p>
 
-<p>小结:因为对象实例数据只包括实例变量和从父类继承得实例变量，通过查看Integer,Long,Boolean 的源代码可知，这几个类只有value 一个实例变量，所以除了<em>mark(MARK_WORD),</em>metadata._klass(class对象指针)，我们只能看到一个value变量。</p>
+<p>Conclusion:Object instance data  only contains autogeneic instance variables and variables extend from its&#8217; parents，In the source code of <code>Integer,Long,Boolean</code> we can know that these three classes only have one <code>value</code> variable，so except  <em>mark(MARK_WORD),</em>metadata._klass，we only can find a <code>value</code> variable in the memory inspector.</p>
 
-<h4>2.现在我们看一个复杂点的:</h4>
+<h4>2.a complex class:</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2484,12 +2484,12 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 
 <p>
-我们看一下Animal的对象结构,如图:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Animal对象内存结构" /></p>
+The memory layout of <code>Animal</code> object, Figure 5:<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Memory layout of Animal" /></p>
 
-<p>由图可以看出，三个实例变量都在对象Animal里面了。</p>
+<p>From <code>figure 5</code> we can find that three Objects are all  in Animal&rsquo;s memory layout.</p>
 
-<h4>3.我们再看一个继承的:</h4>
+<h4>3.a class with extended variables:</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2508,12 +2508,12 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>用HSDB查看结果，如图:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Tiger对象内存结构" /></p>
+<p>HSDB shows us the result，Figure 6:<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Memory Layout of Tiger" /></p>
 
-<p>由图可见，从父类继承的变量也是存在子类里面的。</p>
+<p>From figure 6 we can find that variables extends from parents will stored in children&rsquo;s class too.</p>
 
-<h4>4.最后看一个数组的:</h4>
+<h4>4.Tiger with array:</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2534,20 +2534,22 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>用HSDB查看,结果如图:<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-array.png" alt="数组对象内存结构" /></p>
+<p>This is the result ,Figure 7:<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-array.png" alt="Memory layout of array" /></p>
 
-<p>不幸的事情出现了，为什么这个数组对象没有显示length变量呢？难道我们之前说的数组对象的结构式错的？<br/>
-用inspect 查看一下这个对象的size:<br/>
-<code>inspect 0xa01ba470</code> 结果如图所示：<br/>
-<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="数组对象size" /></p>
+<p>It is weird that there is no length variable for childs array!  It is wrong about  we said before?</p>
 
-<p>我们来算一下:<br/>
-1. 如果这个对象没有length变量，那么大小应该是：size=4+4=8.<br/>
-2. 如果这个对象有length，那么大小应该是：size=4+4+4+4(补全)=16,和刚才截图中的一样。所以这个length肯定是有的，至于为什么没显示出来，我觉得有可能是这个SA插件得bug。</p>
+<p>use <code>inspect</code> command to inspect this object&rsquo;s size:<br/>
+<code>inspect 0xa01ba470</code> Figure 8：<br/>
+<img src="http://mallven.com//images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="array size" /></p>
 
-<p>总结：通过SA我们可以查看JVM内部的实时数据，这对我们学习JVM是一个很有利的工具，了解对象的结构是万里长征迈出的第一步。<br/>
-参考文章:<br/>
+<p>We can do some inferences :<br/>
+1. if this object has no length variable，the size should be：size=4+4=8.<br/>
+2. if this object has length variable，the size should be ：size=4+4+4+4(padding)=16, correspond with the size showd in Figure 8, so the length variable is exists，but why it does not display on the panel ，i think it would be a bug of SA plugin.</p>
+
+<p>Conclusion: SA plugin can show the Run-Time data of JVM, It is a great tool to help us to learn the implements of  JVM.</p>
+
+<p>Bibliographies:<br/>
 <a href="http://rednaxelafx.iteye.com/blog/1847971">http://rednaxelafx.iteye.com/blog/1847971</a><br/>
 <a href="http://ifeve.com/java-synchronized/">http://ifeve.com/java-synchronized/</a><br/>
 <a href="http://icyfenix.iteye.com/blog/1145044">http://icyfenix.iteye.com/blog/1145044</a></p>
