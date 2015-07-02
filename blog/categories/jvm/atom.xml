@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: jvm | Hello Code]]></title>
+  <title><![CDATA[Category: jvm | Hello World]]></title>
   <link href="http://mallven.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-06-22T17:42:24+08:00</updated>
+  <updated>2015-07-02T22:45:09+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[What is the JVM memory structure looks like]]></title>
+    <link href="http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like/"/>
+    <updated>2015-03-24T14:12:42+08:00</updated>
+    <id>http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[netbeans debug hotspot]]></title>
@@ -1202,179 +1211,6 @@ inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
 <p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象不会被垃圾收集器回收掉。<br/>
 Hashtable 的结构看起来应该是这样的：<br/>
 <img src="/images/blog/2014-06/20140602-hashtable.png" alt="Hasttable" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[JVM 之 String 常量池 一]]></title>
-    <link href="http://mallven.com//blog/2014/05/27/runtime-string-pool-1/"/>
-    <updated>2014-05-27T20:30:20+08:00</updated>
-    <id>http://mallven.com//blog/2014/05/27/runtime-string-pool-1</id>
-    <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
-
-<p>JAVA里面创建字符串有两种方式：<br/>
-1. 通过字符串常量方式:String a = &ldquo;a&rdquo;;<br/>
-2. 通过new 关键字创建:new String(&ldquo;a&rdquo;);</p>
-
-<p>但是这两种创建字符串的方式有很大的不同。<br/>
-1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br/>
-2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。</p>
-
-<h4>2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
-
-<!--more-->
-
-
-<p>```java
-public class StringConstantTest {</p>
-
-<pre><code>public static String str_0_static = "a";
-public String str_0 = "a";
-
-public static void main(String args[]){
-
-    StringConstantTest sct = new StringConstantTest();
-    //同package对象
-    StringConstantTest1 sct1 = new StringConstantTest1();
-    //不同package对象
-    StringConstantTest2 sct2 = new StringConstantTest2();
-
-    String str0 = "a";
-    String str1 = "b";
-    String str2 = "ab";
-    String str3 = "a"+"b";
-    String str4 = str0 + str1;
-    String str5 = str0 + "b";
-    String str6 = new String("ab");
-    String str7 = new String("ab");
-    String str8 = new String(str4);
-
-    //局部变量和成员变量
-    System.out.println("str0==sct.str_0: "+(str0 == sct.str_0));
-    System.out.println("str0==sct1.str_0: "+(str0 == sct1.str_0));
-    System.out.println("str0==sct2.str_0: "+(str0 == sct2.str_0));
-
-    //局部变量和静态变量
-    System.out.println("str0==str_0_static： "+(str0 == str_0_static));
-    System.out.println("str0==StringConstantTest1.str_0_static: "+(str0 == StringConstantTest1.str_0_static));
-    System.out.println("str0==StringConstantTest2.str_0_static: "+(str0 == StringConstantTest2.str_0_static));
-
-    //局部变量
-    System.out.println("str2==str3: "+(str2 == str3));
-    System.out.println("str2==str4: "+(str2 == str4));
-    System.out.println("str2==str5: "+(str2 == str5));
-
-    //局部变量和对象
-    System.out.println("str2==str6: "+(str2 == str6));
-    System.out.println("str2==str7: "+(str2 == str7));
-    System.out.println("str2==str8: "+(str2 == str8));
-
-    //对象和对象 intern
-    System.out.println("str2==str6.intern(): "+(str2 == str6.intern()));
-    System.out.println("str7.intern()==str6.intern(): "+(str7.intern() == str6.intern()));
-    System.out.println("str8.intern()==str6.intern(): "+(str8.intern() == str6.intern()));
-
-    //对象和对象equals
-    System.out.println("str6.equals(str7): "+str6.equals(str7));
-    System.out.println("str2.equals(str6): "+str2.equals(str6));
-}
-</code></pre>
-
-<p>}</p>
-
-<p>class StringConstantTest1 {</p>
-
-<pre><code>public String str_0 = "a";
-public static String str_0_static = "a";
-</code></pre>
-
-<p>}
-```</p>
-
-<p><img src="/images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
-
-<h4>分析(下面所指行号均为源代码行号):</h4>
-
-<ol>
-<li><p><strong>24-31</strong>行的结果说明:<br/>
-只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。</p></li>
-<li><p><strong>34</strong>行为true, 是因为:<br/>
-String str3 = &ldquo;a&rdquo;+&ldquo;b&rdquo;; 是因为“a” 和 “b” 都是常量，编译器在编译阶段会直接优化为String str3 = &ldquo;ab"。<br/>
-可以通过javap 反编译class字节码来看一下:<br/>
-<code>
-30: astore 5
-32: ldc #35 // String ab
-34: astore 6
-36: ldc #35 // String ab
-</code>
-上面第36行就是<code>String str3 = "a"+"b";</code>对应的字节码。这里可以看出"a&rdquo;+&ldquo;b"已经被优化为"ab"了。</p></li>
-<li><p><strong>35</strong>行为false, 是因为:<br/>
-String str4 = str0 + str1; 是因为str0 和 str1 都是变量，需要运行期才能转换为对应的值，而且String 会把变量的+操作，转换成StringBuilder的append操作,然后返回一个新的String对象。<br/>
-再看一下字节码文件:</p></li>
-</ol>
-
-
-<p><code>
-40: new #37 // class java/lang/StringBuilder
-43: dup
-44: aload 4
-46: invokestatic #39 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
-49: invokespecial #45 // Method java/lang/StringBuilder."&lt;init&gt;":(Ljava/lang/String;)V
-52: aload 5
-54: invokevirtual #48 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-57: invokevirtual #52 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
-60: astore 8
-</code>
-由上面的字节码可以看出<code>String str4 = str0 + str1;</code>  相当于:<br/>
-<code>
-StringBuilder sb = new Stringbuilder(str0);  
-sb.append(str1);  
-sb.toString();  
-</code>
-再看一下StringBuilder的toString()方法:<br/>
-<code>
-public String toString() {
-// Create a copy, don't share the array
-return new String(value, 0, count);
-}
-</code>
-由以上代码可已看出，toString()是new了一个String对象返回，所以是直接分配在heap上。因此结果为false。</p>
-
-<ol>
-<li><strong>39-41</strong>行为false: 是因为:<br/>
-str6,str7,str8 都是通过new 创建，数据分配到heap上面，不指向字符串常量池中的任何对象，所以三个对象均不同，引用自然不同，因此比较结果均为false。</li>
-<li><p><strong>44-46</strong>行为true: 是因为:<br/>
-当一个String实例str调用intern()方法时，Java查找字符串常量池中是否有相同Unicode的字符串常量，如果有，则返回其的引用，如果没有，则在常量池中增加一个Unicode等于str的字符串并返回它的引用。所以上面均为true。</p></li>
-<li><p><strong>49-50</strong>行为true: 是因为:<br/>
-String的值是用char数组保存的，equals 是比较的两个String对象中的char数组值是否一致，所以两个结果为true。<br/>
-看一下String的equals方法:<br/>
-<code>
-public boolean equals(Object anObject) {
-     if (this == anObject) {
-         return true;
-     }
-     if (anObject instanceof String) {
-         String anotherString = (String) anObject;
-         int n = value.length;
-         if (n == anotherString.value.length) {
-             char v1[] = value;
-             char v2[] = anotherString.value;
-             int i = 0;
-             while (n-- != 0) {
-                 if (v1[i] != v2[i])
-                         return false;
-                 i++;
-             }
-             return true;
-         }
-     }
-     return false;
- }
-</code></p></li>
-</ol>
-
-
-<h5>下一节<a href="/blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   

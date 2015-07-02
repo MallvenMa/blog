@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Hello Code]]></title>
+  <title><![CDATA[Hello World]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-06-22T17:42:24+08:00</updated>
+  <updated>2015-07-02T22:45:09+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[What is the JVM memory structure looks like]]></title>
+    <link href="http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like/"/>
+    <updated>2015-03-24T14:12:42+08:00</updated>
+    <id>http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[How HashMap Works]]></title>
