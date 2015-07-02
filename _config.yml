@@ -3,12 +3,12 @@
 # ----------------------- #
 
 url: http://mallven.com/
-title: Hello Code
-subtitle: What I have is the world
+title: Hello World
+subtitle: What all  I have is the world
 author: Mallven
 keywords: jvm,program,zarue,mallven,coder 
 #simple_search: https://www.google.com/search
-description: I hava a dream to walk around the world
+description: I hava a dream to travel around the world
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
