@@ -204,7 +204,7 @@ figcaption+.highlight {
 	text-align:right;
 	font-size:13px;
 	line-height:1.45em;
-	background:#fff url('/github/images/noise.png?1404896432') top left !important;
+	background:#fff url('/images/noise.png?1404896432') top left !important;
 	border-right:1px solid #ebe4ce !important;
 	-webkit-box-shadow:#fff -1px 0 inset;
 	-moz-box-shadow:#fff -1px 0 inset;
@@ -310,7 +310,7 @@ html .gist .gist-file .gist-meta a[href*=raw]:hover {
 	padding:.8em;
 	overflow-x:auto;
 	line-height:1.45em;
-	background:#fcfcfc url('/github/images/noise.png?1404896432') top left !important;
+	background:#fcfcfc url('/images/noise.png?1404896432') top left !important;
 	color:#586e75 !important
 }
 .pre-code span,html .gist .gist-file .gist-syntax .highlight pre span,.highlight code span {
@@ -495,7 +495,7 @@ html .gist .gist-file .gist-meta a[href*=raw]:hover {
 }
 .highlight,.gist-highlight {
 	margin-bottom:1.8em;
-	background:#fcfcfc url('/github/images/noise.png?1404896432') top left;
+	background:#fcfcfc url('/images/noise.png?1404896432') top left;
 	overflow-y:hidden;
 	overflow-x:auto
 }
@@ -551,7 +551,7 @@ figure.code .highlight,.gist .highlight {
 	-webkit-border-top-right-radius:5px;
 	border-top-right-radius:5px;
 	font-family:"Helvetica Neue",Arial,"Lucida Grande","Lucida Sans Unicode",Lucida,sans-serif;
-	background:#aaa url('/github/images/code_bg.png?1404896432') top repeat-x;
+	background:#aaa url('/images/code_bg.png?1404896432') top repeat-x;
 	border:1px solid #565656;
 	border-top-color:#cbcbcb;
 	border-left-color:#a5a5a5;
