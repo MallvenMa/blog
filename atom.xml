@@ -4,7 +4,7 @@
   <title><![CDATA[Hello World]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-11T18:19:26+08:00</updated>
+  <updated>2015-07-11T18:36:34+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[What the Java's memory model looks like]]></title>
-    <link href="http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like/"/>
+    <title type="html"><![CDATA[Java's memory model and Object allocation]]></title>
+    <link href="http://mallven.com//blog/2015/03/24/jvm-memory-structure-and-object-allocation/"/>
     <updated>2015-03-24T14:12:42+08:00</updated>
-    <id>http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like</id>
+    <id>http://mallven.com//blog/2015/03/24/jvm-memory-structure-and-object-allocation</id>
     <content type="html"><![CDATA[<h3>1. Java&rsquo;s memory model</h3>
 
 <p>From Java 2 Standard Edition, Java performs automatic memory management. In order to enhance the garbage collection&rsquo;s efficiency, Java bring in generational memory model. <br/>
