@@ -4,7 +4,7 @@
   <title><![CDATA[Category: jvm | Hello World]]></title>
   <link href="http://mallven.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-09T22:07:56+08:00</updated>
+  <updated>2015-07-11T17:42:26+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -14,11 +14,51 @@
 
   
   <entry>
-    <title type="html"><![CDATA[What is the JVM memory structure looks like]]></title>
+    <title type="html"><![CDATA[What the Java's memory model looks like]]></title>
     <link href="http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like/"/>
     <updated>2015-03-24T14:12:42+08:00</updated>
     <id>http://mallven.com//blog/2015/03/24/what-is-the-jvm-memory-structure-looks-like</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<h3>1. Java&rsquo;s memory model</h3>
+
+<p>From Java 2 Standard Edition, Java performs automatic memory management. In order to enhance the garbage collection&rsquo;s efficiency, Java bring in generational memory model. <br/>
+Figure 1 is a picture I find from &ldquo;pointsoftware.com&rdquo;</p>
+
+<p><img src="/images/blog/2015-03/20150324-RuntimeDataAreas_JVM_Model.png" alt="java memeory model" /></p>
+
+<!--more-->
+
+
+<p>Heap Space: we must be familar with this area, The objects we create are stored  in this area. To improve the efficiency of garbage collection, this area is divided into two separate areas:<code>Young Generation</code> and <code>Old Generation</code>, For the same reason <code>Young Generation</code> is divided into three parts : <code>Eden</code>, <code>Survivor 0 (From)</code>, <code>Survivor 1 (To)</code>. The default ratios of these three areas is <code>8:1:1</code>, We can also change it by specify parameter  <code>-XX:SurvivorRatio</code> in command line while jvm start up.   <code>Old Generation</code> holds the objects that have survived after several circulations(default value is 15) of garbage collections and objects have big size such as arrays.</p>
+
+<p>Method Area:  also known as the <code>Permanent Generation</code>, All class data are loaded into this memory space, This include Runtime Constant Pool, Field, Method Data, Code. Note: Method Area has been removed from jvm in JDK8.  The data stored in Method area before are stored in a new memeory  space same as <code>Native Area</code> named <code>Metaspace</code>.</p>
+
+<p>Native Area: This area is  used by threads and holds the references to the code and object data in the heap, <code>Native Area</code> also stores the local variables of primitive types.</p>
+
+<h3>2. How an object is allocated</h3>
+
+<p>Figure 2 is a picture I find from ifeve.com</p>
+
+<p><img src="/images/blog/2015-03/20150324-eden_survivor.png" alt="allocate memory for objects" /></p>
+
+<h4>Allocating Steps</h4>
+
+<ol>
+<li>if the object is big or an array, it will be directly allocated on the <code>Old Generation</code>.</li>
+<li>if it is a normal object, Jvm will try to allocate it on the <code>Eden</code>.</li>
+<li>if <code>Eden</code> is full, minorGC will be triggered, live objects in <code>Eden</code> and one  <code>Survivor[From]</code> will be moved to another  <code>Survivor[To]</code>. The objects old enough(default is 15 years old) will be moved to <code>Old Generation</code>. After that, these two Survivor will exchange their role.</li>
+<li>if  <code>To Survivor</code> is full, the objects in <code>To Survivor</code> will be moved to <code>Old Generation</code></li>
+<li>if <code>Old Generation</code> is full, <code>Full GC</code> will be invoked.</li>
+<li>if heap also has no enough memeory after <code>Full GC</code>, jvm will throw <code>OutOfMemoryException</code></li>
+</ol>
+
+
+<h4>Note:</h4>
+
+<p>In order to improve the efficiency of object allocation, Java use <code>TLAB(Thread Local Allocation Buffer)</code> technology to allocate memory, Because allocate data on <code>Eden</code> directly can cause concurrent problems, so JVM need to lock the memory before the allocation and unlock the memory after the allocation, this will make memory allocation a bottleneck.</p>
+
+<h5>So, what is the <code>TLAB</code> ?</h5>
+
+<p>JVM use 1% of the <code>Eden</code> area as the <code>TLAB</code> space, each Thread will be given a specified space to allocate their own object, so objects are allocated in their own Thread, thus, there is no lock needed during the allocation, so <code>TLAB</code> will be more efficient than the direct allocation.  Only the space of the thread is exhausted and need to increase new spaces the synchronized lock need to be added.</p>
 ]]></content>
   </entry>
   
