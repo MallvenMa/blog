@@ -8,7 +8,10 @@
 .navbar,.panel {
 	border-radius:0px;
 }
-
+.navbar-default .navbar-nav>.active>a{
+	background-image:none;
+	box-shadow:none;
+}
 
 h1,h2,h3 {
 	margin-top:32px;
