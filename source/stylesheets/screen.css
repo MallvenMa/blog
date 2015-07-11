@@ -1,3 +1,15 @@
+/**
+*覆盖bootstrap css 
+*/
+.navbar-default,.btn-default,.panel-default>.panel-heading {
+   	background-image : none;
+	border-radius:0px;
+}
+.navbar,.panel {
+	border-radius:0px;
+}
+
+
 h1,h2,h3 {
 	margin-top:32px;
 	margin-bottom:12px
