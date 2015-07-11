@@ -31,7 +31,7 @@ Figure 2 is a picture I find from ifeve.com
 
 1. if the object is big or an array, it will be directly allocated on the `Old Generation`.  
 2. if it is a normal object, Jvm will try to allocate it on the `Eden`.  
-3. if `Eden` is full, minorGC will be triggered, live objects in `Eden` and one  `Survivor[From]` will be moved to another  `Survivor[To]`. The old enough objects(default is 15 years old) will be moved to `Old Generation`. After that, these two Survivor will exchange their role.  
+3. if `Eden` is full, minorGC will be triggered, live objects in `Eden` and one  `Survivor[From]` will be moved to another  `Survivor[To]`. The objects old enough(default is 15 years old) will be moved to `Old Generation`. After that, these two Survivor will exchange their role.  
 4. if  `To Survivor` is full, the objects in `To Survivor` will be moved to `Old Generation`  
 5. if `Old Generation` is full, `Full GC` will be invoked.  
 6. if heap also has no enough memeory after `Full GC`, jvm will throw `OutOfMemoryException`  
