@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "What the Java's memory model looks like"
+title: "Java's memory model and Object allocation"
 date: 2015-03-24 14:12:42 +0800
 comments: true
 categories: jvm
 keywords: jvm,memory,java
-description: What the Java's memory model looks like
+description: Java's memory model and Object allocation
 ---
 ###1. Java's memory model
 From Java 2 Standard Edition, Java performs automatic memory management. In order to enhance the garbage collection's efficiency, Java bring in generational memory model.   
