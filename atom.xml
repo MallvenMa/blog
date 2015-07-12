@@ -4,7 +4,7 @@
   <title><![CDATA[Hello World]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-11T18:43:46+08:00</updated>
+  <updated>2015-07-12T18:27:58+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -12,6 +12,85 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[How synchronized-lock in Java works]]></title>
+    <link href="http://mallven.com//blog/2015/04/15/how-synchronized-lock-works/"/>
+    <updated>2015-04-15T11:40:31+08:00</updated>
+    <id>http://mallven.com//blog/2015/04/15/how-synchronized-lock-works</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How Locks in Java Works]]></title>
+    <link href="http://mallven.com//blog/2015/04/10/how-locks-in-java-works/"/>
+    <updated>2015-04-10T11:38:18+08:00</updated>
+    <id>http://mallven.com//blog/2015/04/10/how-locks-in-java-works</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How Garbage Collection Work]]></title>
+    <link href="http://mallven.com//blog/2015/04/01/how-garbage-collection-works/"/>
+    <updated>2015-04-01T11:32:34+08:00</updated>
+    <id>http://mallven.com//blog/2015/04/01/how-garbage-collection-works</id>
+    <content type="html"><![CDATA[<h3>1.Disadvantage of Explicit Memory Management</h3>
+
+<p>Before the advent of Automatic Memory Mangement, programmers are  responsible for the memeory management, they allocate and deallocate memeory by their codes.
+But sometimes manage memory by hand will cause many memeory related problems when  programs become relative complexed. eg:</p>
+
+<h4>1.1. Dangling References</h4>
+
+<p>When we deallocate the space used by an object to which some other objects still has a reference. If the object with that reference tries to access the original object, but the space has been reallocated to a new object, the result would be unpredictable.</p>
+
+<h4>1.2. Space Leaks</h4>
+
+<p>If one object has a reference of another object, we deallocate the space used by the first object but forgot to free the space used by the second object. The second object could not be referenced by other objects or be deallocated, it will become a no-reachable object, if there are many objects like this in our program, the physical memory will be exhausted soon.</p>
+
+<!--more-->
+
+
+<h3>2. Automatic Memory Management</h3>
+
+<p>In order to resolve the problems caused by Explicit Memory Mnangement, we introduce the Automatic Memory Management concept.  With <code>Automatic Memory Management</code> we do not concern the Memory Management problems, they are managed by a program called <code>Garbage Collector</code> , we can only concentrate on the logical thing. The world is  becoming more easier.</p>
+
+<h3>3. The Responsibility of Garbage Collector</h3>
+
+<ol>
+<li>allocate space for objects.</li>
+<li>ensuring that any referenced objects remain in memory</li>
+<li>deallocate memory used by objects that are no long reachable from references in executing code.</li>
+</ol>
+
+
+<h3>4. How Many Garbage Collectors JVM Have</h3>
+
+<ol>
+<li>Serial Garbage Collector</li>
+<li>Parallel Garbage Collector</li>
+<li>Parallel Compacting Garbage Collector</li>
+<li>Concurrent Mark-Sweep Garbage Collector</li>
+<li>Garbage-First(G1) Collector [JDK7 update 4]</li>
+</ol>
+
+
+<h3>5. How These Garbage Collectors Works</h3>
+
+<h4>5.1 Serial Garbage Collector</h4>
+
+<p>Figure 1 illustrates the operation of young generation using the serial collection, when <code>Eden</code> is full, <code>Minor Gc</code> will be executed on <code>Young Generation</code>. The live objects in <code>Eden</code> are copied to the empty survivor space,labed <code>To</code> in the figure, except for ones too large to fit comfortably in the <code>To</code> space. Such objects are driectly copied to <code>Old Generation</code>. The live objects relatively young  in survivor <code>From</code> are also copied to <code>To</code> while objects that relatively old are copied to <code>Old Generation</code>. But if <code>To</code> survivor space becomes full, the objects from <code>Eden</code> and <code>From</code> that have not been copied to it are tenured, regardless how many young generation collections they have survived, these objects will be copied to <code>Old Generation</code>. After this process, all objects remaining in <code>Eden</code> and <code>From</code> are not live, the memory they use will be deallocated.</p>
+
+<p><img src="http://mallven.com//images/blog/2015-04/20150401-serial-collector.png" alt="serial collector" /></p>
+
+<p>After the young generation collections, <code>Eden</code> and <code>From</code> are empty and <code>To</code> holds all the live objects, <code>From</code> and <code>To</code> would swap their roles after the young generation collection, one of them will always be empty.</p>
+
+<p><img src="http://mallven.com//images/blog/2015-04/20150401-serial-collector-after.png" alt="serial collector after" /></p>
+
+<p><code>From</code> and <code>To</code> will change their role after the young generation collection, one of them will always empty.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Java's memory model and Object allocation]]></title>

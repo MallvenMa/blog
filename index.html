@@ -105,6 +105,142 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-15T11:40:31+08:00" pubdate data-updated="true">Apr 15<span>th</span>, 2015</time>
+        
+        
+          | <a href="/blog/2015/04/15/how-synchronized-lock-works/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/15/how-synchronized-lock-works/">How Synchronized-lock in Java Works</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix">
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-10T11:38:18+08:00" pubdate data-updated="true">Apr 10<span>th</span>, 2015</time>
+        
+        
+          | <a href="/blog/2015/04/10/how-locks-in-java-works/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/10/how-locks-in-java-works/">How Locks in Java Works</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix">
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-01T11:32:34+08:00" pubdate data-updated="true">Apr 1<span>st</span>, 2015</time>
+        
+        
+          | <a href="/blog/2015/04/01/how-garbage-collection-works/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/01/how-garbage-collection-works/">How Garbage Collection Work</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h3>1.Disadvantage of Explicit Memory Management</h3>
+
+<p>Before the advent of Automatic Memory Mangement, programmers are  responsible for the memeory management, they allocate and deallocate memeory by their codes.
+But sometimes manage memory by hand will cause many memeory related problems when  programs become relative complexed. eg:</p>
+
+<h4>1.1. Dangling References</h4>
+
+<p>When we deallocate the space used by an object to which some other objects still has a reference. If the object with that reference tries to access the original object, but the space has been reallocated to a new object, the result would be unpredictable.</p>
+
+<h4>1.2. Space Leaks</h4>
+
+<p>If one object has a reference of another object, we deallocate the space used by the first object but forgot to free the space used by the second object. The second object could not be referenced by other objects or be deallocated, it will become a no-reachable object, if there are many objects like this in our program, the physical memory will be exhausted soon.</p>
+
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2015/04/01/how-garbage-collection-works/">MORE</a>
+    </footer>
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-03-24T14:12:42+08:00" pubdate data-updated="true">Mar 24<span>th</span>, 2015</time>
         
         
@@ -491,189 +627,11 @@ String.c 中只有一个方法：</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-22T14:09:15+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/05/22/jvm-object-structure/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/22/jvm-object-structure/">Layout of Java Object</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h2>1. What do a Java object looks like in the memory?</h2>
-
-<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
-But what is the definition of these <em>specific rules</em> in JVM？<br/>
-In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
-<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/22/jvm-object-structure/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-21T20:35:18+08:00" pubdate data-updated="true">May 21<span>st</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/05/21/cpu-and-memory/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
-
-<h3>1. Several concepts of CPU</h3>
-
-<ol>
-<li>Data Bus：Data Bus are used to transfer data between CPU and other components(eg:memory)。</li>
-<li>Data Bus Width：Data Bus Width represent the number of bits that  Registers can hold, namely:bits of CPU can hold. for example an &ldquo;32-bit CPU&rdquo; or an &ldquo;64-bit CPU&rdquo;. Number of bits of CPU can hold could not represent CPU&rsquo;s addressing abilities.</li>
-<li>Address Bus：Address Bus is used to specify a physical address。</li>
-<li>Address Bus Width: The width of the Address Bus determines the amount of memory the system can address.For example, a system with a 32-bit address bus can address 0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF) locations. If each memory address holds one byte, the addressable memory space  is 4GiB.</li>
-<li>Control Bus: Control Bus are used to transmit instructions to other components</li>
-</ol>
-
-
-<p>There are many articles about BUS  on the internet ，For example：</p>
-
-<ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">Structures of CPU Bus</a></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">Width of CPU, Addressing abilities, Instructions，Width of Register，Width of Operation System</a></li>
-</ul>
-
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/21/cpu-and-memory/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-18T22:05:24+08:00" pubdate data-updated="true">May 18<span>th</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/05/18/vim-chinese-error/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/18/vim-chinese-error/">Mac OSX Vim Display Chinese as Garbled Characters</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h3>Envrionment:</h3>
-
-<ol>
-<li>OSX 10.9.2 English</li>
-<li>VIM 7.3</li>
-</ol>
-
-
-<h3>Problems:</h3>
-
-<ol>
-<li>Can display Chinese characters in file</li>
-<li>Can not display Chinese characters inputed from screen</li>
-<li>Add encoding settings to .vimrc does not work</li>
-</ol>
-
-
-<h3>Solution:</h3>
-
-<p>find  <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> and uncheck this option。</p>
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/18/vim-chinese-error/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
       
-        <li class="previous disabled"><a href="#">&larr;&nbsp;Older</a></li>
+        <li class="previous"><a href="/blog/page/2/">&larr;&nbsp;Older</a></li>
       
       <li><a href="/blog/archives">Blog Archives</a></li>
       
@@ -691,7 +649,7 @@ In hotspot，there are two types of object：normal object and array，the memor
   </div>
   <div id="about_me" class="list-group">
   <div style="padding-top:15px;padding-bottom:15px;text-align:center">
-	<span >What all  I have is the world</span>	  </div>
+	<span >Good Good Study, Day Day Up</span>	  </div>
   <div class="social" style="text-align:center">
 		 
                 <a class="github" target="_blank"  href="https://github.com/zarue" title="GitHub">GitHub</a>
@@ -722,15 +680,15 @@ In hotspot，there are two types of object：normal object and array，the memor
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2015/04/15/how-synchronized-lock-works/">How Synchronized-lock in Java Works</a>
+    
+    <a class="list-group-item " href="/blog/2015/04/10/how-locks-in-java-works/">How Locks in Java Works</a>
+    
+    <a class="list-group-item " href="/blog/2015/04/01/how-garbage-collection-works/">How Garbage Collection Work</a>
+    
     <a class="list-group-item " href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/">Java&#8217;s Memory Model and Object Allocation</a>
     
     <a class="list-group-item " href="/blog/2015/03/16/how-hashmap-works/">How HashMap Works</a>
-    
-    <a class="list-group-item " href="/blog/2014/06/21/netbeans-debug-hotspot/">Netbeans Debug Hotspot</a>
-    
-    <a class="list-group-item " href="/blog/2014/06/15/java-object-create-2/">JVM 之 Java对象创建[初始化]</a>
-    
-    <a class="list-group-item " href="/blog/2014/06/14/java-object-create-1/">JVM 之 Java对象创建[加载和连接]</a>
     
   </div>
 </section>
@@ -740,7 +698,7 @@ In hotspot，there are two types of object：normal object and array，the memor
   </div>
   <div id="categories" class="list-group">
   <a class='list-group-item'  href='/blog/categories/java/'>java (1)</a>
-<a class='list-group-item'  href='/blog/categories/jvm/'>jvm (7)</a>
+<a class='list-group-item'  href='/blog/categories/jvm/'>jvm (8)</a>
 <a class='list-group-item'  href='/blog/categories/system/'>system (1)</a>
 <a class='list-group-item'  href='/blog/categories/vim/'>vim (1)</a>
  

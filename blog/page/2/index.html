@@ -4,10 +4,10 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: system - Hello World</title>
+  <title>Hello World</title>
   <meta name="author" content="Mallven">
 
-  <meta name="description" content="Category: system">
+  
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://mallven.com/blog/categories/system">
+  <link rel="canonical" href="http://mallven.com//blog/page/2">
   <link href="/favicon.png" type="image/png" rel="icon">
   <link href="" rel="alternate" title="Hello World" type="application/atom+xml">
 
@@ -47,10 +47,10 @@
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li >
+                <li class="active">
                     <a href="/">Blog</a>
                 </li>
-                <li class="active">
+                <li >
                     <a href="/blog/archives">Archives</a>
                 </li>
 		<li >
@@ -83,31 +83,66 @@
         <div id="content">
           <div class="row">
   <div class="page-content col-md-9">
-    <article role="article">
+    <div class="blog-index">
       
-        <header class="page-header">
-          
-          
-            <h1 class="entry-title">
-              Category: System
-              
-            </h1>
-          
-        </header>
       
-      <div class="entry-content">
-        <div id="blog-archives" class="category">
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
 
 
 
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-22T14:09:15+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2014</time>
+        
+        
+          | <a href="/blog/2014/05/22/jvm-object-structure/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/22/jvm-object-structure/">Layout of Java Object</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>1. What do a Java object looks like in the memory?</h2>
+
+<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
+But what is the definition of these <em>specific rules</em> in JVM？<br/>
+In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
+<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
+
+</div>
   
-  <h2>2014</h2>
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/22/jvm-object-structure/">MORE</a>
+    </footer>
+  
 
-<article class="page-header">
-  
-<h1><a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a></h1>
-<p class="meta text-muted">
-  
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
 
 
 
@@ -121,27 +156,125 @@
 
 
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-21T20:35:18+08:00" pubdate data-updated="true">May 21<span>st</span>, 2014</time>
-  
+        
+        
+          | <a href="/blog/2014/05/21/cpu-and-memory/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a></h1>
+    
+  </header>
 
-<span class="glyphicon glyphicon-tags"></span>&nbsp;
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/system/'>system</a>
-  
-</span>
+
+  <div class="entry-content clearfix"><h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
+
+<h3>1. Several concepts of CPU</h3>
+
+<ol>
+<li>Data Bus：Data Bus are used to transfer data between CPU and other components(eg:memory)。</li>
+<li>Data Bus Width：Data Bus Width represent the number of bits that  Registers can hold, namely:bits of CPU can hold. for example an &ldquo;32-bit CPU&rdquo; or an &ldquo;64-bit CPU&rdquo;. Number of bits of CPU can hold could not represent CPU&rsquo;s addressing abilities.</li>
+<li>Address Bus：Address Bus is used to specify a physical address。</li>
+<li>Address Bus Width: The width of the Address Bus determines the amount of memory the system can address.For example, a system with a 32-bit address bus can address 0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF) locations. If each memory address holds one byte, the addressable memory space  is 4GiB.</li>
+<li>Control Bus: Control Bus are used to transmit instructions to other components</li>
+</ol>
 
 
-</p>
+<p>There are many articles about BUS  on the internet ，For example：</p>
 
-</article>
+<ul>
+<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">Structures of CPU Bus</a></li>
+<li><a href="http://my.oschina.net/u/158589/blog/70813">Width of CPU, Addressing abilities, Instructions，Width of Register，Width of Operation System</a></li>
+</ul>
+
 
 </div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/21/cpu-and-memory/">MORE</a>
+    </footer>
+  
 
-      </div>
+
+        </article>
       
-    </article>
+      
+        <article class="post">
+          
+  <header class="page-header">
     
-	
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-18T22:05:24+08:00" pubdate data-updated="true">May 18<span>th</span>, 2014</time>
+        
+        
+          | <a href="/blog/2014/05/18/vim-chinese-error/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/18/vim-chinese-error/">Mac OSX Vim Display Chinese as Garbled Characters</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h3>Envrionment:</h3>
+
+<ol>
+<li>OSX 10.9.2 English</li>
+<li>VIM 7.3</li>
+</ol>
+
+
+<h3>Problems:</h3>
+
+<ol>
+<li>Can display Chinese characters in file</li>
+<li>Can not display Chinese characters inputed from screen</li>
+<li>Add encoding settings to .vimrc does not work</li>
+</ol>
+
+
+<h3>Solution:</h3>
+
+<p>find  <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> and uncheck this option。</p>
+
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/18/vim-chinese-error/">MORE</a>
+    </footer>
+  
+
+
+        </article>
+      
+    </div>
+
+    <ul class="pager">
+      
+        <li class="previous disabled"><a href="#">&larr;&nbsp;Older</a></li>
+      
+      <li><a href="/blog/archives">Blog Archives</a></li>
+      
+        <li class="next"><a href="/">Newer&nbsp;&rarr;</a></li>
+      
+    </ul>
   </div>
 
   
@@ -190,7 +323,7 @@
     
     <a class="list-group-item " href="/blog/2015/04/01/how-garbage-collection-works/">How Garbage Collection Work</a>
     
-    <a class="list-group-item " href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/">Java's Memory Model and Object Allocation</a>
+    <a class="list-group-item " href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/">Java&#8217;s Memory Model and Object Allocation</a>
     
     <a class="list-group-item " href="/blog/2015/03/16/how-hashmap-works/">How HashMap Works</a>
     

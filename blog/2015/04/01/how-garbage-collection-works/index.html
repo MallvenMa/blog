@@ -4,11 +4,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Reading - Hello World</title>
+  <title>How Garbage Collection Work - Hello World</title>
   <meta name="author" content="Mallven">
 
   
-  
+  <meta name="keywords" content="garbage collection,jvm,memory">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://mallven.com//reading">
+  <link rel="canonical" href="http://mallven.com//blog/2015/04/01/how-garbage-collection-works">
   <link href="/favicon.png" type="image/png" rel="icon">
   <link href="" rel="alternate" title="Hello World" type="application/atom+xml">
 
@@ -47,7 +47,7 @@
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li >
+                <li class="active">
                     <a href="/">Blog</a>
                 </li>
                 <li >
@@ -83,103 +83,150 @@
         <div id="content">
           <div class="row">
   <div class="page-content col-md-9">
-    <article role="article">
+    <article class="hentry" role="article">
       
-        <header class="page-header">
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-01T11:32:34+08:00" pubdate data-updated="true">Apr 1<span>st</span>, 2015</time>
+        
+        
+          | <a href="#comments">Comments</a>
+         
+      </p>
+    
+    
+    <h1 class="entry-title">
+        How Garbage Collection Work
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix"><h3>1.Disadvantage of Explicit Memory Management</h3>
+
+<p>Before the advent of Automatic Memory Mangement, programmers are  responsible for the memeory management, they allocate and deallocate memeory by their codes.
+But sometimes manage memory by hand will cause many memeory related problems when  programs become relative complexed. eg:</p>
+
+<h4>1.1. Dangling References</h4>
+
+<p>When we deallocate the space used by an object to which some other objects still has a reference. If the object with that reference tries to access the original object, but the space has been reallocated to a new object, the result would be unpredictable.</p>
+
+<h4>1.2. Space Leaks</h4>
+
+<p>If one object has a reference of another object, we deallocate the space used by the first object but forgot to free the space used by the second object. The second object could not be referenced by other objects or be deallocated, it will become a no-reachable object, if there are many objects like this in our program, the physical memory will be exhausted soon.</p>
+
+<!--more-->
+
+
+<h3>2. Automatic Memory Management</h3>
+
+<p>In order to resolve the problems caused by Explicit Memory Mnangement, we introduce the Automatic Memory Management concept.  With <code>Automatic Memory Management</code> we do not concern the Memory Management problems, they are managed by a program called <code>Garbage Collector</code> , we can only concentrate on the logical thing. The world is  becoming more easier.</p>
+
+<h3>3. The Responsibility of Garbage Collector</h3>
+
+<ol>
+<li>allocate space for objects.</li>
+<li>ensuring that any referenced objects remain in memory</li>
+<li>deallocate memory used by objects that are no long reachable from references in executing code.</li>
+</ol>
+
+
+<h3>4. How Many Garbage Collectors JVM Have</h3>
+
+<ol>
+<li>Serial Garbage Collector</li>
+<li>Parallel Garbage Collector</li>
+<li>Parallel Compacting Garbage Collector</li>
+<li>Concurrent Mark-Sweep Garbage Collector</li>
+<li>Garbage-First(G1) Collector [JDK7 update 4]</li>
+</ol>
+
+
+<h3>5. How These Garbage Collectors Works</h3>
+
+<h4>5.1 Serial Garbage Collector</h4>
+
+<p>Figure 1 illustrates the operation of young generation using the serial collection, when <code>Eden</code> is full, <code>Minor Gc</code> will be executed on <code>Young Generation</code>. The live objects in <code>Eden</code> are copied to the empty survivor space,labed <code>To</code> in the figure, except for ones too large to fit comfortably in the <code>To</code> space. Such objects are driectly copied to <code>Old Generation</code>. The live objects relatively young  in survivor <code>From</code> are also copied to <code>To</code> while objects that relatively old are copied to <code>Old Generation</code>. But if <code>To</code> survivor space becomes full, the objects from <code>Eden</code> and <code>From</code> that have not been copied to it are tenured, regardless how many young generation collections they have survived, these objects will be copied to <code>Old Generation</code>. After this process, all objects remaining in <code>Eden</code> and <code>From</code> are not live, the memory they use will be deallocated.</p>
+
+<p><img src="/images/blog/2015-04/20150401-serial-collector.png" alt="serial collector" /></p>
+
+<p>After the young generation collections, <code>Eden</code> and <code>From</code> are empty and <code>To</code> holds all the live objects, <code>From</code> and <code>To</code> would swap their roles after the young generation collection, one of them will always be empty.</p>
+
+<p><img src="/images/blog/2015-04/20150401-serial-collector-after.png" alt="serial collector after" /></p>
+
+<p><code>From</code> and <code>To</code> will change their role after the young generation collection, one of them will always empty.</p>
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
           
-            <p class="meta text-muted text-uppercase">
+  
 
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard">Posted by <span class="fn">Mallven</span></span>
 
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-03T00:00:00+08:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2014</time></p>
           
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-01T11:32:34+08:00" pubdate data-updated="true">Apr 1<span>st</span>, 2015</time>
           
-            <h1 class="entry-title">
-              Reading
-              
-            </h1>
-          
-        </header>
-      
-      <div class="entry-content">
-        <p>This year I want to improve my english ability, so I start to read more english original, this is the book list:</p>
 
-<blockquote><h4>The little Prince(★)</h4>
-
-<p>This book was wrote by Antoine de Saint-Exupéry(1900–1944),This novel&rsquo;s protagonist is a little prince ,He is innocence and pure and didn&rsquo;t like the adult&rsquo;s world,He left from his planet and started a travel in the universe, He visited six other asteroids  meet six different people,They were foolish and  narrow-minded. Finally the prince came to the earth and died here.</p></blockquote>
-
-<hr />
-
-<blockquote><h4>The wonderful wizard of oz(★)</h4>
-
-<p>This book was wrote by L. Frank Baum,This novel chronicles the adventures of a young girl named Dorothy Gale in the Land of Oz, after being swept away from her Kansas farm home in a cyclone.</p></blockquote>
-
-<hr />
-
-<blockquote><h4>Flipped(★★)</h4>
-
-<p>This book was wrote by Wendelin Van Draanen,This is a young adult novel about Juli and Bryce, At first Juli like Bryce but Bryce hurt Juli always.But when Juli decided to abandon Bryce , Bryce realized that he has fall in love with Juli.He calls, knocks on her door, and eventually climbs her window.he plants a sycamore tree in her front yard. Juli now realizes Bryce has changed and waves back at him from her living room window. Then goes out of the house and helps plant the tree with him. And at the moment they fall in love.</p></blockquote>
-
-<hr />
-
-<blockquote><h4>Charlie and the Chocolate Factory(★★)</h4>
-
-<p>This child noval was wrote by Roald Dahl in 1964. The story features the adventures of young Charlie Bucket inside the chocolate factory of eccentric chocolatier Willy Wonka</p></blockquote>
-
-<hr />
-
-<blockquote><h4>The NoteBook(★★★)</h4>
-
-<p>This is a very lovely story between to young people.I was impressed by this book.</p></blockquote>
-
-<hr />
-
-<blockquote><h4>Zero To One(★★★★)</h4>
-
-<p>Written by Peter Thiel one of the founders of paypal,This book is too hard for me</p></blockquote>
-
-      </div>
-      
-        <footer>
-          <p class="meta text-muted">
-            
-            
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/jvm/'>jvm</a>
+  
+</span>
 
 
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-03T00:00:00+08:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2014</time>
-            
-          </p>
-          
-            <div class="sharing">
+        </p>
+        
+          <div class="sharing">
   
   
   
 </div>
 
-          
-        </footer>
-      
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/" title="Previous Post: Java's memory model and Object allocation">&laquo; Java's memory model and Object allocation</a></li>
+            
+            
+            <li class="next"><a href="/blog/2015/04/10/how-locks-in-java-works/" title="Next Post: How Locks in Java Works">How Locks in Java Works &raquo;</a></li>
+            
+          </ul>
+        
+      </footer>
     </article>
-    
+  
+
 
   <section>
     <h1>Comments</h1>
@@ -201,13 +248,13 @@ var duoshuoQuery = {short_name:"zarue"};
 <!-- 多说公共JS代码 end -->
 </div>
   </section>
-	
-  </div>
+
+</div>
 
   
-    <aside class="sidebar col-md-3">
-      
-        <section class="panel panel-default">
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Mallven</h3>
   </div>
@@ -248,7 +295,7 @@ var duoshuoQuery = {short_name:"zarue"};
     
     <a class="list-group-item " href="/blog/2015/04/10/how-locks-in-java-works/">How Locks in Java Works</a>
     
-    <a class="list-group-item " href="/blog/2015/04/01/how-garbage-collection-works/">How Garbage Collection Work</a>
+    <a class="list-group-item active" href="/blog/2015/04/01/how-garbage-collection-works/">How Garbage Collection Work</a>
     
     <a class="list-group-item " href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/">Java's Memory Model and Object Allocation</a>
     
@@ -273,8 +320,8 @@ var duoshuoQuery = {short_name:"zarue"};
 
 
 
-      
-    </aside>
+    
+  </aside>
   
 </div>
 
