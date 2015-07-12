@@ -4,7 +4,7 @@
   <title><![CDATA[Hello World]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-12T18:27:58+08:00</updated>
+  <updated>2015-07-12T19:02:47+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -80,15 +80,25 @@ But sometimes manage memory by hand will cause many memeory related problems whe
 
 <h4>5.1 Serial Garbage Collector</h4>
 
+<h4>5.1.1 Young Generation Collection</h4>
+
 <p>Figure 1 illustrates the operation of young generation using the serial collection, when <code>Eden</code> is full, <code>Minor Gc</code> will be executed on <code>Young Generation</code>. The live objects in <code>Eden</code> are copied to the empty survivor space,labed <code>To</code> in the figure, except for ones too large to fit comfortably in the <code>To</code> space. Such objects are driectly copied to <code>Old Generation</code>. The live objects relatively young  in survivor <code>From</code> are also copied to <code>To</code> while objects that relatively old are copied to <code>Old Generation</code>. But if <code>To</code> survivor space becomes full, the objects from <code>Eden</code> and <code>From</code> that have not been copied to it are tenured, regardless how many young generation collections they have survived, these objects will be copied to <code>Old Generation</code>. After this process, all objects remaining in <code>Eden</code> and <code>From</code> are not live, the memory they use will be deallocated.</p>
 
 <p><img src="http://mallven.com//images/blog/2015-04/20150401-serial-collector.png" alt="serial collector" /></p>
 
-<p>After the young generation collections, <code>Eden</code> and <code>From</code> are empty and <code>To</code> holds all the live objects, <code>From</code> and <code>To</code> would swap their roles after the young generation collection, one of them will always be empty.</p>
+<p>After the young generation collections, <code>Eden</code> and <code>From</code> are empty and <code>To</code> holds all the live objects from <code>Eden</code> and <code>From</code>, <code>From</code> and <code>To</code> would swap their roles after the young generation collection, one of them will always be empty.</p>
 
 <p><img src="http://mallven.com//images/blog/2015-04/20150401-serial-collector-after.png" alt="serial collector after" /></p>
 
-<p><code>From</code> and <code>To</code> will change their role after the young generation collection, one of them will always empty.</p>
+<h4>5.1.2 Old Generation Collection</h4>
+
+<p>Figure 3 illustrates <code>Old Generation</code> collection using the serial collector.</p>
+
+<p><img src="http://mallven.com//images/blog/2015-04/20150401-serial-collector-old-generation.png" alt="serial collector old generation" /><br/>
+.<br/>
+.</p>
+
+<h4>5.2 Parallel Garbage Collector</h4>
 ]]></content>
   </entry>
   
