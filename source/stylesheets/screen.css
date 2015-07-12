@@ -59,7 +59,8 @@ q:after {
 	text-transform:uppercase
 }
 .page-content {
-	margin-bottom:42px
+	margin-bottom:42px;
+	line-height:25.88px;
 }
 .sans,html .gist .gist-file .gist-meta {
 	font-family:"PT Sans","Helvetica Neue",Arial,sans-serif
