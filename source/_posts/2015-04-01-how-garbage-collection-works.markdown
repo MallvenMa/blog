@@ -34,19 +34,30 @@ In order to resolve the problems caused by Explicit Memory Mnangement, we introd
 
 ###5. How These Garbage Collectors Works
 ####5.1 Serial Garbage Collector
+
+####5.1.1 Young Generation Collection
 Figure 1 illustrates the operation of young generation using the serial collection, when `Eden` is full, `Minor Gc` will be executed on `Young Generation`. The live objects in `Eden` are copied to the empty survivor space,labed `To` in the figure, except for ones too large to fit comfortably in the `To` space. Such objects are driectly copied to `Old Generation`. The live objects relatively young  in survivor `From` are also copied to `To` while objects that relatively old are copied to `Old Generation`. But if `To` survivor space becomes full, the objects from `Eden` and `From` that have not been copied to it are tenured, regardless how many young generation collections they have survived, these objects will be copied to `Old Generation`. After this process, all objects remaining in `Eden` and `From` are not live, the memory they use will be deallocated.  
  
 ![serial collector][1]  
 
-After the young generation collections, `Eden` and `From` are empty and `To` holds all the live objects, `From` and `To` would swap their roles after the young generation collection, one of them will always be empty.  
-
-
+After the young generation collections, `Eden` and `From` are empty and `To` holds all the live objects from `Eden` and `From`, `From` and `To` would swap their roles after the young generation collection, one of them will always be empty.  
+  
 ![serial collector after][2]  
 
+####5.1.2 Old Generation Collection
+Figure 3 illustrates `Old Generation` collection using the serial collector.  
 
-`From` and `To` will change their role after the young generation collection, one of them will always empty.  
+![serial collector old generation][3]  
+.  
+.  
+####5.2 Parallel Garbage Collector
+
+
+
+
 
 
 [1]:/images/blog/2015-04/20150401-serial-collector.png
 [2]:/images/blog/2015-04/20150401-serial-collector-after.png
+[3]:/images/blog/2015-04/20150401-serial-collector-old-generation.png
 
