@@ -38,8 +38,11 @@ Figure 1 illustrates the operation of young generation using the serial collecti
  
 ![serial collector][1]  
 
-After the young generation collections, `Eden` and `From` will become empty. Figure 2  
+After the young generation collections, `Eden` and `From` are empty and `To` holds all the live objects, `From` and `To` would swap their roles after the young generation collection, one of them will always be empty.  
+
+
 ![serial collector after][2]  
+
 
 `From` and `To` will change their role after the young generation collection, one of them will always empty.  
 
