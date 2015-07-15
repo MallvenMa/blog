@@ -83,6 +83,7 @@ First, each generation is logically divided into fixed-sized regions
 3. Compaction: in this phase, garbage collection threads will use the summary data to identify the regions which need to be filled, and the threads can idependently copy data into that regions. This produces a heap that is densely packed on one end, with a single large empty block at the other end.  
  
 
+NOT FINISH.....
 
 
 
