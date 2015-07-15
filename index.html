@@ -340,63 +340,6 @@ Figure 1 is a picture I find from &ldquo;pointsoftware.com&rdquo;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-07-15T14:41:35+08:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/07/15/how-do-i-learn-english/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/15/how-do-i-learn-english/">How Do I Learn English</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><ol>
-<li>I have changed my phone language and computer language to english</li>
-<li>I use Quora,Mashable,News Digest,Reddit,BuzzFeed everyday(also weibo and wechat &hellip;)</li>
-<li>I use kindle to read novels everyday,I started from 《The little princle》haha, and now I am reading my sixth english book 《The Notebook》</li>
-<li>I get up at 6:00 am everyday to read after the &ldquo;ESL Podcast&rdquo;</li>
-<li>I also like watching  &ldquo;TED&rdquo; ,&ldquo;Friends&rdquo; and other american dramas (without subtitle)</li>
-<li>In order to improve my writing ability ,I am reading the 《Grammar Club》now</li>
-</ol>
-
-
-<p>update:</p>
-
-<ol>
-<li>I have finished the 《Grammar  Club》,I think this is a very useful book for me.</li>
-<li>I think chat with English is very important thing(Not only with the native speaker,Anyone is OK, Just open mouth,It is a big thing),I have find several partner to practice our speaking skill,But because the time difference we couldn&rsquo;t talk a lot,But I always thank them, My available time is from 1pm-2pm GMT (not everyday) and My Skype-ID is : <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#99;&#104;&#x65;&#110;&#101;&#121;&#46;&#109;&#x79;&#x64;&#114;&#101;&#97;&#x6d;&#64;&#x67;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#x63;&#x68;&#101;&#110;&#x65;&#x79;&#x2e;&#x6d;&#x79;&#100;&#x72;&#x65;&#97;&#x6d;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a></li>
-<li>Recommending an app named &ldquo;HiNative&rdquo;(Ios version is available now),It is a amazing app,If you have any problems ,you can ask the native people on HiNative.They will help you as soon as possible(But, Please notice the time difference)</li>
-</ol>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-06-21T18:02:59+08:00" pubdate data-updated="true">Jun 21<span>st</span>, 2014</time>
         
         
@@ -629,6 +572,61 @@ String.c 中只有一个方法：</p>
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-27T20:30:20+08:00" pubdate data-updated="true">May 27<span>th</span>, 2014</time>
+        
+        
+          | <a href="/blog/2014/05/27/runtime-string-pool-1/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/27/runtime-string-pool-1/">JVM 之 String 常量池 一</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h4>1.Sting对象创建方式</h4>
+
+<p>JAVA里面创建字符串有两种方式：<br/>
+1. 通过字符串常量方式:String a = &ldquo;a&rdquo;;<br/>
+2. 通过new 关键字创建:new String(&ldquo;a&rdquo;);</p>
+
+<p>但是这两种创建字符串的方式有很大的不同。<br/>
+1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。<br/>
+2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。</p>
+
+<h4>2.下面来看一个例子: <a href="https://gist.github.com/zarue/25e0afedb33de86da650">本例子Gist地址</a></h4>
+
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/27/runtime-string-pool-1/">MORE</a>
+    </footer>
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -701,7 +699,7 @@ String.c 中只有一个方法：</p>
   <div id="categories" class="list-group">
   <a class='list-group-item'  href='/blog/categories/java/'>java (1)</a>
 <a class='list-group-item'  href='/blog/categories/jvm/'>jvm (8)</a>
-<a class='list-group-item'  href='/blog/categories/life/'>life (1)</a>
+<a class='list-group-item'  href='/blog/categories/story/'>story (1)</a>
 <a class='list-group-item'  href='/blog/categories/system/'>system (1)</a>
 <a class='list-group-item'  href='/blog/categories/vim/'>vim (1)</a>
  

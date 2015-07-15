@@ -4,7 +4,7 @@
   <title><![CDATA[Hello World]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-15T15:10:45+08:00</updated>
+  <updated>2015-07-15T15:42:19+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -323,32 +323,6 @@ but we notice that there is a line of comment “length must be a non-zero power
 </span></code></pre></td></tr></table></div></figure>
 
 
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[how do I learn english]]></title>
-    <link href="http://mallven.com//blog/2014/07/15/how-do-i-learn-english/"/>
-    <updated>2014-07-15T14:41:35+08:00</updated>
-    <id>http://mallven.com//blog/2014/07/15/how-do-i-learn-english</id>
-    <content type="html"><![CDATA[<ol>
-<li>I have changed my phone language and computer language to english</li>
-<li>I use Quora,Mashable,News Digest,Reddit,BuzzFeed everyday(also weibo and wechat &hellip;)</li>
-<li>I use kindle to read novels everyday,I started from 《The little princle》haha, and now I am reading my sixth english book 《The Notebook》</li>
-<li>I get up at 6:00 am everyday to read after the &ldquo;ESL Podcast&rdquo;</li>
-<li>I also like watching  &ldquo;TED&rdquo; ,&ldquo;Friends&rdquo; and other american dramas (without subtitle)</li>
-<li>In order to improve my writing ability ,I am reading the 《Grammar Club》now</li>
-</ol>
-
-
-<p>update:</p>
-
-<ol>
-<li>I have finished the 《Grammar  Club》,I think this is a very useful book for me.</li>
-<li>I think chat with English is very important thing(Not only with the native speaker,Anyone is OK, Just open mouth,It is a big thing),I have find several partner to practice our speaking skill,But because the time difference we couldn&rsquo;t talk a lot,But I always thank them, My available time is from 1pm-2pm GMT (not everyday) and My Skype-ID is : <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#99;&#104;&#x65;&#110;&#101;&#121;&#46;&#109;&#x79;&#x64;&#114;&#101;&#97;&#x6d;&#64;&#x67;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#x63;&#x68;&#101;&#110;&#x65;&#x79;&#x2e;&#x6d;&#x79;&#100;&#x72;&#x65;&#97;&#x6d;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a></li>
-<li>Recommending an app named &ldquo;HiNative&rdquo;(Ios version is available now),It is a amazing app,If you have any problems ,you can ask the native people on HiNative.They will help you as soon as possible(But, Please notice the time difference)</li>
-</ol>
 
 ]]></content>
   </entry>
@@ -2836,6 +2810,49 @@ The memory layout of <code>Animal</code> object, Figure 5:<br/>
 <p>If you have tried many other approach to solve garbled characters problem like this, you should try this soution.  <br/>
 Figure:<br/>
 <img src="http://mallven.com//images/blog/2014-05/20140519-1-vim.png" alt="Figure" /></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[how do I learn english]]></title>
+    <link href="http://mallven.com//blog/2014/04/15/how-do-i-learn-english/"/>
+    <updated>2014-04-15T14:41:35+08:00</updated>
+    <id>http://mallven.com//blog/2014/04/15/how-do-i-learn-english</id>
+    <content type="html"><![CDATA[<ol>
+<li>I have changed my phone language and computer language to english</li>
+<li>I use Quora,Mashable,News Digest,Reddit,Podcast (also weibo and wechat &hellip;)</li>
+<li>I use kindle to read novels ,I started from 《The little princle》haha, and now I am reading my sixth english book 《The Notebook》</li>
+<li>I get up at 6:00am  to read after the &ldquo;ESL Podcast&rdquo;</li>
+<li>I also like watching  &ldquo;TED&rdquo; ,&ldquo;Friends&rdquo; and other American TV Series (without subtitle)</li>
+<li>In order to improve my writing skills, I am reading the 《Grammar Club》now</li>
+</ol>
+
+
+<p>update:</p>
+
+<!--more-->
+
+
+<ol>
+<li>I have finished the 《Grammar  Club》,I think this is a very useful book for me.</li>
+<li>I think chat in English is a very important thing to improve speaking skills(Not only with the native speaker,Anyone is OK, Just try to  open your mouth),I have find several partner to practice our speaking skill,But because the time zone problems,  we couldn&rsquo;t talk a lot,But I always appreciate them, My available time is from 1pm-2pm GMT (not everyday) and My Skype-ID is : <a href="&#109;&#97;&#x69;&#x6c;&#x74;&#111;&#58;&#99;&#x68;&#x65;&#110;&#101;&#x79;&#x2e;&#x6d;&#x79;&#100;&#x72;&#x65;&#x61;&#109;&#64;&#x67;&#109;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#x6d;">&#99;&#104;&#x65;&#x6e;&#x65;&#x79;&#x2e;&#109;&#x79;&#100;&#114;&#x65;&#97;&#x6d;&#64;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#111;&#109;</a></li>
+<li>Recommending an app named &ldquo;HiNative&rdquo;(IOS version is available now),It is an amazing app, When you have any problems ,you can ask the native people on it. They will help you as soon as possible(But, Please notice the time difference)</li>
+</ol>
+
+
+<p>update: some useful podcasts</p>
+
+<ol>
+<li>BBC News</li>
+<li>Real Deal English</li>
+<li>Round Table</li>
+<li>6 Minutes English</li>
+<li>TED Radio Hour</li>
+<li>More To Learn</li>
+<li>Serial</li>
+<li>Stuff You Should Know</li>
+</ol>
+
 ]]></content>
   </entry>
   
