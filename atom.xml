@@ -4,7 +4,7 @@
   <title><![CDATA[Hello World]]></title>
   <link href="http://mallven.com//atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-15T14:24:15+08:00</updated>
+  <updated>2015-07-15T15:10:45+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -131,6 +131,8 @@ First, each generation is logically divided into fixed-sized regions<br/>
 1. Mark: the initial set of live object directly reachable from the application code is divided among garbage collection threads, and then all live objects are marked in parallel. As an object is marked as live, the data of the region where the object in will be updated with information about the size and location of the object.<br/>
 2. Summary: this phase operates on region not objects, Due to compactions from prvious collections, it is typical that some portion of the left side of the generation will become dense, containing mostly live objects, The amount of space can be revovered from these dense regions is not worth the cost of compacting them. So the first thing Summary phase does is to examine the density of the regions, starting with the leftmostly ones, until it reaches a point where the space that could be recovered from a region and those to the right of it is worth the cost of computing those regions. The regions to the left of that point are referred to as the dense frefix, and no objects are moved in those regions. The regions to the right of that point will be compacted, eliminating all the dead objects. The summary phase calculates and stores the new location of the first byte of live data for each compacted region.<br/>
 3. Compaction: in this phase, garbage collection threads will use the summary data to identify the regions which need to be filled, and the threads can idependently copy data into that regions. This produces a heap that is densely packed on one end, with a single large empty block at the other end.</p>
+
+<p>NOT FINISH&hellip;..</p>
 ]]></content>
   </entry>
   
@@ -321,6 +323,32 @@ but we notice that there is a line of comment “length must be a non-zero power
 </span></code></pre></td></tr></table></div></figure>
 
 
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[how do I learn english]]></title>
+    <link href="http://mallven.com//blog/2014/07/15/how-do-i-learn-english/"/>
+    <updated>2014-07-15T14:41:35+08:00</updated>
+    <id>http://mallven.com//blog/2014/07/15/how-do-i-learn-english</id>
+    <content type="html"><![CDATA[<ol>
+<li>I have changed my phone language and computer language to english</li>
+<li>I use Quora,Mashable,News Digest,Reddit,BuzzFeed everyday(also weibo and wechat &hellip;)</li>
+<li>I use kindle to read novels everyday,I started from 《The little princle》haha, and now I am reading my sixth english book 《The Notebook》</li>
+<li>I get up at 6:00 am everyday to read after the &ldquo;ESL Podcast&rdquo;</li>
+<li>I also like watching  &ldquo;TED&rdquo; ,&ldquo;Friends&rdquo; and other american dramas (without subtitle)</li>
+<li>In order to improve my writing ability ,I am reading the 《Grammar Club》now</li>
+</ol>
+
+
+<p>update:</p>
+
+<ol>
+<li>I have finished the 《Grammar  Club》,I think this is a very useful book for me.</li>
+<li>I think chat with English is very important thing(Not only with the native speaker,Anyone is OK, Just open mouth,It is a big thing),I have find several partner to practice our speaking skill,But because the time difference we couldn&rsquo;t talk a lot,But I always thank them, My available time is from 1pm-2pm GMT (not everyday) and My Skype-ID is : <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#99;&#104;&#x65;&#110;&#101;&#121;&#46;&#109;&#x79;&#x64;&#114;&#101;&#97;&#x6d;&#64;&#x67;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#x63;&#x68;&#101;&#110;&#x65;&#x79;&#x2e;&#x6d;&#x79;&#100;&#x72;&#x65;&#97;&#x6d;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a></li>
+<li>Recommending an app named &ldquo;HiNative&rdquo;(Ios version is available now),It is a amazing app,If you have any problems ,you can ask the native people on HiNative.They will help you as soon as possible(But, Please notice the time difference)</li>
+</ol>
 
 ]]></content>
   </entry>

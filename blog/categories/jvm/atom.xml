@@ -4,7 +4,7 @@
   <title><![CDATA[Category: jvm | Hello World]]></title>
   <link href="http://mallven.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-15T14:24:15+08:00</updated>
+  <updated>2015-07-15T15:10:45+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -113,6 +113,8 @@ First, each generation is logically divided into fixed-sized regions<br/>
 1. Mark: the initial set of live object directly reachable from the application code is divided among garbage collection threads, and then all live objects are marked in parallel. As an object is marked as live, the data of the region where the object in will be updated with information about the size and location of the object.<br/>
 2. Summary: this phase operates on region not objects, Due to compactions from prvious collections, it is typical that some portion of the left side of the generation will become dense, containing mostly live objects, The amount of space can be revovered from these dense regions is not worth the cost of compacting them. So the first thing Summary phase does is to examine the density of the regions, starting with the leftmostly ones, until it reaches a point where the space that could be recovered from a region and those to the right of it is worth the cost of computing those regions. The regions to the left of that point are referred to as the dense frefix, and no objects are moved in those regions. The regions to the right of that point will be compacted, eliminating all the dead objects. The summary phase calculates and stores the new location of the first byte of live data for each compacted region.<br/>
 3. Compaction: in this phase, garbage collection threads will use the summary data to identify the regions which need to be filled, and the threads can idependently copy data into that regions. This produces a heap that is densely packed on one end, with a single large empty block at the other end.</p>
+
+<p>NOT FINISH&hellip;..</p>
 ]]></content>
   </entry>
   
