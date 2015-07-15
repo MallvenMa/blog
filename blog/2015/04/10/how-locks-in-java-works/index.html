@@ -8,7 +8,7 @@
   <meta name="author" content="Mallven">
 
   
-  
+  <meta name="keywords" content="lock,jvm,java">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -117,7 +117,41 @@
   </header>
 
 
-<div class="entry-content clearfix">
+<div class="entry-content clearfix"><h4>1. Lock Types in Java</h4>
+
+<p>There are four lock types in java:</p>
+
+<blockquote><p>None-Lock<br/>
+Biased-Lock<br/>
+LightWeight-Lock<br/>
+HeavyWeight-Lock</p></blockquote>
+
+<h4>2. where is the lock type stored in</h4>
+
+<p>Lock type is stored in the <code>MARK WORD</code> in the head data of an object:<br/>
+Table 1 is a table of the details of a 32-bit JVM&rsquo;s  <code>MARK WORD</code> with none lock,it contains <code>HashCode</code>,<code>Object Generation</code>,<code>Lock Type</code>.</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">Lock Status</th>
+<th align="center">25 bit</th>
+<th align="left"> 4 bit</th>
+<th align="left">1 bit(biased lock)</th>
+<th align="left">2 bit(lock type)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"> no lock</td>
+<td align="center">hashCode</td>
+<td align="left">object generation</td>
+<td align="left">0</td>
+<td align="left">01</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 
 
@@ -143,6 +177,13 @@
 
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-10T11:38:18+08:00" pubdate data-updated="true">Apr 10<span>th</span>, 2015</time>
           
+
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/jvm/'>jvm</a>
+  
+</span>
 
 
         </p>
@@ -250,7 +291,7 @@ var duoshuoQuery = {short_name:"zarue"};
   </div>
   <div id="categories" class="list-group">
   <a class='list-group-item'  href='/blog/categories/java/'>java (1)</a>
-<a class='list-group-item'  href='/blog/categories/jvm/'>jvm (8)</a>
+<a class='list-group-item'  href='/blog/categories/jvm/'>jvm (9)</a>
 <a class='list-group-item'  href='/blog/categories/story/'>story (1)</a>
 <a class='list-group-item'  href='/blog/categories/system/'>system (1)</a>
 <a class='list-group-item'  href='/blog/categories/vim/'>vim (1)</a>
