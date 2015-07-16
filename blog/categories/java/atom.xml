@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Hello World]]></title>
   <link href="http://mallven.com//blog/categories/java/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-16T14:30:56+08:00</updated>
+  <updated>2015-07-16T17:22:49+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -12,6 +12,294 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Usage of Synchronized in Java]]></title>
+    <link href="http://mallven.com//blog/2015/04/15/how-synchronized-lock-works/"/>
+    <updated>2015-04-15T11:40:31+08:00</updated>
+    <id>http://mallven.com//blog/2015/04/15/how-synchronized-lock-works</id>
+    <content type="html"><![CDATA[<h3>1. How to use synchronized keyword</h3>
+
+<p>In Java, we have three ways to use <code>synchronized</code> to keep thread safe</p>
+
+<blockquote><p>synchronize the class<br/>
+synchronize the object<br/>
+synchronize a private object</p></blockquote>
+
+<!--more-->
+
+
+<h3>2. Examples of How to use synchronized</h3>
+
+<p>We will write some codes to illustrate how synchronized works</p>
+
+<p>```java
+   public class SynchronizedUsageTest{</p>
+
+<pre><code>private Object syncObject = new Object();
+private static int i = 0;
+
+//no lock
+public  void incWithNoLock(){
+    System.out.println("incWithNoLock start");
+    System.out.println("incWithNoLock i="+i++);
+    System.out.println("incWithNoLock end");
+}
+
+//synchronize object
+public synchronized void incWithSynchronizedObject(){
+    System.out.println("incWithSynchronizedObject start");
+    System.out.println("incWithSynchronizedObject i="+i++);
+    System.out.println("incWithSynchronizedObject end");
+}
+
+//synchronize object
+public  void incWithSynchronizedObject2(){
+    synchronized (this) {
+        System.out.println("incWithSynchronizedObject2 start");
+        System.out.println("incWithSynchronizedObject2 i="+i++);
+        System.out.println("incWithSynchronizedObject2 end");
+    }
+}
+
+//synchronize class
+public static synchronized void incWithSynchronizedClass(){
+    System.out.println("incWithSynchronizedClass start");
+    System.out.println("incWithSynchronizedClass i="+i++);
+    System.out.println("incWithSynchronizedClass end");
+}
+
+//synchronize class 2
+public void incWithSynchronizedClass2(){
+    synchronized (SynchronizedUsageTest.class) {
+        System.out.println("incWithSynchronizedClass2 start");
+        System.out.println("incWithSynchronizedClass2 i="+i++);
+        System.out.println("incWithSynchronizedClass2 end");
+    }
+}
+
+
+//synchronize private object 2
+public void incWithSynchronizedPrivateObject(){
+
+    synchronized (syncObject) {
+        System.out.println("incWithSynchronizedPrivateObject start");
+        System.out.println("incWithSynchronizedPrivateObject i="+i++);
+        System.out.println("incWithSynchronizedPrivateObject end");
+    }
+
+}
+
+//test the effect of synchronized of class
+public void testSynchronizeClass(){
+    incWithSynchronizedClass();
+    incWithSynchronizedClass2();
+}
+
+//test the effect of synchronized of object
+public void testSynchronizeObject(){
+    incWithSynchronizedObject();
+    incWithSynchronizedObject2();
+}
+
+//test the effect of synchronized of object and Class
+public void testSynchronizeObjectAndClass(){
+    incWithSynchronizedObject();
+    incWithSynchronizedClass();
+}
+
+//test the effect of synchronized of private object and Class
+public void testSynchronizePrivateObjectAndClass(){
+    incWithSynchronizedPrivateObject();
+    incWithSynchronizedClass();
+}
+
+//test the effect of synchronized of private object and Class
+public void testSynchronizePrivateObjectAndObject(){
+    incWithSynchronizedPrivateObject();
+    incWithSynchronizedObject();
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<h4>2.1 Test the effect of add synchronized to class</h4>
+
+<p>Result:
+```java</p>
+
+<blockquote><p>incWithSynchronizedClass start<br/>
+incWithSynchronizedClass i=0<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedClass2 start<br/>
+incWithSynchronizedClass2 i=1<br/>
+incWithSynchronizedClass2 end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedClass i=2<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedClass2 start<br/>
+incWithSynchronizedClass2 i=3<br/>
+incWithSynchronizedClass2 end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedClass i=4<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedClass2 start<br/>
+incWithSynchronizedClass2 i=5<br/>
+incWithSynchronizedClass2 end <br/>
+<code>``
+From the result we can konw that the codes are executed one by one in serial, so</code>static synchronized<code>and</code>synchronized(xxx.class)` have the same effect.</p></blockquote>
+
+<h4>2.2 test the effect of add synchronized to object</h4>
+
+<p>Result:<br/>
+```java</p>
+
+<blockquote><p>incWithSynchronizedObject i=0<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedObject2 start<br/>
+incWithSynchronizedObject2 i=1<br/>
+incWithSynchronizedObject2 end</p>
+
+<p>incWithSynchronizedObject start<br/>
+incWithSynchronizedObject i=2<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedObject2 start<br/>
+incWithSynchronizedObject2 i=3<br/>
+incWithSynchronizedObject2 end</p>
+
+<p>incWithSynchronizedObject start<br/>
+incWithSynchronizedObject i=4<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedObject2 start<br/>
+incWithSynchronizedObject2 i=5<br/>
+incWithSynchronizedObject2 end<br/>
+<code>``
+From the result we can know that the codes are executed one by one in serial, so</code>synchronized<code>and</code>synchronized(this)` have the same effect.</p></blockquote>
+
+<h4>2.3 test the effect of add  synchronized to object and Class</h4>
+
+<p>Result: <br/>
+```java</p>
+
+<blockquote><p>incWithSynchronizedObject start<br/>
+incWithSynchronizedObject i=0<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedObject start<br/>
+incWithSynchronizedClass i=1<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedObject i=2<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedObject start<br/>
+incWithSynchronizedClass i=3<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedObject i=4<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedClass i=5<br/>
+incWithSynchronizedClass end<br/>
+```
+From the result we can see that the codes are executed in a random way not in serial, so we can get the result of synchronized of object and class can not keep thread safe.</p></blockquote>
+
+<h4>2.4 test the effect of add synchronized to private object and Class</h4>
+
+<p>Result:<br/>
+```java</p>
+
+<blockquote><p>incWithSynchronizedPrivateObject start<br/>
+incWithSynchronizedPrivateObject i=0<br/>
+incWithSynchronizedPrivateObject end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedClass i=1<br/>
+incWithSynchronizedPrivateObject start<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedPrivateObject i=2<br/>
+incWithSynchronizedPrivateObject end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedPrivateObject start<br/>
+incWithSynchronizedClass i=3<br/>
+incWithSynchronizedClass end</p>
+
+<p>incWithSynchronizedPrivateObject i=4<br/>
+incWithSynchronizedPrivateObject end</p>
+
+<p>incWithSynchronizedClass start<br/>
+incWithSynchronizedClass i=5<br/>
+incWithSynchronizedClass end <br/>
+```
+From the result we can see that the codes are executed in a random way not in serial, so we can get the result of synchronized of class and private object can not keep thread safe.</p></blockquote>
+
+<h4>2.5 test the effect of add synchronized to private object and object</h4>
+
+<p>Result:<br/>
+```java</p>
+
+<blockquote><p>incWithSynchronizedPrivateObject start<br/>
+incWithSynchronizedPrivateObject i=0<br/>
+incWithSynchronizedPrivateObject end</p>
+
+<p>incWithSynchronizedObject start<br/>
+incWithSynchronizedObject i=1<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedPrivateObject start<br/>
+incWithSynchronizedPrivateObject i=2<br/>
+incWithSynchronizedPrivateObject end</p>
+
+<p>incWithSynchronizedObject start<br/>
+incWithSynchronizedPrivateObject start<br/>
+incWithSynchronizedObject i=3<br/>
+incWithSynchronizedObject end</p>
+
+<p>incWithSynchronizedPrivateObject i=4<br/>
+incWithSynchronizedPrivateObject end</p>
+
+<p>incWithSynchronizedObject start<br/>
+incWithSynchronizedObject i=5<br/>
+incWithSynchronizedObject end<br/>
+```</p></blockquote>
+
+<p>From the result we can see that the codes are executed in a random way not in serial, so we can get the result of synchronized of object and private object can not keep thread safe.</p>
+
+<h4>2.6 What will happen  if has no locks</h4>
+
+<p>Result:<br/>
+```java</p>
+
+<blockquote><p>incWithNoLock start<br/>
+incWithNoLock i=0<br/>
+incWithNoLock end<br/>
+incWithNoLock start<br/>
+incWithNoLock i=1<br/>
+incWithNoLock end</p>
+
+<p>incWithNoLock start</p>
+
+<p>incWithNoLock i=2<br/>
+incWithNoLock end<br/>
+```
+Wowooooooo.. zzzZZZZZ</p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[How HashMap Works]]></title>
