@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "Some Projects Developed by Myself"
+title: "Products Developed in My Leisure Time"
 date: 2014-05-31 00:03
 comments: true
 sharing: true

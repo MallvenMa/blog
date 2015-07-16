@@ -11,4 +11,4 @@ footer: true
 >ItEye: cheney-mydream.iteye.com  
 >Mail: mallven.ma[at]gmail.com  
 >
-[How Do I Learn English](/blog/2014/07/15/how-do-i-learn-english/)
+[How Do I Learn English](/blog/2014/04/15/how-do-i-learn-english/)
