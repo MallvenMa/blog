@@ -4,7 +4,7 @@
   <title><![CDATA[Category: jvm | Hello World]]></title>
   <link href="http://mallven.com//blog/categories/jvm/atom.xml" rel="self"/>
   <link href="http://mallven.com//"/>
-  <updated>2015-07-16T17:22:49+08:00</updated>
+  <updated>2015-07-16T17:29:43+08:00</updated>
   <id>http://mallven.com//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[How Locks in Java Works]]></title>
+    <title type="html"><![CDATA[How Locks in Java Work]]></title>
     <link href="http://mallven.com//blog/2015/04/10/how-locks-in-java-works/"/>
     <updated>2015-04-10T11:38:18+08:00</updated>
     <id>http://mallven.com//blog/2015/04/10/how-locks-in-java-works</id>
