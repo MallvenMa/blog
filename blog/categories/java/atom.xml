@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: java | Coca Coder]]></title>
-  <link href="http://cocacoder.cc//blog/categories/java/atom.xml" rel="self"/>
-  <link href="http://cocacoder.cc//"/>
-  <updated>2016-08-21T15:31:23+08:00</updated>
-  <id>http://cocacoder.cc//</id>
+  <link href="http://mallven.com//github/blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://mallven.com//github/"/>
+  <updated>2016-08-21T15:41:45+08:00</updated>
+  <id>http://mallven.com//github/</id>
   <author>
     <name><![CDATA[Mallven]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Usage of Synchronized in Java]]></title>
-    <link href="http://cocacoder.cc//blog/2015/04/15/how-synchronized-lock-works/"/>
+    <link href="http://mallven.com//github/blog/2015/04/15/how-synchronized-lock-works/"/>
     <updated>2015-04-15T11:40:31+08:00</updated>
-    <id>http://cocacoder.cc//blog/2015/04/15/how-synchronized-lock-works</id>
+    <id>http://mallven.com//github/blog/2015/04/15/how-synchronized-lock-works</id>
     <content type="html"><![CDATA[<h3>1. How to use synchronized keyword</h3>
 
 <p>In Java, we have three ways to use <code>synchronized</code> to keep thread safe</p>
@@ -303,9 +303,9 @@ Wowooooooo.. zzzZZZZZ</p></blockquote>
   
   <entry>
     <title type="html"><![CDATA[How HashMap Works]]></title>
-    <link href="http://cocacoder.cc//blog/2015/03/16/how-hashmap-works/"/>
+    <link href="http://mallven.com//github/blog/2015/03/16/how-hashmap-works/"/>
     <updated>2015-03-16T13:57:42+08:00</updated>
-    <id>http://cocacoder.cc//blog/2015/03/16/how-hashmap-works</id>
+    <id>http://mallven.com//github/blog/2015/03/16/how-hashmap-works</id>
     <content type="html"><![CDATA[<h3>1.The Structure of HashMap</h3>
 
 <p>As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).</p>
