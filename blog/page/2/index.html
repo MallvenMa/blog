@@ -4,11 +4,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>CPU Addressing and Physical Memory Structure - Coca Coder</title>
+  <title>Coca Coder</title>
   <meta name="author" content="Mallven">
 
-  <meta name="description" content="CPU Addressing and Physical Memory Structure">
-  <meta name="keywords" content="cpu,memory,addressing,bus">
+  
+  
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://cocacoder.cc//blog/2014/05/21/cpu-and-memory">
+  <link rel="canonical" href="http://cocacoder.cc//blog/page/2">
   <link href="/favicon.png" type="image/png" rel="icon">
   <link href="" rel="alternate" title="Coca Coder" type="application/atom+xml">
 
@@ -83,8 +83,62 @@
         <div id="content">
           <div class="row">
   <div class="page-content col-md-9">
-    <article class="hentry" role="article">
+    <div class="blog-index">
       
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-22T14:09:15+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2014</time>
+        
+        
+          | <a href="/blog/2014/05/22/jvm-object-structure/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/22/jvm-object-structure/">Layout of Java Object</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>1. What do a Java object looks like in the memory?</h2>
+
+<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
+But what is the definition of these <em>specific rules</em> in JVM？<br/>
+In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
+<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
+
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/22/jvm-object-structure/">MORE</a>
+    </footer>
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
   <header class="page-header">
     
       <p class="meta text-muted text-uppercase">
@@ -104,20 +158,17 @@
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-21T20:35:18+08:00" pubdate data-updated="true">May 21<span>st</span>, 2014</time>
         
         
-          | <a href="#comments">Comments</a>
+          | <a href="/blog/2014/05/21/cpu-and-memory/#comments">Comments</a>
          
       </p>
     
     
-    <h1 class="entry-title">
-        CPU Addressing and Physical Memory Structure
-        
-    </h1>
+      <h1 class="entry-title"><a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a></h1>
     
   </header>
 
 
-<div class="entry-content clearfix"><h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
+  <div class="entry-content clearfix"><h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
 
 <h3>1. Several concepts of CPU</h3>
 
@@ -138,112 +189,153 @@
 </ul>
 
 
-<!--more-->
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/21/cpu-and-memory/">MORE</a>
+    </footer>
+  
 
 
-<h3>2. Several concepts of memory</h3>
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-18T22:05:24+08:00" pubdate data-updated="true">May 18<span>th</span>, 2014</time>
+        
+        
+          | <a href="/blog/2014/05/18/vim-chinese-error/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/18/vim-chinese-error/">Mac OSX Vim Display Chinese as Garbled Characters</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h3>Envrionment:</h3>
 
 <ol>
-<li>Memory cell: The memory cell is the fundamental building block of computer memory,every memory cell can store 1 bit.</li>
-<li>Memory unit: The memory unit consists of memory cells，each memory unit can store one byte or one word, but how many byte a word represent? it depend on the specific implemention.</li>
-<li>Memory unit address：the index of memory nuit，alway a hexadecimal number. CPU use this index to locate the data it needs.</li>
-<li>Memory device：Memory device is a physical component of computer consists of memory units.</li>
+<li>OSX 10.9.2 English</li>
+<li>VIM 7.3</li>
 </ol>
 
 
-<p>There are many articles about the details of memory on the internet，For example：</p>
+<h3>Problems:</h3>
 
-<ul>
-<li><a href="http://www.baike.com/wiki/%E5%AD%98%E5%82%A8%E5%99%A8">Memory</a></li>
-</ul>
+<ol>
+<li>Can display Chinese characters in file</li>
+<li>Can not display Chinese characters inputed from screen</li>
+<li>Add encoding settings to .vimrc does not work</li>
+</ol>
 
 
-<p>Conclusion: Comprehend the structures of CPU and Memory can help us to dispel the confusions about  how our program works on the computer and understand the principle of CPU addressing.</p>
+<h3>Solution:</h3>
+
+<p>find  <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> and uncheck this option。</p>
+
 </div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/18/vim-chinese-error/">MORE</a>
+    </footer>
+  
 
 
-      <footer>
-        <p class="meta text-muted">
+        </article>
+      
+      
+        <article class="post">
           
-  
-
-<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard">Posted by <span class="fn">Mallven</span></span>
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-21T20:35:18+08:00" pubdate data-updated="true">May 21<span>st</span>, 2014</time>
-          
-
-<span class="glyphicon glyphicon-tags"></span>&nbsp;
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/system/'>system</a>
-  
-</span>
-
-
-        </p>
-        
-          <div class="sharing">
-  
-  
-  
-</div>
-
-        
-        
-          <ul class="meta text-muted pager">
-            
-            <li class="previous"><a href="/blog/2014/05/18/vim-chinese-error/" title="Previous Post: Mac OSX vim display Chinese as garbled characters">&laquo; Mac OSX vim display Chinese as garbled characters</a></li>
-            
-            
-            <li class="next"><a href="/blog/2014/05/22/jvm-object-structure/" title="Next Post: Layout of Java Object">Layout of Java Object &raquo;</a></li>
-            
-          </ul>
-        
-      </footer>
-    </article>
-  
-
-
-  <section>
-    <h1>Comments</h1>
-    <div id="comments" aria-live="polite"><!-- 多说评论框 start -->
-<div class="ds-thread" ></div>
-<!-- 多说评论框 end -->
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"zarue"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-<!-- 多说公共JS代码 end -->
-</div>
-  </section>
-
-</div>
-
-  
-  <aside class="sidebar col-md-3">
+  <header class="page-header">
     
-      <section class="panel panel-default">
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-15T14:41:35+08:00" pubdate data-updated="true">Apr 15<span>th</span>, 2014</time>
+        
+        
+          | <a href="/blog/2014/04/15/how-do-i-learn-english/#comments">Comments</a>
+         
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/15/how-do-i-learn-english/">How Do I Learn English</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><ol>
+<li>I have changed my phone language and computer language to english</li>
+<li>I use Quora,Mashable,News Digest,Reddit,Podcast (also weibo and wechat &hellip;)</li>
+<li>I use kindle to read novels ,I started from 《The little princle》haha, and now I am reading my sixth english book 《The Notebook》</li>
+<li>I get up at 6:00am  to read after the &ldquo;ESL Podcast&rdquo;</li>
+<li>I also like watching  &ldquo;TED&rdquo; ,&ldquo;Friends&rdquo; and other American TV Series (without subtitle)</li>
+<li>In order to improve my writing skills, I am reading the 《Grammar Club》now</li>
+</ol>
+
+
+<p>update:</p>
+
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" rel="full-article" href="/blog/2014/04/15/how-do-i-learn-english/">MORE</a>
+    </footer>
+  
+
+
+        </article>
+      
+    </div>
+
+    <ul class="pager">
+      
+        <li class="previous disabled"><a href="#">&larr;&nbsp;Older</a></li>
+      
+      <li><a href="/blog/archives">Blog Archives</a></li>
+      
+        <li class="next"><a href="/">Newer&nbsp;&rarr;</a></li>
+      
+    </ul>
+  </div>
+
+  
+    <aside class="sidebar col-md-3">
+      
+        <section class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Mallven</h3>
   </div>
@@ -286,7 +378,7 @@ var duoshuoQuery = {short_name:"zarue"};
     
     <a class="list-group-item " href="/blog/2015/04/01/how-garbage-collection-works/">How Garbage Collection Work</a>
     
-    <a class="list-group-item " href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/">Java's Memory Model and Object Allocation</a>
+    <a class="list-group-item " href="/blog/2015/03/24/jvm-memory-structure-and-object-allocation/">Java&#8217;s Memory Model and Object Allocation</a>
     
     <a class="list-group-item " href="/blog/2015/03/16/how-hashmap-works/">How HashMap Works</a>
     
@@ -310,8 +402,8 @@ var duoshuoQuery = {short_name:"zarue"};
 
 
 
-    
-  </aside>
+      
+    </aside>
   
 </div>
 

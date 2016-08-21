@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: jvm | Hello World]]></title>
-  <link href="http://mallven.com//blog/categories/jvm/atom.xml" rel="self"/>
-  <link href="http://mallven.com//"/>
-  <updated>2015-07-20T10:20:13+08:00</updated>
-  <id>http://mallven.com//</id>
+  <title><![CDATA[Category: jvm | Coca Coder]]></title>
+  <link href="http://cocacoder.cc//blog/categories/jvm/atom.xml" rel="self"/>
+  <link href="http://cocacoder.cc//"/>
+  <updated>2016-08-21T15:31:23+08:00</updated>
+  <id>http://cocacoder.cc//</id>
   <author>
     <name><![CDATA[Mallven]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[How Locks in Java Work]]></title>
-    <link href="http://mallven.com//blog/2015/04/10/how-locks-in-java-works/"/>
+    <link href="http://cocacoder.cc//blog/2015/04/10/how-locks-in-java-works/"/>
     <updated>2015-04-10T11:38:18+08:00</updated>
-    <id>http://mallven.com//blog/2015/04/10/how-locks-in-java-works</id>
+    <id>http://cocacoder.cc//blog/2015/04/10/how-locks-in-java-works</id>
     <content type="html"><![CDATA[<h4>1. Lock Types in Java</h4>
 
 <p>There are four lock types in java(From JDK1.6):</p>
@@ -130,9 +130,9 @@ Heavyweight lock use <code>semaphore</code> structure to keep thread safe, when 
   
   <entry>
     <title type="html"><![CDATA[How Garbage Collection Work]]></title>
-    <link href="http://mallven.com//blog/2015/04/01/how-garbage-collection-works/"/>
+    <link href="http://cocacoder.cc//blog/2015/04/01/how-garbage-collection-works/"/>
     <updated>2015-04-01T11:32:34+08:00</updated>
-    <id>http://mallven.com//blog/2015/04/01/how-garbage-collection-works</id>
+    <id>http://cocacoder.cc//blog/2015/04/01/how-garbage-collection-works</id>
     <content type="html"><![CDATA[<h3>1.Disadvantage of Explicit Memory Management</h3>
 
 <p>Before the advent of Automatic Memory Mangement, programmers are  responsible for the memeory management, they allocate and deallocate memeory by their codes.
@@ -235,9 +235,9 @@ First, each generation is logically divided into fixed-sized regions<br/>
   
   <entry>
     <title type="html"><![CDATA[Java's memory model and Object allocation]]></title>
-    <link href="http://mallven.com//blog/2015/03/24/jvm-memory-structure-and-object-allocation/"/>
+    <link href="http://cocacoder.cc//blog/2015/03/24/jvm-memory-structure-and-object-allocation/"/>
     <updated>2015-03-24T14:12:42+08:00</updated>
-    <id>http://mallven.com//blog/2015/03/24/jvm-memory-structure-and-object-allocation</id>
+    <id>http://cocacoder.cc//blog/2015/03/24/jvm-memory-structure-and-object-allocation</id>
     <content type="html"><![CDATA[<h3>1. Java&rsquo;s memory model</h3>
 
 <p>From Java 2 Standard Edition, Java performs automatic memory management. In order to enhance the garbage collection&rsquo;s efficiency, Java bring in generational memory model. <br/>
@@ -284,9 +284,9 @@ Figure 1 is a picture I find from &ldquo;pointsoftware.com&rdquo;</p>
   
   <entry>
     <title type="html"><![CDATA[netbeans debug hotspot]]></title>
-    <link href="http://mallven.com//blog/2014/06/21/netbeans-debug-hotspot/"/>
+    <link href="http://cocacoder.cc//blog/2014/06/21/netbeans-debug-hotspot/"/>
     <updated>2014-06-21T18:02:59+08:00</updated>
-    <id>http://mallven.com//blog/2014/06/21/netbeans-debug-hotspot</id>
+    <id>http://cocacoder.cc//blog/2014/06/21/netbeans-debug-hotspot</id>
     <content type="html"><![CDATA[<p>学习JVM的过程中肯定不能少了对JVM的调试，进行就学习一下怎样用Netbeans调试Hotspot。</p>
 
 <h4>编译过程</h4>
@@ -397,9 +397,9 @@ CLASSPATH=${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar:/home/cheney
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[初始化]]]></title>
-    <link href="http://mallven.com//blog/2014/06/15/java-object-create-2/"/>
+    <link href="http://cocacoder.cc//blog/2014/06/15/java-object-create-2/"/>
     <updated>2014-06-15T10:01:00+08:00</updated>
-    <id>http://mallven.com//blog/2014/06/15/java-object-create-2</id>
+    <id>http://cocacoder.cc//blog/2014/06/15/java-object-create-2</id>
     <content type="html"><![CDATA[<p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
 还是使用上文的例子:<br/>
 <code>java

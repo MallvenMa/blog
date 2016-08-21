@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Hello World</title>
+  <title>Coca Coder</title>
   <meta name="author" content="Mallven">
 
   
@@ -16,9 +16,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://mallven.com/">
+  <link rel="canonical" href="http://cocacoder.cc/">
   <link href="/favicon.png" type="image/png" rel="icon">
-  <link href="" rel="alternate" title="Hello World" type="application/atom+xml">
+  <link href="" rel="alternate" title="Coca Coder" type="application/atom+xml">
 
   <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 <link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
@@ -42,7 +42,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Hello World</a>
+            <a class="navbar-brand" href="/">Coca Coder</a>
         </div>
 
         <div class="navbar-collapse collapse">
@@ -655,244 +655,11 @@ String.c 中只有一个方法：</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-22T14:09:15+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/05/22/jvm-object-structure/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/22/jvm-object-structure/">Layout of Java Object</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h2>1. What do a Java object looks like in the memory?</h2>
-
-<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
-But what is the definition of these <em>specific rules</em> in JVM？<br/>
-In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
-<img src="/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/22/jvm-object-structure/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-21T20:35:18+08:00" pubdate data-updated="true">May 21<span>st</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/05/21/cpu-and-memory/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
-
-<h3>1. Several concepts of CPU</h3>
-
-<ol>
-<li>Data Bus：Data Bus are used to transfer data between CPU and other components(eg:memory)。</li>
-<li>Data Bus Width：Data Bus Width represent the number of bits that  Registers can hold, namely:bits of CPU can hold. for example an &ldquo;32-bit CPU&rdquo; or an &ldquo;64-bit CPU&rdquo;. Number of bits of CPU can hold could not represent CPU&rsquo;s addressing abilities.</li>
-<li>Address Bus：Address Bus is used to specify a physical address。</li>
-<li>Address Bus Width: The width of the Address Bus determines the amount of memory the system can address.For example, a system with a 32-bit address bus can address 0-2<sup>32</sup>-1（0x00000000-0xFFFFFFFF) locations. If each memory address holds one byte, the addressable memory space  is 4GiB.</li>
-<li>Control Bus: Control Bus are used to transmit instructions to other components</li>
-</ol>
-
-
-<p>There are many articles about BUS  on the internet ，For example：</p>
-
-<ul>
-<li><a href="http://share.onlinesjtu.com/mod/tab/view.php?id=253">Structures of CPU Bus</a></li>
-<li><a href="http://my.oschina.net/u/158589/blog/70813">Width of CPU, Addressing abilities, Instructions，Width of Register，Width of Operation System</a></li>
-</ul>
-
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/21/cpu-and-memory/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-18T22:05:24+08:00" pubdate data-updated="true">May 18<span>th</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/05/18/vim-chinese-error/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/18/vim-chinese-error/">Mac OSX Vim Display Chinese as Garbled Characters</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h3>Envrionment:</h3>
-
-<ol>
-<li>OSX 10.9.2 English</li>
-<li>VIM 7.3</li>
-</ol>
-
-
-<h3>Problems:</h3>
-
-<ol>
-<li>Can display Chinese characters in file</li>
-<li>Can not display Chinese characters inputed from screen</li>
-<li>Add encoding settings to .vimrc does not work</li>
-</ol>
-
-
-<h3>Solution:</h3>
-
-<p>find  <code>Terminal--&gt;Preferences--&gt;Settings--&gt;Advanced--&gt;Escape non-ASCII input with Control-V</code> and uncheck this option。</p>
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/05/18/vim-chinese-error/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-15T14:41:35+08:00" pubdate data-updated="true">Apr 15<span>th</span>, 2014</time>
-        
-        
-          | <a href="/blog/2014/04/15/how-do-i-learn-english/#comments">Comments</a>
-         
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/15/how-do-i-learn-english/">How Do I Learn English</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><ol>
-<li>I have changed my phone language and computer language to english</li>
-<li>I use Quora,Mashable,News Digest,Reddit,Podcast (also weibo and wechat &hellip;)</li>
-<li>I use kindle to read novels ,I started from 《The little princle》haha, and now I am reading my sixth english book 《The Notebook》</li>
-<li>I get up at 6:00am  to read after the &ldquo;ESL Podcast&rdquo;</li>
-<li>I also like watching  &ldquo;TED&rdquo; ,&ldquo;Friends&rdquo; and other American TV Series (without subtitle)</li>
-<li>In order to improve my writing skills, I am reading the 《Grammar Club》now</li>
-</ol>
-
-
-<p>update:</p>
-
-</div>
-  
-  
-    <footer>
-      <a class="btn btn-default" rel="full-article" href="/blog/2014/04/15/how-do-i-learn-english/">MORE</a>
-    </footer>
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
       
-        <li class="previous disabled"><a href="#">&larr;&nbsp;Older</a></li>
+        <li class="previous"><a href="/blog/page/2/">&larr;&nbsp;Older</a></li>
       
       <li><a href="/blog/archives">Blog Archives</a></li>
       
@@ -981,7 +748,7 @@ In hotspot，there are two types of object：normal object and array，the memor
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2015 - Mallven<br>
+  Copyright &copy; 2016 - Mallven<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
