@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: system | Coca Coder]]></title>
-  <link href="http://mallven.com//github/blog/categories/system/atom.xml" rel="self"/>
-  <link href="http://mallven.com//github/"/>
-  <updated>2016-08-21T15:43:26+08:00</updated>
-  <id>http://mallven.com//github/</id>
+  <link href="http://cocacoder.cc/blog/categories/system/atom.xml" rel="self"/>
+  <link href="http://cocacoder.cc/"/>
+  <updated>2016-08-21T15:49:33+08:00</updated>
+  <id>http://cocacoder.cc/</id>
   <author>
     <name><![CDATA[Mallven]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[CPU Addressing and Physical Memory Structure]]></title>
-    <link href="http://mallven.com//github/blog/2014/05/21/cpu-and-memory/"/>
+    <link href="http://cocacoder.cc/blog/2014/05/21/cpu-and-memory/"/>
     <updated>2014-05-21T20:35:18+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/05/21/cpu-and-memory</id>
+    <id>http://cocacoder.cc/blog/2014/05/21/cpu-and-memory</id>
     <content type="html"><![CDATA[<h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
 
 <h3>1. Several concepts of CPU</h3>

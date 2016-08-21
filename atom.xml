@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Coca Coder]]></title>
-  <link href="http://mallven.com//github/atom.xml" rel="self"/>
-  <link href="http://mallven.com//github/"/>
-  <updated>2016-08-21T15:43:26+08:00</updated>
-  <id>http://mallven.com//github/</id>
+  <link href="http://cocacoder.cc/atom.xml" rel="self"/>
+  <link href="http://cocacoder.cc/"/>
+  <updated>2016-08-21T15:49:33+08:00</updated>
+  <id>http://cocacoder.cc/</id>
   <author>
     <name><![CDATA[Mallven]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Usage of Synchronized in Java]]></title>
-    <link href="http://mallven.com//github/blog/2015/04/15/how-synchronized-lock-works/"/>
+    <link href="http://cocacoder.cc/blog/2015/04/15/how-synchronized-lock-works/"/>
     <updated>2015-04-15T11:40:31+08:00</updated>
-    <id>http://mallven.com//github/blog/2015/04/15/how-synchronized-lock-works</id>
+    <id>http://cocacoder.cc/blog/2015/04/15/how-synchronized-lock-works</id>
     <content type="html"><![CDATA[<h3>1. How to use synchronized keyword</h3>
 
 <p>In Java, we have three ways to use <code>synchronized</code> to keep thread safe</p>
@@ -518,9 +518,9 @@ synchronize a private object</p></blockquote>
   
   <entry>
     <title type="html"><![CDATA[How Locks in Java Work]]></title>
-    <link href="http://mallven.com//github/blog/2015/04/10/how-locks-in-java-works/"/>
+    <link href="http://cocacoder.cc/blog/2015/04/10/how-locks-in-java-works/"/>
     <updated>2015-04-10T11:38:18+08:00</updated>
-    <id>http://mallven.com//github/blog/2015/04/10/how-locks-in-java-works</id>
+    <id>http://cocacoder.cc/blog/2015/04/10/how-locks-in-java-works</id>
     <content type="html"><![CDATA[<h4>1. Lock Types in Java</h4>
 
 <p>There are four lock types in java(From JDK1.6):</p>
@@ -633,9 +633,9 @@ Heavyweight lock use <code>semaphore</code> structure to keep thread safe, when 
   
   <entry>
     <title type="html"><![CDATA[How Garbage Collection Work]]></title>
-    <link href="http://mallven.com//github/blog/2015/04/01/how-garbage-collection-works/"/>
+    <link href="http://cocacoder.cc/blog/2015/04/01/how-garbage-collection-works/"/>
     <updated>2015-04-01T11:32:34+08:00</updated>
-    <id>http://mallven.com//github/blog/2015/04/01/how-garbage-collection-works</id>
+    <id>http://cocacoder.cc/blog/2015/04/01/how-garbage-collection-works</id>
     <content type="html"><![CDATA[<h3>1.Disadvantage of Explicit Memory Management</h3>
 
 <p>Before the advent of Automatic Memory Mangement, programmers are  responsible for the memeory management, they allocate and deallocate memeory by their codes.
@@ -684,11 +684,11 @@ But sometimes manage memory by hand will cause many memeory related problems whe
 
 <p>Figure 1 illustrates the operation of young generation using the serial collection, when <code>Eden</code> is full, <code>Minor Gc</code> will be executed on <code>Young Generation</code>. The live objects in <code>Eden</code> are copied to the empty survivor space,labed <code>To</code> in the figure, except for ones too large to fit comfortably in the <code>To</code> space. Such objects are driectly copied to <code>Old Generation</code>. The live objects relatively young  in survivor <code>From</code> are also copied to <code>To</code> while objects that relatively old are copied to <code>Old Generation</code>. But if <code>To</code> survivor space becomes full, the objects from <code>Eden</code> and <code>From</code> that have not been copied to it are tenured, regardless how many young generation collections they have survived, these objects will be copied to <code>Old Generation</code>. After this process, all objects remaining in <code>Eden</code> and <code>From</code> are not live, the memory they use will be deallocated.</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-04/20150401-serial-collector.png" alt="serial collector" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-04/20150401-serial-collector.png" alt="serial collector" /></p>
 
 <p>After the young generation collections, <code>Eden</code> and <code>From</code> are empty and <code>To</code> holds all the live objects from <code>Eden</code> and <code>From</code>, <code>From</code> and <code>To</code> would swap their roles after the young generation collection, one of them will always be empty.</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-04/20150401-serial-collector-after.png" alt="serial collector after" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-04/20150401-serial-collector-after.png" alt="serial collector after" /></p>
 
 <h5>5.1.2 Old Generation Collection</h5>
 
@@ -703,7 +703,7 @@ But sometimes manage memory by hand will cause many memeory related problems whe
 
 <p>Figure 3 illustrates <code>Old Generation</code> collection using the serial collector.</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-04/20150401-serial-collector-old-generation.png" alt="serial collector old generation" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-04/20150401-serial-collector-old-generation.png" alt="serial collector old generation" /></p>
 
 <h4>5.2 Parallel Garbage Collector</h4>
 
@@ -712,7 +712,7 @@ But sometimes manage memory by hand will cause many memeory related problems whe
 <p>Parallel Garbage Collector used in <code>Young Generation</code> is a parallel version of algorithm utilized by the <code>Serial Collector</code>,It is still a <code>Stop-the-World</code> and copying collector, but can  perform the young generation collection in parallel by using many cpus to reduce the stop time and increase the application throughput.<br/>
 Figure 4 illustrates the difference between Serial Collector and Parallel Collector in young generation</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-04/20150401-parallel-collector-young.png" alt="parallel young" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-04/20150401-parallel-collector-young.png" alt="parallel young" /></p>
 
 <h5>5.2.2 Old Generation Collection</h5>
 
@@ -738,15 +738,15 @@ First, each generation is logically divided into fixed-sized regions<br/>
   
   <entry>
     <title type="html"><![CDATA[Java's memory model and Object allocation]]></title>
-    <link href="http://mallven.com//github/blog/2015/03/24/jvm-memory-structure-and-object-allocation/"/>
+    <link href="http://cocacoder.cc/blog/2015/03/24/jvm-memory-structure-and-object-allocation/"/>
     <updated>2015-03-24T14:12:42+08:00</updated>
-    <id>http://mallven.com//github/blog/2015/03/24/jvm-memory-structure-and-object-allocation</id>
+    <id>http://cocacoder.cc/blog/2015/03/24/jvm-memory-structure-and-object-allocation</id>
     <content type="html"><![CDATA[<h3>1. Java&rsquo;s memory model</h3>
 
 <p>From Java 2 Standard Edition, Java performs automatic memory management. In order to enhance the garbage collection&rsquo;s efficiency, Java bring in generational memory model. <br/>
 Figure 1 is a picture I find from &ldquo;pointsoftware.com&rdquo;</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-03/20150324-RuntimeDataAreas_JVM_Model.png" alt="java memeory model" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-03/20150324-RuntimeDataAreas_JVM_Model.png" alt="java memeory model" /></p>
 
 <!--more-->
 
@@ -761,7 +761,7 @@ Figure 1 is a picture I find from &ldquo;pointsoftware.com&rdquo;</p>
 
 <p>Figure 2 is a picture I find from ifeve.com</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-03/20150324-eden_survivor.png" alt="allocate memory for objects" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-03/20150324-eden_survivor.png" alt="allocate memory for objects" /></p>
 
 <h4>Allocating Steps</h4>
 
@@ -787,14 +787,14 @@ Figure 1 is a picture I find from &ldquo;pointsoftware.com&rdquo;</p>
   
   <entry>
     <title type="html"><![CDATA[How HashMap Works]]></title>
-    <link href="http://mallven.com//github/blog/2015/03/16/how-hashmap-works/"/>
+    <link href="http://cocacoder.cc/blog/2015/03/16/how-hashmap-works/"/>
     <updated>2015-03-16T13:57:42+08:00</updated>
-    <id>http://mallven.com//github/blog/2015/03/16/how-hashmap-works</id>
+    <id>http://cocacoder.cc/blog/2015/03/16/how-hashmap-works</id>
     <content type="html"><![CDATA[<h3>1.The Structure of HashMap</h3>
 
 <p>As we know,all structures of object in Java are based on array and reference,HashMap is same too. A HashMap structure consist of two parts:Array and LinkList(Figure 1).</p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-03/20150316-hashmap-structure.png" alt="HashMap Structure" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-03/20150316-hashmap-structure.png" alt="HashMap Structure" /></p>
 
 <!--more-->
 
@@ -860,11 +860,11 @@ but we notice that there is a line of comment “length must be a non-zero power
 
 <p>condition 1 : <code>length = 2^4 = 16, hash = 13 or hash = 12</code></p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-03/20150316-hashmap-hash-to-index-1.png" alt="contrast experiment" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-03/20150316-hashmap-hash-to-index-1.png" alt="contrast experiment" /></p>
 
 <p>condition 2 : <code>length = 15, hash = 13 or hash = 12</code></p>
 
-<p><img src="http://mallven.com//github/images/blog/2015-03/20150316-hashmap-hash-to-index-2.png" alt="contrast experiment" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2015-03/20150316-hashmap-hash-to-index-2.png" alt="contrast experiment" /></p>
 
 <p>From figure 2 we can find that when we use 15 as the length of array hash=13 and hash=12 will get the same index=12, this is hash collision, beacuse if we use 2<sup>N</sup> as the length, we can guarantee length-1 has more 1 bits data in the binary representation than no use 2<sup>N</sup> as the length. So use power of 2 as length can reduce hash collision between two different hashcode.</p>
 
@@ -929,9 +929,9 @@ but we notice that there is a line of comment “length must be a non-zero power
   
   <entry>
     <title type="html"><![CDATA[netbeans debug hotspot]]></title>
-    <link href="http://mallven.com//github/blog/2014/06/21/netbeans-debug-hotspot/"/>
+    <link href="http://cocacoder.cc/blog/2014/06/21/netbeans-debug-hotspot/"/>
     <updated>2014-06-21T18:02:59+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/06/21/netbeans-debug-hotspot</id>
+    <id>http://cocacoder.cc/blog/2014/06/21/netbeans-debug-hotspot</id>
     <content type="html"><![CDATA[<p>学习JVM的过程中肯定不能少了对JVM的调试，进行就学习一下怎样用Netbeans调试Hotspot。</p>
 
 <h4>编译过程</h4>
@@ -1077,9 +1077,9 @@ uname -r<br/>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[初始化]]]></title>
-    <link href="http://mallven.com//github/blog/2014/06/15/java-object-create-2/"/>
+    <link href="http://cocacoder.cc/blog/2014/06/15/java-object-create-2/"/>
     <updated>2014-06-15T10:01:00+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/06/15/java-object-create-2</id>
+    <id>http://cocacoder.cc/blog/2014/06/15/java-object-create-2</id>
     <content type="html"><![CDATA[<p>上一篇文章简单介绍了类的加载和连接阶段，今天来简单看一下类的初始化过程。<br/>
 还是使用上文的例子:</p>
 
@@ -1739,11 +1739,11 @@ Java对象初始化并分配内存的过程基本就是这样了。这个过程�
   
   <entry>
     <title type="html"><![CDATA[JVM 之 Java对象创建[加载和连接]]]></title>
-    <link href="http://mallven.com//github/blog/2014/06/14/java-object-create-1/"/>
+    <link href="http://cocacoder.cc/blog/2014/06/14/java-object-create-1/"/>
     <updated>2014-06-14T08:53:49+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/06/14/java-object-create-1</id>
+    <id>http://cocacoder.cc/blog/2014/06/14/java-object-create-1</id>
     <content type="html"><![CDATA[<p>Java对象的生命周期可以分为：加载，验证，准备，解析，初始化，使用，卸载 八个阶段。其中验证，准备，解析又被统称为连接，今天主要是简单看一下加载和连接，下一篇文章讲初始化。<br/>
-<img src="http://mallven.com//github/images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
+<img src="http://cocacoder.cc/images/blog/2014-06/20140614-java-load-pic.png" alt="对象生命周期" /><br/>
 说明：</p>
 
 <blockquote><p>本文章所涉及的代码Gist地址:<a href="https://gist.github.com/zarue/0d5f83fa8458a9298b9d">点击查看</a><br/>
@@ -2523,10 +2523,10 @@ Java对象初始化并分配内存的过程基本就是这样了。这个过程�
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 二]]></title>
-    <link href="http://mallven.com//github/blog/2014/05/29/runtime-string-pool-2/"/>
+    <link href="http://cocacoder.cc/blog/2014/05/29/runtime-string-pool-2/"/>
     <updated>2014-05-29T20:58:21+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/05/29/runtime-string-pool-2</id>
-    <content type="html"><![CDATA[<p>上一篇文章<a href="http://mallven.com//github/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
+    <id>http://cocacoder.cc/blog/2014/05/29/runtime-string-pool-2</id>
+    <content type="html"><![CDATA[<p>上一篇文章<a href="http://cocacoder.cc/blog/2014/05/27/runtime-string-pool-1">JVM 之 String 常量池 一</a>中我们了解到JVM中有一个叫String常量池的东西，String常量池到底是什么样？，又是怎样工作的呢？今天就来看一下。<br/>
 做任何事情都要首先找一个入口。我们怎么才能找到常量池的入口呢？<br/>
 我们首先想到String里面有个intern方法，可以在运行时向常量池中动态添加字符串。我们就从这个方法入手。<br/>
 先看String 的intern的源代码:</p>
@@ -2818,15 +2818,15 @@ String.c 中只有一个方法：</p>
 
 <p>String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象不会被垃圾收集器回收掉。<br/>
 Hashtable 的结构看起来应该是这样的：<br/>
-<img src="http://mallven.com//github/images/blog/2014-06/20140602-hashtable.png" alt="Hasttable" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-06/20140602-hashtable.png" alt="Hasttable" /></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[JVM 之 String 常量池 一]]></title>
-    <link href="http://mallven.com//github/blog/2014/05/27/runtime-string-pool-1/"/>
+    <link href="http://cocacoder.cc/blog/2014/05/27/runtime-string-pool-1/"/>
     <updated>2014-05-27T20:30:20+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/05/27/runtime-string-pool-1</id>
+    <id>http://cocacoder.cc/blog/2014/05/27/runtime-string-pool-1</id>
     <content type="html"><![CDATA[<h4>1.Sting对象创建方式</h4>
 
 <p>JAVA里面创建字符串有两种方式：<br/>
@@ -2961,7 +2961,7 @@ Hashtable 的结构看起来应该是这样的：<br/>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://mallven.com//github/images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2014-05/20140528-string-pool-1.png" alt="结果" /></p>
 
 <h4>分析(下面所指行号均为源代码行号):</h4>
 
@@ -3097,21 +3097,21 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h5>下一节<a href="http://mallven.com//github/blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
+<h5>下一节<a href="http://cocacoder.cc/blog/2014/05/29/runtime-string-pool-2/">JVM 之 String常量池二</a>将会详细讲一下字符串池的结构以及原理</h5>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Layout of Java Object]]></title>
-    <link href="http://mallven.com//github/blog/2014/05/22/jvm-object-structure/"/>
+    <link href="http://cocacoder.cc/blog/2014/05/22/jvm-object-structure/"/>
     <updated>2014-05-22T14:09:15+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/05/22/jvm-object-structure</id>
+    <id>http://cocacoder.cc/blog/2014/05/22/jvm-object-structure</id>
     <content type="html"><![CDATA[<h2>1. What do a Java object looks like in the memory?</h2>
 
-<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="http://mallven.com//github/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
+<p>Java Object represents as a series of bytes sorted by some  <em>specific rules</em>(If you do not familiar with the physical memory structure, please refer:<a href="http://cocacoder.cc/blog/2014/05/21/cpu-and-memory/">CPU Addressing and Physical Memory Structure</a>).<br/>
 But what is the definition of these <em>specific rules</em> in JVM？<br/>
 In hotspot，there are two types of object：normal object and array，the memory layout of each object consists of three parts: <code>object head, fields, padding</code>, normal object&rsquo;s header contains <code>MARK WORD, CLASS POINTER</code>, but array&rsquo;s object header contains <code>MARK WORD, CLASS POINTER, ARRAY LENGTH</code>. (Figure 1) <br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-object-arrayObject-structure.png" alt="Object Layout" /></p>
 
 <!--more-->
 
@@ -3209,12 +3209,12 @@ Environment:Ubuntu 14.04 32bit</p>
 <p>main function contains three objects ：<code>Integer</code>,<code>Long</code>,<code>Boolean</code>, Now we use SA to inspect each object&rsquo;s structure and size：<br/>
 1.runing the program above，add a breakpoint at  <code>System.out.println("")</code><br/>
 2.use command <code>JPS</code> to query JVM&rsquo;s PID:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-objectsize-jps.png" alt="jps" />  <br/>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-objectsize-jps.png" alt="jps" />  <br/>
 3.start <code>SA</code>(HSDB)<br/>
 <code>sudo java -cp $JAVA_HOME/lib/sa-jdi.jar sun.jvm.hotspot.HSDB</code><br/>
 4.attach PID 3813,open <code>Stack Memory View</code>，Figure 1:</p>
 
-<p><img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory.png" alt="memory inspector" /></p>
+<p><img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory.png" alt="memory inspector" /></p>
 
 <p>This red rectangle shows us the three objects we decliared in the  main function,the left hand is the addresses of objects in JVM  and the  right hand is the notes about these addresses.<br/>
 The addresses of these three objects are ：</p>
@@ -3224,13 +3224,13 @@ Long l  &nbsp;&nbsp;&nbsp; 0xa0159520<br/>
 Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 <p>We will inspect <code>Integer i</code> first,select menu:<code>Tool--&gt;Inspect</code>,input <code>0xa0159410</code> in the textfield to get this object，Figure 2:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Layout of Integer" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-integer.png" alt="Layout of Integer" /></p>
 
 <p>Use the same way to get <code>Long l</code> object，Figure 3：<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Layout of Long" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-long.png" alt="Layout of Long" /></p>
 
 <p>also <code>Boolean b</code> ,Figure 4:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Layout of Boolean" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-boolean.png" alt="Layout of Boolean" /></p>
 
 <p>Conclusion:Object instance data  only contains autogeneic instance variables and variables extend from its&#8217; parents，In the source code of <code>Integer,Long,Boolean</code> we can know that these three classes only have one <code>value</code> variable，so except  <em>mark(MARK_WORD),</em>metadata._klass，we only can find a <code>value</code> variable in the memory inspector.</p>
 
@@ -3257,7 +3257,7 @@ Boolean b &nbsp;&nbsp;&nbsp;0xa0159650</p></blockquote>
 
 <p>
 The memory layout of <code>Animal</code> object, Figure 5:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Memory layout of Animal" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-animal.png" alt="Memory layout of Animal" /></p>
 
 <p>From <code>figure 5</code> we can find that three Objects are all  in Animal&rsquo;s memory layout.</p>
 
@@ -3281,7 +3281,7 @@ The memory layout of <code>Animal</code> object, Figure 5:<br/>
 
 
 <p>HSDB shows us the result，Figure 6:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Memory Layout of Tiger" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-tiger.png" alt="Memory Layout of Tiger" /></p>
 
 <p>From figure 6 we can find that variables extends from parents will stored in children&rsquo;s class too.</p>
 
@@ -3307,13 +3307,13 @@ The memory layout of <code>Animal</code> object, Figure 5:<br/>
 
 
 <p>This is the result ,Figure 7:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-array.png" alt="Memory layout of array" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-array.png" alt="Memory layout of array" /></p>
 
 <p>It is weird that there is no length variable for childs array!  It is wrong about  we said before?</p>
 
 <p>use <code>inspect</code> command to inspect this object&rsquo;s size:<br/>
 <code>inspect 0xa01ba470</code> Figure 8：<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="array size" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140524-hsdb-memory-array-size.png" alt="array size" /></p>
 
 <p>We can do some inferences :<br/>
 1. if this object has no length variable，the size should be：size=4+4=8.<br/>
@@ -3330,9 +3330,9 @@ The memory layout of <code>Animal</code> object, Figure 5:<br/>
   
   <entry>
     <title type="html"><![CDATA[CPU Addressing and Physical Memory Structure]]></title>
-    <link href="http://mallven.com//github/blog/2014/05/21/cpu-and-memory/"/>
+    <link href="http://cocacoder.cc/blog/2014/05/21/cpu-and-memory/"/>
     <updated>2014-05-21T20:35:18+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/05/21/cpu-and-memory</id>
+    <id>http://cocacoder.cc/blog/2014/05/21/cpu-and-memory</id>
     <content type="html"><![CDATA[<h4>What we are talking in this article are concept model, differ with the  specific implement</h4>
 
 <h3>1. Several concepts of CPU</h3>
@@ -3380,9 +3380,9 @@ The memory layout of <code>Animal</code> object, Figure 5:<br/>
   
   <entry>
     <title type="html"><![CDATA[Mac OSX vim display Chinese as garbled characters]]></title>
-    <link href="http://mallven.com//github/blog/2014/05/18/vim-chinese-error/"/>
+    <link href="http://cocacoder.cc/blog/2014/05/18/vim-chinese-error/"/>
     <updated>2014-05-18T22:05:24+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/05/18/vim-chinese-error</id>
+    <id>http://cocacoder.cc/blog/2014/05/18/vim-chinese-error</id>
     <content type="html"><![CDATA[<h3>Envrionment:</h3>
 
 <ol>
@@ -3409,15 +3409,15 @@ The memory layout of <code>Animal</code> object, Figure 5:<br/>
 
 <p>If you have tried many other approach to solve garbled characters problem like this, you should try this soution.  <br/>
 Figure:<br/>
-<img src="http://mallven.com//github/images/blog/2014-05/20140519-1-vim.png" alt="Figure" /></p>
+<img src="http://cocacoder.cc/images/blog/2014-05/20140519-1-vim.png" alt="Figure" /></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[how do I learn english]]></title>
-    <link href="http://mallven.com//github/blog/2014/04/15/how-do-i-learn-english/"/>
+    <link href="http://cocacoder.cc/blog/2014/04/15/how-do-i-learn-english/"/>
     <updated>2014-04-15T14:41:35+08:00</updated>
-    <id>http://mallven.com//github/blog/2014/04/15/how-do-i-learn-english</id>
+    <id>http://cocacoder.cc/blog/2014/04/15/how-do-i-learn-english</id>
     <content type="html"><![CDATA[<ol>
 <li>I have changed my phone language and computer language to english</li>
 <li>I use Quora,Mashable,News Digest,Reddit,Podcast (also weibo and wechat &hellip;)</li>
@@ -3435,7 +3435,7 @@ Figure:<br/>
 
 <ol>
 <li>I have finished the 《Grammar  Club》,I think this is a very useful book for me.</li>
-<li>I think chat in English is a very important thing to improve speaking skills(Not only with the native speaker,Anyone is OK, Just try to  open your mouth),I have find several partner to practice our speaking skill,But because the time zone problems,  we couldn&rsquo;t talk a lot,But I always appreciate them, My available time is from 1pm-2pm GMT (not everyday) and My Skype-ID is : <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#x63;&#x68;&#101;&#x6e;&#x65;&#x79;&#x2e;&#109;&#121;&#x64;&#114;&#101;&#x61;&#x6d;&#x40;&#x67;&#109;&#97;&#x69;&#108;&#46;&#99;&#x6f;&#109;">&#99;&#x68;&#101;&#x6e;&#101;&#x79;&#46;&#x6d;&#121;&#100;&#114;&#x65;&#97;&#109;&#64;&#103;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a></li>
+<li>I think chat in English is a very important thing to improve speaking skills(Not only with the native speaker,Anyone is OK, Just try to  open your mouth),I have find several partner to practice our speaking skill,But because the time zone problems,  we couldn&rsquo;t talk a lot,But I always appreciate them, My available time is from 1pm-2pm GMT (not everyday) and My Skype-ID is : <a href="&#109;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x63;&#104;&#101;&#110;&#x65;&#x79;&#x2e;&#109;&#x79;&#100;&#114;&#x65;&#x61;&#109;&#x40;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#x6f;&#x6d;">&#x63;&#x68;&#101;&#x6e;&#101;&#121;&#46;&#109;&#121;&#x64;&#114;&#x65;&#97;&#109;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;</a></li>
 <li>Recommending an app named &ldquo;HiNative&rdquo;(IOS version is available now),It is an amazing app, When you have any problems ,you can ask the native people on it. They will help you as soon as possible(But, Please notice the time difference)</li>
 </ol>
 

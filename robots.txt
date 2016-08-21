@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://mallven.com//github/sitemap.xml 
+Sitemap: http://cocacoder.cc/sitemap.xml 
