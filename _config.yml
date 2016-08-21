@@ -2,7 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://mallven.com//github
+url: http://cocacoder.cc
 title: Coca Coder
 subtitle: Coca Coder, Cook Code
 author: Mallven
@@ -76,7 +76,7 @@ duoshuo_comments: true
 duoshuo_short_name: zarue
 
 # Github repositories
-github_user: zarue
+github_user: mallven
 #github_repo_count: 0
 #github_show_profile_link: true
 #github_skip_forks: true
