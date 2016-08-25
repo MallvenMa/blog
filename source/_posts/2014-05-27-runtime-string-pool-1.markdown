@@ -7,7 +7,7 @@ categories: jvm
 keywords: string,常量池,字符串池 
 description: JVM 之 String 常量池 一
 ---
-####1.Sting对象创建方式
+#### 1.Sting对象创建方式
 JAVA里面创建字符串有两种方式：  
 1. 通过字符串常量方式:String a = "a";  
 2. 通过new 关键字创建:new String("a");  
@@ -16,7 +16,7 @@ JAVA里面创建字符串有两种方式：
 1. 使用第一种方式，jvm首先会检查字符串常量池中是否存在了这个常量，如果存在，就返回池中的实例引用。如果不存在，就会实例化一个字符串并放到池中,然后返回引用。  
 2. 使用第二种方式，则直接分配到heap中，不指向字符串常量池中的任何对象，和字符串常量池没有关系。  
 
-####2.下面来看一个例子: [本例子Gist地址](https://gist.github.com/zarue/25e0afedb33de86da650) 
+#### 2.下面来看一个例子: [本例子Gist地址](https://gist.github.com/zarue/25e0afedb33de86da650) 
 <!--more-->
 ```java
 public class StringConstantTest {
@@ -81,7 +81,7 @@ class StringConstantTest1 {
  
 ![结果](/images/blog/2014-05/20140528-string-pool-1.png)
 
-####分析(下面所指行号均为源代码行号):
+#### 分析(下面所指行号均为源代码行号):
 1. **24-31**行的结果说明:  
 只要是字符串常量方式创建的对象，无论是类变量，实例变量，还是局部变量，无论是不是位于同一个包中。都是共享字符串常量池中的同一个实例。  
 
@@ -160,4 +160,4 @@ String的值是用char数组保存的，equals 是比较的两个String对象中
 ```
 
 
-#####下一节[JVM 之 String常量池二](/blog/2014/05/29/runtime-string-pool-2/)将会详细讲一下字符串池的结构以及原理
+##### 下一节[JVM 之 String常量池二](/blog/2014/05/29/runtime-string-pool-2/)将会详细讲一下字符串池的结构以及原理

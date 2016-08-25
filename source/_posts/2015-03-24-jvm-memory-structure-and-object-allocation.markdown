@@ -7,7 +7,7 @@ categories: jvm
 keywords: jvm,memory,java
 description: Java's memory model and Object allocation
 ---
-###1. Java's memory model
+### 1. Java's memory model
 From Java 2 Standard Edition, Java performs automatic memory management. In order to enhance the garbage collection's efficiency, Java bring in generational memory model.   
 Figure 1 is a picture I find from "pointsoftware.com"  
 
@@ -22,12 +22,12 @@ Method Area:  also known as the `Permanent Generation`, All class data are loade
 Native Area: This area is  used by threads and holds the references to the code and object data in the heap, `Native Area` also stores the local variables of primitive types.   
   
   
-###2. How an object is allocated
+### 2. How an object is allocated
 Figure 2 is a picture I find from ifeve.com 
  
 ![allocate memory for objects][2]  
 
-####Allocating Steps
+#### Allocating Steps
 
 1. if the object is big or an array, it will be directly allocated on the `Old Generation`.  
 2. if it is a normal object, Jvm will try to allocate it on the `Eden`.  
@@ -36,10 +36,10 @@ Figure 2 is a picture I find from ifeve.com
 5. if `Old Generation` is full, `Full GC` will be invoked.  
 6. if heap also has no enough memeory after `Full GC`, jvm will throw `OutOfMemoryException`  
 
-####Note:
+#### Note:
 In order to improve the efficiency of object allocation, Java use `TLAB(Thread Local Allocation Buffer)` technology to allocate memory, Because allocate data on `Eden` directly can cause concurrent problems, so JVM need to lock the memory before the allocation and unlock the memory after the allocation, this will make memory allocation a bottleneck.  
 
-#####So, what is the `TLAB` ?  
+##### So, what is the `TLAB` ?  
 JVM use 1% of the `Eden` area as the `TLAB` space, each Thread will be given a specified space to allocate their own object, so objects are allocated in their own Thread, thus, there is no lock needed during the allocation, so `TLAB` will be more efficient than the direct allocation.  Only the space of the thread is exhausted and need to increase new spaces the synchronized lock need to be added.  
 
 

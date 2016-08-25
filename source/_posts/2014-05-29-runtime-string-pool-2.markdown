@@ -171,7 +171,7 @@ inline void BasicHashtable::add_entry(int index, BasicHashtableEntry* entry) {
 2.将oldEntry设置为entry的`_next`(HashtableEntry设计为链表结构,就是用在这里)  
 3.将entry设置到_buckets的index位置  
 
-###总结:  
+### 总结:  
 String常量池对应的数据结构就是StringTable对象,也就是一个Hashtable结构。hashtable的结构是数组+链表。hashtable一直持有字符串的引用，因此字符串池中的对象不会被垃圾收集器回收掉。  
 Hashtable 的结构看起来应该是这样的：  
 ![Hasttable](/images/blog/2014-06/20140602-hashtable.png)

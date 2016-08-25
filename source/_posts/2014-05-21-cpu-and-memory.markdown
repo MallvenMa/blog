@@ -7,7 +7,7 @@ categories: system
 keywords: cpu,memory,addressing,bus
 description: CPU Addressing and Physical Memory Structure
 ---
-####What we are talking in this article are concept model, differ with the  specific implement
+#### What we are talking in this article are concept model, differ with the  specific implement
 ### 1. Several concepts of CPU
 1. Data Bus：Data Bus are used to transfer data between CPU and other components(eg:memory)。  
 2. Data Bus Width：Data Bus Width represent the number of bits that  Registers can hold, namely:bits of CPU can hold. for example an "32-bit CPU" or an "64-bit CPU". Number of bits of CPU can hold could not represent CPU's addressing abilities.   

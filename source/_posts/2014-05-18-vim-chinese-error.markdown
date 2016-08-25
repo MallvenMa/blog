@@ -7,16 +7,16 @@ categories: vim
 keywords: mac,vim,garbled,chinese
 description: Mac OSX vim display Chinese as garbled characters
 ---
-###Envrionment:
+### Envrionment:
 1. OSX 10.9.2 English  
 2. VIM 7.3  
 
-###Problems:
+### Problems:
 1. Can display Chinese characters in file  
 2. Can not display Chinese characters inputed from screen  
 3. Add encoding settings to .vimrc does not work  
 
-###Solution:
+### Solution:
 find  `Terminal-->Preferences-->Settings-->Advanced-->Escape non-ASCII input with Control-V` and uncheck this option。  
 
 <!--more-->

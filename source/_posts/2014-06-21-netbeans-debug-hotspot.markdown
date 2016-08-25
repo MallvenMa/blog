@@ -8,7 +8,7 @@ keywords: jvm,hotspot,netbeans,debug
 description: Netbeans debug hotspot 
 ---
 学习JVM的过程中肯定不能少了对JVM的调试，进行就学习一下怎样用Netbeans调试Hotspot。  
-####编译过程
+#### 编译过程
 环境：  
 >Ubuntu12.04  
 >OpenJdk 7u  
@@ -47,7 +47,7 @@ make sanity && make
 ```java
 ./build.sh
 ```
-####可能遇到的问题:  
+#### 可能遇到的问题:  
 1、  
 ```java
 .src/share/vm/runtime/interfaceSupport.hpp:430:0: error: "__LEAF" redefined [-Werror] 
@@ -69,7 +69,7 @@ uname -r
 3、Error occurred during initialization of VM java/lang/NoClassDefFoundError: java/lang/invoke/AdapterMethodHandle  解决方法:  
 这是因为编译Openjdk的所用的Jdk版本不符合要求导致的，我这里用的`jdk1.6.0_45`  
 如果还遇到其它问题可以自行Google,一般都能解决。  
-####使用Netbeans调试  
+#### 使用Netbeans调试  
 1.安装Netbeans7.0.1 我尝试了8.0，7.4 都不能正常进行Debug，最后换了7.0.1就正常了，这里仅供参考。  
 2.新建一个项目，选择“基于现有源代码的C/C++项目”，在“源代码文件夹目录”选择openjdk下的hotspot目录，“选择配置模式”中选择“定制”。  
 

@@ -6,7 +6,7 @@ comments: true
 categories: java
 keywords: synchronized, lock, jvm, java
 ---
-###1. How to use synchronized keyword
+### 1. How to use synchronized keyword
 In Java, we have three ways to use `synchronized` to keep thread safe  
 >
 >synchronize the class  
@@ -16,7 +16,7 @@ In Java, we have three ways to use `synchronized` to keep thread safe
 
 <!--more-->
 
-###2. Examples of How to use synchronized
+### 2. Examples of How to use synchronized
 We will write some codes to illustrate how synchronized works  
 
 ```java
@@ -109,7 +109,7 @@ We will write some codes to illustrate how synchronized works
 }
 
 ```
-####2.1 Test the effect of add synchronized to class
+#### 2.1 Test the effect of add synchronized to class
 Result:
 ```java  
 >incWithSynchronizedClass start  
@@ -166,7 +166,7 @@ Result:
 ```
 From the result we can know that the codes are executed one by one in serial, so `synchronized` and `synchronized(this)` have the same effect.  
 
-####2.3 test the effect of add  synchronized to object and Class
+#### 2.3 test the effect of add  synchronized to object and Class
 Result:   
 ```java
 >incWithSynchronizedObject start  
@@ -195,7 +195,7 @@ Result:
 ```
 From the result we can see that the codes are executed in a random way not in serial, so we can get the result of synchronized of object and class can not keep thread safe.  
 
-####2.4 test the effect of add synchronized to private object and Class
+#### 2.4 test the effect of add synchronized to private object and Class
 Result:  
 ```java
 >incWithSynchronizedPrivateObject start  
@@ -224,7 +224,7 @@ Result:
 ```
 From the result we can see that the codes are executed in a random way not in serial, so we can get the result of synchronized of class and private object can not keep thread safe.   
 
-####2.5 test the effect of add synchronized to private object and object
+#### 2.5 test the effect of add synchronized to private object and object
 Result:  
 ```java 
 >incWithSynchronizedPrivateObject start  
@@ -255,7 +255,7 @@ Result:
 From the result we can see that the codes are executed in a random way not in serial, so we can get the result of synchronized of object and private object can not keep thread safe.   
 
 
-####2.6 What will happen  if has no locks
+#### 2.6 What will happen  if has no locks
 Result:  
 ```java
 >incWithNoLock start  

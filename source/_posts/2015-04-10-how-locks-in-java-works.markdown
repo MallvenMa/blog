@@ -6,7 +6,7 @@ comments: true
 categories: jvm
 keywords: lock,jvm,java 
 ---
-####1. Lock Types in Java
+#### 1. Lock Types in Java
 There are four lock types in java(From JDK1.6): 
 
 >None-Lock  
@@ -14,7 +14,7 @@ There are four lock types in java(From JDK1.6):
 >LightWeight-Lock  
 >HeavyWeight-Lock  
   
-####2. where is the lock type stored in  
+#### 2. where is the lock type stored in  
 Lock type is stored in the `MARK WORD` in the head data of an object:  
 Table 1 is a table of the details of a 32-bit JVM's  `MARK WORD` with no lock,it contains `HashCode`,`Object Generation`,`Lock Type` , The data holded by `Mark Word` will change while lock type changes during Runtime.    
 
@@ -32,26 +32,26 @@ Lock type of an object can change with the amount of threads who wants to use th
 Process of how lock types upgrade  
 `Biased Lock > LightWeight Lock > HeavyWeight Lock`   
 
-####2. How Locks Work
-#####2.1 No Lock
+#### 2. How Locks Work
+##### 2.1 No Lock
 1. When to use `no lock`  
 There is no `synchronized` keyword in the object
 2. How no lock  works ? 
 Noting to say about it  
   
-#####2.2 Biased Lock
+##### 2.2 Biased Lock
 1. When to use `biased lock`  
 If an object with lock only used by one thread, jvm will use `biased lock` model to keep thread safe.  
 2. How biased lock works?   
 When a thread want to access an object with lock, the first thing to do is to check `lock type` and `biased lock` in object's `Mark Word` to find is there a lock on this object, if there is no lock on it, it will try to use `CAS` to change `Mark Word`'s `Thread ID`, if  success, this thread get the lock. The `biased lock` of an object will not be removed until the collision happen. If the thread this object is used is not alive, thread2 use `CAS` to occupy this object. If the thread is still alive, jvm will suspend this thread and turn to `lightweight lock` model.   
 
-#####2.3 LightWeight Lock
+##### 2.3 LightWeight Lock
 1. When to use `ligthweight lock`  
 If an object with lock only used by several threads, and thread can get lock within several self-spin time.  
 2. How lightweight lock works?   
 If a thread want to access an object which is used by another thread, it will use `self-spin` to try to get the lock, if it can get the control of the object in less than 10 `self-spin` times,  it will use `CAS` operation to `Displaced Mark Word`. If it couldn't get the lock, the lock type will upgrade to `heavyweight lock`.  
 
-#####2.4 HeavyWeight Lock
+##### 2.4 HeavyWeight Lock
 1. When to use `heavyweight lock`
 If the  application runs in multiple model, the collision between in threads are serious, the lock type will upgrade to `heavyweight lock`.  
 2. How heavyweight lock works?  
